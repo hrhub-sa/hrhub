@@ -1,6 +1,23 @@
+/* تطبيق الخط على جميع العناصر */
+body {
+    font-family: 'Cairo', sans-serif;
+}
+
+h1, h2, h3 {
+    font-family: 'Cairo', sans-serif;
+}
+
+nav ul li a {
+    font-family: 'Cairo', sans-serif;
+}
+
+p {
+    font-family: 'Cairo', sans-serif;
+}
+
 /* تنسيق الشريط العلوي */
 header {
-    background-color: #333;
+    background-color: #0077b6;
     padding: 20px 10px;
     text-align: center;
 }
@@ -38,7 +55,7 @@ nav ul li {
 nav ul li a {
     color: white;
     text-decoration: none;
-    font-size: 30px;
+    font-size: 25px;
     padding: 10px 15px;
 }
 
