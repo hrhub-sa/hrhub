@@ -1,6 +1,9 @@
 /* تطبيق الخط على جميع العناصر */
 body {
     font-family: 'Cairo', sans-serif;
+    background-color: #f9f9f9;
+    margin: 0;
+    padding: 0;
 }
 
 h1, h2, h3 {
@@ -13,6 +16,7 @@ nav ul li a {
 
 p {
     font-family: 'Cairo', sans-serif;
+    color: #444;
 }
 
 /* تنسيق الشريط العلوي */
@@ -20,9 +24,9 @@ header {
     background-color: #0077b6;
     padding: 20px 10px;
     text-align: center;
+    color: white;
 }
 
-/* تنسيق الشعار */
 .logo {
     padding: 10px;
     border-radius: 8px;
@@ -33,7 +37,6 @@ header {
     height: auto;
 }
 
-/* تنسيق قائمة التنقل */
 nav {
     margin-top: 10px;
 }
@@ -42,20 +45,16 @@ nav ul {
     list-style: none;
     display: flex;
     justify-content: center;
-    gap: 90px;
+    gap: 60px;
     padding: 0;
     margin: 0;
     direction: rtl;
 }
 
-nav ul li {
-    display: inline-block;
-}
-
 nav ul li a {
     color: white;
     text-decoration: none;
-    font-size: 25px;
+    font-size: 22px;
     padding: 10px 15px;
 }
 
@@ -63,10 +62,11 @@ nav ul li a:hover {
     text-decoration: underline;
 }
 
-/* تنسيق الأقسام */
 section {
-    padding: 40px;
+    padding: 40px 20px;
     direction: rtl;
+    max-width: 1000px;
+    margin: auto;
 }
 
 h1, h2 {
@@ -75,39 +75,45 @@ h1, h2 {
     font-size: 26px;
 }
 
-/* تنسيق قسم "من نحن؟" */
-#about p {
+ul {
+    padding-right: 20px;
+}
+
+ul li {
     font-size: 18px;
-    line-height: 1.6;
+    margin-bottom: 10px;
     color: #555;
 }
 
-/* تنسيق قسم "الرؤية" */
-#vision p {
-    font-size: 18px;
-    line-height: 1.6;
-    color: #555;
+/* تنسيق خاص للباقات */
+#services h2 {
+    background-color: #0077b6;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    margin-top: 40px;
 }
 
-/* تنسيق قسم "الخدمات" */
 #services h3 {
-    font-size: 22px;
-    color: #333;
-    margin-top: 30px;
+    margin-top: 20px;
+    color: #0077b6;
+    font-size: 20px;
 }
 
 #services ul {
-    list-style: none;
     margin-top: 10px;
+    list-style-type: square;
 }
 
-#services ul li {
+#motto p {
+    background-color: #e9f5e9;
+    padding: 15px;
+    border-left: 4px solid #0077b6;
+    border-radius: 5px;
     font-size: 18px;
-    margin: 10px 0;
-    color: #555;
+    color: #333;
 }
 
-/* تنسيق قسم "تواصل معنا" */
 form input, form textarea, form button {
     width: 100%;
     padding: 10px;
@@ -118,60 +124,22 @@ form input, form textarea, form button {
 }
 
 form button {
-    background-color: #333;
+    background-color: #0077b6;
     color: white;
+    font-size: 16px;
     cursor: pointer;
+    border: none;
 }
 
 form button:hover {
-    background-color: #555;
+    background-color: #005f8d;
 }
 
-/* تنسيق قسم "بيانات التواصل" */
 #contact-info {
-    padding: 40px;
     background-color: #f4f4f4;
     text-align: right;
 }
 
-#contact-info h2 {
-    font-size: 24px;
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.contact-details p {
-    font-size: 18px;
-    color: #555;
-    margin: 10px 0;
-}
-
-.social-media h3 {
-    font-size: 20px;
-    color: #333;
-    margin-top: 30px;
-}
-
-.social-media ul {
-    list-style: none;
-    padding: 0;
-}
-
-.social-media ul li {
-    margin: 10px 0;
-}
-
-.social-media ul li a {
-    text-decoration: none;
-    font-size: 18px;
-    color: #007bff;
-}
-
-.social-media ul li a:hover {
-    text-decoration: underline;
-}
-
-/* تنسيق التذييل */
 footer {
     text-align: center;
     padding: 20px;
@@ -179,37 +147,35 @@ footer {
     color: white;
 }
 
-/* تنسيق بنر الصور المتحركة */
+/* بنر الصور */
 #banner {
     position: relative;
-    width: 100%;  /* تأكد من أن البنر يمتد بالكامل */
-    max-width: 1090px; /* تحديد أقصى عرض للبنر */
-    height: 250px; /* تحديد ارتفاع البنر */
-    overflow: hidden;  /* إخفاء أي جزء من الصور التي تتجاوز الحدود */
-    margin: 0 auto;  /* محاذاة البنر في المنتصف */
+    width: 100%;
+    max-width: 1090px;
+    height: 250px;
+    overflow: hidden;
+    margin: 0 auto;
 }
 
 .banner-wrapper {
-    display: flex;  /* استخدام Flexbox لترتيب الصور بجانب بعضها */
-    width: 300%; /* عرض المساحة 3 مرات (لكل صورة) */
-    transition: transform 1s ease-in-out;  /* انتقال سلس عند التغيير */
+    display: flex;
+    width: 300%;
+    transition: transform 1s ease-in-out;
 }
 
 .banner-images {
-    width: 33.33%;  /* كل صورة تأخذ ثلث المساحة داخل .banner-wrapper */
+    width: 33.33%;
     height: 100%;
-    flex-shrink: 0;  /* منع الصور من التقلص */
+    flex-shrink: 0;
 }
 
 .banner-images img {
-    width: 100%;  /* كل صورة تأخذ 100% من المساحة المتاحة داخل .banner-images */
-    height: 100%;  /* ملء ارتفاع العنصر */
-    object-fit: cover;  /* تغطية المساحة بالكامل */
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
-/* الأسهم */
-.arrow-left,
-.arrow-right {
+.arrow-left, .arrow-right {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
@@ -229,53 +195,26 @@ footer {
     right: 10px;
 }
 
-/* التعديلات للأجهزة الصغيرة (الهاتف) */
 @media screen and (max-width: 768px) {
     nav ul {
-        gap: 7px;
+        gap: 15px;
         flex-direction: row;
         justify-content: center;
     }
 
     nav ul li a {
-        font-size: 8px;
-        padding: 8px 12px;
+        font-size: 14px;
     }
 
     h1, h2 {
         font-size: 22px;
     }
 
-    #about p, #vision p, #services ul li {
+    ul li, p {
         font-size: 15px;
-    }
-
-    form input, form textarea {
-        font-size: 12px;
-    }
-
-    form button {
-        font-size: 14px;
-    }
-
-    #contact-info h2 {
-        font-size: 20px;
-    }
-
-    .contact-details p {
-        font-size: 16px;
-    }
-
-    .social-media h3 {
-        font-size: 18px;
-    }
-
-    .social-media ul li a {
-        font-size: 16px;
     }
 }
 
-/* التعديلات للأجهزة الأصغر من 480px */
 @media screen and (max-width: 480px) {
     h1, h2 {
         font-size: 20px;
