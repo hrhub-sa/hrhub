@@ -22,15 +22,16 @@ arrowRight.addEventListener("click", () => {
     updateBannerPosition();
 });
 
-// تحديث موقع الصور
+// تحديث موقع الصور بناءً على عدد الصور
 function updateBannerPosition() {
-    bannerWrapper.style.transform = `translateX(-${currentIndex * 33.33}%)`;
+    const step = 100 / totalImages;
+    bannerWrapper.style.transform = `translateX(-${currentIndex * step}%)`;
 }
 
-// تغيير الصور كل 5 ثوانٍ
+// تغيير الصور تلقائيًا كل 5 ثوانٍ
 setInterval(changeBannerImage, 5000);
 
-
+// إرسال النموذج
 document.addEventListener("DOMContentLoaded", function () {
     const form = document.getElementById("contactForm");
     const endpoint = "https://hrhub-backend.onrender.com/send-email";
@@ -41,6 +42,9 @@ document.addEventListener("DOMContentLoaded", function () {
             e.preventDefault();
 
             const formData = new FormData(form);
+            const submitButton = form.querySelector("button[type='submit']");
+            submitButton.disabled = true;
+
             messageBox.style.display = "block";
             messageBox.innerText = "🚀 جاري الإرسال...";
             messageBox.style.backgroundColor = "#fff3cd";
@@ -73,6 +77,38 @@ document.addEventListener("DOMContentLoaded", function () {
                 messageBox.style.backgroundColor = "#f8d7da";
                 messageBox.style.color = "#721c24";
             }
+
+            submitButton.disabled = false;
         });
     }
+});
+
+// إظهار/إخفاء زر العودة للأعلى
+const backToTop = document.getElementById("backToTop");
+window.onscroll = function () {
+    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+        backToTop.style.display = "flex";
+    } else {
+        backToTop.style.display = "none";
+    }
+};
+
+// التمرير لأعلى عند الضغط على الزر
+backToTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+// إظهار أو إخفاء الزر عند التمرير
+window.addEventListener("scroll", () => {
+    const button = document.getElementById("backToTop");
+    if (window.pageYOffset > 300) {
+        button.style.display = "block";
+    } else {
+        button.style.display = "none";
+    }
+});
+
+// التمرير لأعلى عند الضغط على الزر
+document.getElementById("backToTop").addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
 });
