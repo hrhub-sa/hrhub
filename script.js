@@ -15,41 +15,55 @@ if (!localStorage.getItem("preferredLanguage")) {
     localStorage.setItem("preferredLanguage", "set");
 }
 
-let currentIndex = 0;
-const images = document.querySelectorAll(".banner-images img");
-const totalImages = images.length;
-const bannerWrapper = document.querySelector(".banner-wrapper");
-const arrowLeft = document.querySelector(".arrow-left");
-const arrowRight = document.querySelector(".arrow-right");
-
-function changeBannerImage() {
-    currentIndex = (currentIndex + 1) % totalImages;
-    updateBannerPosition();
-}
-
-// التفاعل مع السهم الأيسر
-arrowLeft.addEventListener("click", () => {
-    currentIndex = (currentIndex - 1 + totalImages) % totalImages;
-    updateBannerPosition();
-});
-
-// التفاعل مع السهم الأيمن
-arrowRight.addEventListener("click", () => {
-    currentIndex = (currentIndex + 1) % totalImages;
-    updateBannerPosition();
-});
-
-// تحديث موقع الصور بناءً على عدد الصور
-function updateBannerPosition() {
-    const step = 100 / totalImages;
-    bannerWrapper.style.transform = `translateX(-${currentIndex * step}%)`;
-}
-
-// تغيير الصور تلقائيًا كل 5 ثوانٍ
-setInterval(changeBannerImage, 5000);
-
-// إرسال النموذج
 document.addEventListener("DOMContentLoaded", function () {
+
+    // تحميل الصور أولاً ثم تشغيل البنر
+    function onImagesLoaded(callback) {
+        const imgs = document.querySelectorAll(".banner-images img");
+        let loadedCount = 0;
+        imgs.forEach((img) => {
+            if (img.complete) {
+                loadedCount++;
+            } else {
+                img.addEventListener("load", () => {
+                    loadedCount++;
+                    if (loadedCount === imgs.length) callback();
+                });
+            }
+        });
+        if (loadedCount === imgs.length) callback();
+    }
+
+    onImagesLoaded(() => {
+        const images = document.querySelectorAll(".banner-images img");
+        const totalImages = images.length;
+        const bannerWrapper = document.querySelector(".banner-wrapper");
+        const arrowLeft = document.querySelector(".arrow-left");
+        const arrowRight = document.querySelector(".arrow-right");
+        let currentIndex = 0;
+
+        function updateBannerPosition() {
+            const imageWidth = images[0].clientWidth;
+            bannerWrapper.style.transform = `translateX(-${currentIndex * imageWidth}px)`;
+        }
+
+        arrowLeft.addEventListener("click", () => {
+            currentIndex = (currentIndex - 1 + totalImages) % totalImages;
+            updateBannerPosition();
+        });
+
+        arrowRight.addEventListener("click", () => {
+            currentIndex = (currentIndex + 1) % totalImages;
+            updateBannerPosition();
+        });
+
+        setInterval(() => {
+            currentIndex = (currentIndex + 1) % totalImages;
+            updateBannerPosition();
+        }, 5000);
+    });
+
+    // إرسال النموذج
     const form = document.getElementById("contactForm");
     const endpoint = "https://hrhub-backend.onrender.com/send-email";
     const messageBox = document.getElementById("responseMessage");
@@ -98,34 +112,18 @@ document.addEventListener("DOMContentLoaded", function () {
             submitButton.disabled = false;
         });
     }
+
+    // زر العودة للأعلى
+    const backToTop = document.getElementById("backToTop");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+            backToTop.style.display = "flex";
+        } else {
+            backToTop.style.display = "none";
+        }
+    };
+
+    backToTop.addEventListener("click", () => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    });
 });
-
-// إظهار/إخفاء زر العودة للأعلى
-const backToTop = document.getElementById("backToTop");
-window.onscroll = function () {
-    if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-        backToTop.style.display = "flex";
-    } else {
-        backToTop.style.display = "none";
-    }
-};
-
-// التمرير لأعلى عند الضغط على الزر
-backToTop.addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-});
-
-// // إظهار أو إخفاء الزر عند التمرير
-// window.addEventListener("scroll", () => {
-//     const button = document.getElementById("backToTop");
-//     if (window.pageYOffset > 300) {
-//         button.style.display = "block";
-//     } else {
-//         button.style.display = "none";
-//     }
-// });
-
-// // التمرير لأعلى عند الضغط على الزر
-// document.getElementById("backToTop").addEventListener("click", () => {
-//     window.scrollTo({ top: 0, behavior: "smooth" });
-// });
