@@ -40,6 +40,7 @@ document.addEventListener("DOMContentLoaded", function () {
         const bannerWrapper = document.querySelector(".banner-wrapper");
         const arrowLeft = document.querySelector(".arrow-left");
         const arrowRight = document.querySelector(".arrow-right");
+        const isArabic = document.documentElement.lang === "ar";
         let currentIndex = 0;
 
         function updateBannerPosition() {
@@ -76,8 +77,12 @@ document.addEventListener("DOMContentLoaded", function () {
             const submitButton = form.querySelector("button[type='submit']");
             submitButton.disabled = true;
 
+            const isArabic = document.documentElement.lang === "ar";
+
             messageBox.style.display = "block";
-            messageBox.innerText = "🚀 جاري الإرسال...";
+            messageBox.innerText = isArabic
+                ? "🚀 جاري الإرسال..."
+                : "🚀 Sending...";
             messageBox.style.backgroundColor = "#fff3cd";
             messageBox.style.color = "#856404";
 
@@ -90,7 +95,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 const result = await response.json();
 
                 if (response.ok) {
-                    messageBox.innerText = "✅ تم الإرسال بنجاح!";
+                    messageBox.innerText = isArabic
+                        ? "✅ تم الإرسال بنجاح!"
+                        : "✅ Sent successfully!";
                     messageBox.style.backgroundColor = "#d4edda";
                     messageBox.style.color = "#155724";
                     form.reset();
@@ -99,12 +106,16 @@ document.addEventListener("DOMContentLoaded", function () {
                         location.reload();
                     }, 3000);
                 } else {
-                    messageBox.innerText = "❌ خطأ: " + (result?.error || "يرجى المحاولة لاحقاً");
+                    messageBox.innerText = isArabic
+                        ? "❌ خطأ: " + (result?.error || "يرجى المحاولة لاحقاً")
+                        : "❌ Error: " + (result?.error || "Please try again later");
                     messageBox.style.backgroundColor = "#f8d7da";
                     messageBox.style.color = "#721c24";
                 }
             } catch (error) {
-                messageBox.innerText = "❌ لم يتم الإرسال: " + error.message;
+                messageBox.innerText = isArabic
+                    ? "❌ لم يتم الإرسال: " + error.message
+                    : "❌ Failed to send: " + error.message;
                 messageBox.style.backgroundColor = "#f8d7da";
                 messageBox.style.color = "#721c24";
             }
