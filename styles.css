@@ -168,11 +168,47 @@ form button:hover {
     background-color: #005f8d;
 }
 
-/* معلومات التواصل */
 #contact-info {
+    text-align: center;
+    padding: 40px 20px;
     background-color: #f4f4f4;
-    padding: 20px;
-}
+  }
+  
+  .contact-info-centered {
+    display: inline-block;
+    text-align: center;
+  }
+  
+  .contact-info-centered p {
+    margin: 10px 0;
+    color: #333;
+    font-size: 18px;
+  }
+  
+  .contact-info-centered i {
+    margin-right: 5px;
+    color: #0077b6;
+  }
+  
+  .social-icons-vertical {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+  }
+  
+  .social-icons-vertical li {
+    margin: 10px 0;
+  }
+  
+  .social-icons-vertical a {
+    color: #333;
+    font-size: 26px;
+    transition: color 0.3s ease;
+  }
+  
+  .social-icons-vertical a:hover {
+    color: #007bff;
+  }  
 
 body[dir="rtl"] #contact-info {
     text-align: right;
@@ -184,10 +220,17 @@ body[dir="ltr"] #contact-info {
 
 /* الفوتر */
 footer {
+    background-color: #1c1c1c;
+    color: #eeeeee;
+    font-size: 15px;
+    padding: 15px 8px;
     text-align: center;
-    padding: 20px;
-    background-color: #333;
-    color: white;
+    direction: rtl;
+}
+
+footer p {
+    margin: 0;
+    color: #eeeeee !important;
 }
 
 /* البنر */
@@ -297,6 +340,42 @@ footer {
     z-index: 1000;
 }
 
+.social-icons {
+    display: flex;
+    gap: 15px;
+    margin-top: 10px;
+  }
+  
+  .social-icons a {
+    color: #333;
+    font-size: 24px;
+    transition: color 0.3s ease;
+  }
+  
+  .social-icons a:hover {
+    color: #007bff;
+  }
+  
+  .social-icons-vertical {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+  }
+  
+  .social-icons-vertical li {
+    margin: 10px 0;
+  }
+  
+  .social-icons-vertical a {
+    color: #333;
+    font-size: 24px;
+    transition: color 0.3s ease;
+  }
+  
+  .social-icons-vertical a:hover {
+    color: #007bff;
+  }
+  
 /* استجابة الشاشات الصغيرة */
 @media screen and (max-width: 768px) {
     nav ul {
