@@ -1,3 +1,20 @@
+// كشف لغة المتصفح والتحويل التلقائي لأول زيارة
+if (!localStorage.getItem("preferredLanguage")) {
+    const userLang = navigator.language || navigator.userLanguage;
+
+    if (userLang.startsWith("en")) {
+        if (!window.location.href.includes("index-en.html")) {
+            window.location.href = "index-en.html";
+        }
+    } else {
+        if (window.location.href.includes("index-en.html")) {
+            window.location.href = "index.html";
+        }
+    }
+
+    localStorage.setItem("preferredLanguage", "set");
+}
+
 let currentIndex = 0;
 const images = document.querySelectorAll(".banner-images img");
 const totalImages = images.length;
@@ -98,17 +115,17 @@ backToTop.addEventListener("click", () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-// إظهار أو إخفاء الزر عند التمرير
-window.addEventListener("scroll", () => {
-    const button = document.getElementById("backToTop");
-    if (window.pageYOffset > 300) {
-        button.style.display = "block";
-    } else {
-        button.style.display = "none";
-    }
-});
+// // إظهار أو إخفاء الزر عند التمرير
+// window.addEventListener("scroll", () => {
+//     const button = document.getElementById("backToTop");
+//     if (window.pageYOffset > 300) {
+//         button.style.display = "block";
+//     } else {
+//         button.style.display = "none";
+//     }
+// });
 
-// التمرير لأعلى عند الضغط على الزر
-document.getElementById("backToTop").addEventListener("click", () => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-});
+// // التمرير لأعلى عند الضغط على الزر
+// document.getElementById("backToTop").addEventListener("click", () => {
+//     window.scrollTo({ top: 0, behavior: "smooth" });
+// });
