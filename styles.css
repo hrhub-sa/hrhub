@@ -263,6 +263,41 @@ footer p {
     object-fit: cover;
 }
 
+.banner-slider {
+    position: relative;
+    width: 100%;
+    max-width: 1090px;
+    height: 250px;
+    margin: 0 auto;
+    background: #fff !important;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+  
+  .banner-slider .slide {
+    position: absolute;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+  
+  .banner-slider .slide img {
+    max-height: 90%;
+    max-width: 90%;
+    object-fit: contain;
+}
+  
+  .banner-slider .slide.active {
+    opacity: 1;
+    position: relative;
+}
+  
 .arrow-left, .arrow-right {
     position: absolute;
     top: 50%;
@@ -284,30 +319,31 @@ footer p {
 }
 
 /* زر واتساب */
-#whatsapp-button {
+.floating-whatsapp {
     position: fixed;
     bottom: 20px;
     left: 20px;
     background-color: #25d366;
     color: white;
-    font-size: 24px;
-    padding: 10px 12px;
+    font-size: 28px;
+    padding: 15px;
     border-radius: 50%;
-    text-decoration: none;
-    z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    z-index: 9999;
     transition: transform 0.3s ease;
 }
-
-#whatsapp-button:hover {
+  
+  .floating-whatsapp:hover {
     transform: scale(1.1);
+    text-decoration: none;
+    color: white;
 }
-
+  
 /* زر العودة لأعلى */
 #backToTop {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 40px; /* ← هنا التغيير */
+    right: 15px;
     display: none;
     background-color: #333;
     color: white;

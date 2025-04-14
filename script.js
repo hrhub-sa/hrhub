@@ -16,125 +16,112 @@ if (!localStorage.getItem("preferredLanguage")) {
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  // ===== سلايدر الشعارات =====
+  const slides = document.querySelectorAll(".banner-slider .slide");
+  let current = 0;
+  let startX = 0;
 
-    // تحميل الصور أولاً ثم تشغيل البنر
-    function onImagesLoaded(callback) {
-        const imgs = document.querySelectorAll(".banner-images img");
-        let loadedCount = 0;
-        imgs.forEach((img) => {
-            if (img.complete) {
-                loadedCount++;
-            } else {
-                img.addEventListener("load", () => {
-                    loadedCount++;
-                    if (loadedCount === imgs.length) callback();
-                });
-            }
-        });
-        if (loadedCount === imgs.length) callback();
-    }
+  function showSlide(index) {
+    slides.forEach((slide, i) => {
+      slide.classList.toggle("active", i === index);
+    });
+  }
 
-    onImagesLoaded(() => {
-        const images = document.querySelectorAll(".banner-images img");
-        const totalImages = images.length;
-        const bannerWrapper = document.querySelector(".banner-wrapper");
-        const arrowLeft = document.querySelector(".arrow-left");
-        const arrowRight = document.querySelector(".arrow-right");
-        const isArabic = document.documentElement.lang === "ar";
-        let currentIndex = 0;
+  setInterval(() => {
+    current = (current + 1) % slides.length;
+    showSlide(current);
+  }, 5000);
 
-        function updateBannerPosition() {
-            const imageWidth = images[0].clientWidth;
-            bannerWrapper.style.transform = `translateX(-${currentIndex * imageWidth}px)`;
-        }
-
-        arrowLeft.addEventListener("click", () => {
-            currentIndex = (currentIndex - 1 + totalImages) % totalImages;
-            updateBannerPosition();
-        });
-
-        arrowRight.addEventListener("click", () => {
-            currentIndex = (currentIndex + 1) % totalImages;
-            updateBannerPosition();
-        });
-
-        setInterval(() => {
-            currentIndex = (currentIndex + 1) % totalImages;
-            updateBannerPosition();
-        }, 5000);
+  const slider = document.querySelector(".banner-slider");
+  if (slider) {
+    slider.addEventListener("touchstart", (e) => {
+      startX = e.touches[0].clientX;
     });
 
-    // إرسال النموذج
-    const form = document.getElementById("contactForm");
-    const endpoint = "https://hrhub-backend.onrender.com/send-email";
-    const messageBox = document.getElementById("responseMessage");
+    slider.addEventListener("touchend", (e) => {
+      const endX = e.changedTouches[0].clientX;
+      const diffX = startX - endX;
 
-    if (form) {
-        form.addEventListener("submit", async function (e) {
-            e.preventDefault();
+      if (Math.abs(diffX) > 50) {
+        current = diffX > 0
+          ? (current + 1) % slides.length
+          : (current - 1 + slides.length) % slides.length;
+        showSlide(current);
+      }
+    });
+  }
 
-            const formData = new FormData(form);
-            const submitButton = form.querySelector("button[type='submit']");
-            submitButton.disabled = true;
+  // ===== نموذج الاتصال =====
+  const form = document.getElementById("contactForm");
+  const endpoint = "https://hrhub-backend.onrender.com/send-email";
+  const messageBox = document.getElementById("responseMessage");
 
-            const isArabic = document.documentElement.lang === "ar";
+  if (form) {
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
 
-            messageBox.style.display = "block";
-            messageBox.innerText = isArabic
-                ? "🚀 جاري الإرسال..."
-                : "🚀 Sending...";
-            messageBox.style.backgroundColor = "#fff3cd";
-            messageBox.style.color = "#856404";
+      const formData = new FormData(form);
+      const submitButton = form.querySelector("button[type='submit']");
+      submitButton.disabled = true;
 
-            try {
-                const response = await fetch(endpoint, {
-                    method: "POST",
-                    body: formData,
-                });
+      const isArabic = document.documentElement.lang === "ar";
 
-                const result = await response.json();
+      messageBox.style.display = "block";
+      messageBox.innerText = isArabic
+        ? "🚀 جاري الإرسال..."
+        : "🚀 Sending...";
+      messageBox.style.backgroundColor = "#fff3cd";
+      messageBox.style.color = "#856404";
 
-                if (response.ok) {
-                    messageBox.innerText = isArabic
-                        ? "✅ تم الإرسال بنجاح!"
-                        : "✅ Sent successfully!";
-                    messageBox.style.backgroundColor = "#d4edda";
-                    messageBox.style.color = "#155724";
-                    form.reset();
-
-                    setTimeout(() => {
-                        location.reload();
-                    }, 3000);
-                } else {
-                    messageBox.innerText = isArabic
-                        ? "❌ خطأ: " + (result?.error || "يرجى المحاولة لاحقاً")
-                        : "❌ Error: " + (result?.error || "Please try again later");
-                    messageBox.style.backgroundColor = "#f8d7da";
-                    messageBox.style.color = "#721c24";
-                }
-            } catch (error) {
-                messageBox.innerText = isArabic
-                    ? "❌ لم يتم الإرسال: " + error.message
-                    : "❌ Failed to send: " + error.message;
-                messageBox.style.backgroundColor = "#f8d7da";
-                messageBox.style.color = "#721c24";
-            }
-
-            submitButton.disabled = false;
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          body: formData,
         });
-    }
 
-    // زر العودة للأعلى
-    const backToTop = document.getElementById("backToTop");
-    window.onscroll = function () {
-        if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
-            backToTop.style.display = "flex";
+        const result = await response.json();
+
+        if (response.ok) {
+          messageBox.innerText = isArabic
+            ? "✅ تم الإرسال بنجاح!"
+            : "✅ Sent successfully!";
+          messageBox.style.backgroundColor = "#d4edda";
+          messageBox.style.color = "#155724";
+          form.reset();
+
+          setTimeout(() => {
+            location.reload();
+          }, 3000);
         } else {
-            backToTop.style.display = "none";
+          messageBox.innerText = isArabic
+            ? "❌ خطأ: " + (result?.error || "يرجى المحاولة لاحقاً")
+            : "❌ Error: " + (result?.error || "Please try again later");
+          messageBox.style.backgroundColor = "#f8d7da";
+          messageBox.style.color = "#721c24";
         }
-    };
+      } catch (error) {
+        messageBox.innerText = isArabic
+          ? "❌ لم يتم الإرسال: " + error.message
+          : "❌ Failed to send: " + error.message;
+        messageBox.style.backgroundColor = "#f8d7da";
+        messageBox.style.color = "#721c24";
+      }
 
-    backToTop.addEventListener("click", () => {
-        window.scrollTo({ top: 0, behavior: "smooth" });
+      submitButton.disabled = false;
     });
+  }
+
+  // ===== زر العودة للأعلى =====
+  const backToTop = document.getElementById("backToTop");
+  window.addEventListener("scroll", function () {
+    if (window.scrollY > 300) {
+      backToTop.style.display = "flex";
+    } else {
+      backToTop.style.display = "none";
+    }
+  });
+
+  backToTop.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 });
