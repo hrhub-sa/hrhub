@@ -106,7 +106,7 @@ body.webhub-theme #background .dots {
 
 /* Logo with color inversion for dark theme */
 .logo-center img { 
-  width:150px; 
+  width:200px; 
   transition: filter 0.5s ease;
 }
 
