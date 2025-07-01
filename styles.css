@@ -104,65 +104,6 @@ body.webhub-theme .dots {
   filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
 }
 
-/* Contact Numbers */
-.contact-numbers {
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin: 1rem 0;
-  flex-wrap: wrap;
-}
-
-.contact-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(255,255,255,0.1);
-  padding: 0.8rem 1.2rem;
-  border-radius: 25px;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255,255,255,0.2);
-  transition: all 0.3s ease;
-  text-decoration: none;
-  color: var(--text-light);
-  font-weight: 600;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-body.webhub-theme .contact-item {
-  background: rgba(0,212,170,0.1);
-  border: 1px solid rgba(0,212,170,0.2);
-  color: var(--web-text);
-}
-
-.contact-item:hover {
-  transform: translateY(-2px);
-  background: rgba(255,255,255,0.2);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
-}
-
-body.webhub-theme .contact-item:hover {
-  background: rgba(0,212,170,0.2);
-  box-shadow: 0 6px 20px rgba(0,212,170,0.2);
-}
-
-.contact-item i {
-  font-size: 1.2rem;
-  color: var(--accent);
-}
-
-body.webhub-theme .contact-item i {
-  color: var(--web-accent);
-}
-
-.contact-item.whatsapp i {
-  color: #25d366;
-}
-
-.contact-item.phone i {
-  color: #2196f3;
-}
-
 /* Hub Switcher */
 .hub-switcher {
   display: flex;
@@ -1405,18 +1346,6 @@ body.webhub-theme #backToTop {
     font-size: 1.1rem;
   }
   
-  .contact-numbers {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
-  }
-  
-  .contact-item {
-    width: 100%;
-    max-width: 300px;
-    justify-content: center;
-  }
-  
   #logo {
     width: 180px;
   }
@@ -1480,14 +1409,5 @@ body.webhub-theme #backToTop {
   
   #logo {
     width: 150px;
-  }
-  
-  .contact-item {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
-  }
-  
-  .contact-item i {
-    font-size: 1rem;
   }
 }
