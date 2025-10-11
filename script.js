@@ -158,7 +158,11 @@ document.addEventListener("DOMContentLoaded", () => {
       data.append('hub', currentHub);
       
       try {
-        const res = await fetch('https://hrhub-backend-east.onrender.com/send-email/', { method:'POST', body:data });
+        const res = await fetch('https://hrhub-backend-east.onrender.com/send-email/', { 
+          method: 'POST', 
+          body: data,
+          mode: 'cors'
+        });
         const json = await res.json();
         msgBox.textContent = res.ok ? '✅ Sent successfully!' : `❌ Error: ${json.error||'Try later'}`;
         msgBox.style.background = res.ok ? '#d4edda' : '#f8d7da';
