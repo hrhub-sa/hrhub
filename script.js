@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
       data.append('hub', currentHub);
       
       try {
-        const res = await fetch('https://hrhub-backend-east.onrender.com/send-email/', { 
+        const res = await fetch('https://hrhub-backend-b2gb.onrender.com/send-email/', { 
           method: 'POST', 
           body: data,
           mode: 'cors'
@@ -210,3 +210,4 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
+
