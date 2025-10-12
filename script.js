@@ -161,9 +161,18 @@ document.addEventListener("DOMContentLoaded", () => {
         const res = await fetch('https://hrhub-backend-b2gb.onrender.com/send-email/', { 
           method: 'POST', 
           body: data,
-          mode: 'cors'
+          mode: 'cors',
+          headers: {
+            'Accept': 'application/json',
+          }
         });
+        
+        console.log('📡 Response status:', res.status);
+        console.log('📡 Response headers:', res.headers);
+        
         const json = await res.json();
+        console.log('📡 Response data:', json);
+        
         msgBox.textContent = res.ok ? '✅ Sent successfully!' : `❌ Error: ${json.error||'Try later'}`;
         msgBox.style.background = res.ok ? '#d4edda' : '#f8d7da';
         
@@ -171,6 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
           form.reset();
         }
       } catch (err) {
+        console.error('📡 Fetch error:', err);
         msgBox.textContent = `❌ Failed: ${err.message}`;
         msgBox.style.background = '#f8d7da';
       }
@@ -210,4 +220,3 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
 });
-
