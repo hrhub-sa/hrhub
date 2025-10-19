@@ -1,7 +1,7 @@
 // Supabase Client Configuration
 import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
 
-// Supabase configuration - البيانات الصحيحة من قاعدة البيانات
+// Supabase configuration
 const supabaseUrl = 'https://wufvlgmlxqdgqqsnsgxa.supabase.co';
 const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1ZnZsZ21seHFkZ3Fxc25zZ3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTU0ODcsImV4cCI6MjA3NjQ3MTQ4N30.GtP6FafY8D3u9UBx9BcToBc9oeaV8ilOp-P6jI_Fb8s';
 
@@ -9,18 +9,18 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 let supabase = null;
 let isSupabaseConnected = false;
 
-// محاولة الاتصال بـ Supabase
+// Initialize Supabase connection
 try {
   if (supabaseUrl && supabaseAnonKey) {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
     isSupabaseConnected = true;
-    console.log('✅ Supabase client created successfully');
+    console.log('✅ Supabase connected successfully');
   } else {
-    console.log('⚠️ Supabase configuration missing, using fallback system');
+    console.warn('⚠️ Supabase configuration missing');
     isSupabaseConnected = false;
   }
 } catch (error) {
-  console.warn('⚠️ Supabase connection failed:', error);
+  console.error('❌ Supabase connection failed:', error);
   supabase = null;
   isSupabaseConnected = false;
 }
@@ -48,10 +48,11 @@ export { supabase, isSupabaseAvailable };
 
 // Orders API functions
 export const ordersAPI = {
-  // إضافة طلب جديد
+  // Create new order
   async createOrder(orderData) {
     if (isSupabaseAvailable()) {
       try {
+        console.log('🔄 Creating order:', orderData);
         const { data, error } = await supabase
           .from('orders')
           .insert([orderData])
@@ -59,10 +60,10 @@ export const ordersAPI = {
           .single();
         
         if (error) throw error;
-        console.log('✅ Order created in Supabase:', data);
+        console.log('✅ Order created successfully:', data.id);
         return { success: true, data };
       } catch (error) {
-        console.error('❌ Error creating order in Supabase:', error);
+        console.error('❌ Error creating order:', error.message || error);
         return { success: false, error: error.message };
       }
     }
@@ -75,11 +76,11 @@ export const ordersAPI = {
       created_at: getCurrentTimestamp()
     };
     
-    console.log('⚠️ Using fallback for order creation:', newOrder);
+    console.warn('⚠️ Using fallback for order creation');
     return { success: true, data: newOrder };
   },
 
-  // جلب جميع الطلبات
+  // Get all orders
   async getAllOrders() {
     if (isSupabaseAvailable()) {
       try {
@@ -89,53 +90,19 @@ export const ordersAPI = {
           .order('created_at', { ascending: false });
         
         if (error) throw error;
-        console.log('✅ Orders fetched from Supabase:', data?.length || 0);
+        console.log('✅ Orders loaded:', data?.length || 0);
         return { success: true, data: data || [] };
       } catch (error) {
-        console.error('❌ Error fetching orders from Supabase:', error);
+        console.error('❌ Error loading orders:', error);
         return { success: false, error: error.message };
       }
     }
     
-    // Fallback: return sample data
-    const sampleOrders = [
-      {
-        id: '1',
-        name: 'أحمد محمد',
-        email: 'ahmed@example.com',
-        phone: '0501234567',
-        message: 'أريد الاستفسار عن باقة HR Hub الشاملة',
-        hub: 'hrhub',
-        status: 'pending',
-        created_at: '2024-01-15T10:30:00Z'
-      },
-      {
-        id: '2',
-        name: 'فاطمة علي',
-        email: 'fatima@example.com',
-        phone: '0507654321',
-        message: 'أحتاج تطوير موقع إلكتروني لشركتي',
-        hub: 'webhub',
-        status: 'subscribed',
-        created_at: '2024-01-14T14:20:00Z'
-      },
-      {
-        id: '3',
-        name: 'محمد السعيد',
-        email: 'mohammed@example.com',
-        phone: '0509876543',
-        message: 'أريد الباقة الاقتصادية لإدارة الموارد البشرية',
-        hub: 'hrhub',
-        status: 'subscribed',
-        created_at: '2024-01-13T09:15:00Z'
-      }
-    ];
-    
-    console.log('⚠️ Using fallback sample orders:', sampleOrders.length);
-    return { success: true, data: sampleOrders };
+    console.warn('⚠️ Using fallback - no orders available');
+    return { success: true, data: [] };
   },
 
-  // تحديث حالة الطلب
+  // Update order status
   async updateOrderStatus(orderId, newStatus) {
     if (isSupabaseAvailable()) {
       try {
@@ -147,20 +114,19 @@ export const ordersAPI = {
           .single();
         
         if (error) throw error;
-        console.log('✅ Order status updated in Supabase:', data);
+        console.log('✅ Order status updated:', orderId);
         return { success: true, data };
       } catch (error) {
-        console.error('❌ Error updating order status in Supabase:', error);
+        console.error('❌ Error updating order status:', error);
         return { success: false, error: error.message };
       }
     }
     
-    // Fallback: return success
-    console.log('⚠️ Using fallback for status update:', { orderId, newStatus });
+    console.warn('⚠️ Using fallback for status update');
     return { success: true, data: { id: orderId, status: newStatus } };
   },
 
-  // حذف طلب
+  // Delete order
   async deleteOrder(orderId) {
     if (isSupabaseAvailable()) {
       try {
@@ -170,16 +136,15 @@ export const ordersAPI = {
           .eq('id', orderId);
         
         if (error) throw error;
-        console.log('✅ Order deleted from Supabase:', orderId);
+        console.log('✅ Order deleted:', orderId);
         return { success: true };
       } catch (error) {
-        console.error('❌ Error deleting order from Supabase:', error);
+        console.error('❌ Error deleting order:', error);
         return { success: false, error: error.message };
       }
     }
     
-    // Fallback: return success
-    console.log('⚠️ Using fallback for order deletion:', orderId);
+    console.warn('⚠️ Using fallback for order deletion');
     return { success: true };
   }
 };
@@ -258,6 +223,7 @@ export const bannerAPI = {
   async createBanner(bannerData) {
     if (isSupabaseAvailable()) {
       try {
+        console.log('🔄 Creating banner:', bannerData);
         const { data, error } = await supabase
           .from('banner_images')
           .insert([bannerData])
@@ -268,7 +234,7 @@ export const bannerAPI = {
         console.log('✅ Banner created in Supabase:', data);
         return { success: true, data };
       } catch (error) {
-        console.error('❌ Error creating banner in Supabase:', error);
+        console.error('❌ Error creating banner in Supabase:', error.message || error);
         return { success: false, error: error.message };
       }
     }
@@ -415,6 +381,7 @@ export const productsAPI = {
   async createProduct(productData) {
     if (isSupabaseAvailable()) {
       try {
+        console.log('🔄 Creating product:', productData);
         const { data, error } = await supabase
           .from('products')
           .insert([productData])
@@ -425,7 +392,7 @@ export const productsAPI = {
         console.log('✅ Product created in Supabase:', data);
         return { success: true, data };
       } catch (error) {
-        console.error('❌ Error creating product in Supabase:', error);
+        console.error('❌ Error creating product in Supabase:', error.message || error);
         return { success: false, error: error.message };
       }
     }
