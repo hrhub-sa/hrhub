@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>لوحة الإدارة - HR Hub</title>
+  <link rel="icon" type="image/png" href="new-logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="admin-styles.css" />
+</head>
+<body>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-container">
+      <div class="login-header">
+        <img src="new-logo.png" alt="HR Hub Logo" class="login-logo">
+        <h1>لوحة الإدارة</h1>
+        <p>تسجيل دخول المدير</p>
+      </div>
+      
+      <form id="loginForm" class="login-form">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="email" id="username" placeholder="البريد الإلكتروني" required>
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="كلمة المرور" required>
+        </div>
+        <button type="submit" class="login-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          تسجيل الدخول
+        </button>
+      </form>
+      
+      <div id="loginError" class="error-message"></div>
+    </div>
+  </div>
+
+  <!-- Admin Dashboard -->
+  <div id="adminDashboard" class="admin-dashboard hidden">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <img src="new-logo.png" alt="HR Hub Logo" class="header-logo">
+        <h1>لوحة الإدارة</h1>
+      </div>
+      <div class="header-right">
+        <span class="welcome-text">مرحباً، المدير</span>
+        <button id="logoutBtn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          تسجيل الخروج
+        </button>
+      </div>
+    </header>
+
+    <!-- Stats Cards -->
+    <div class="stats-container">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="totalOrders">0</h3>
+          <p>إجمالي الطلبات</p>
+        </div>
+      </div>
+      
+      <div class="stat-card pending">
+        <div class="stat-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="pendingOrders">0</h3>
+          <p>بانتظار الاشتراك</p>
+        </div>
+      </div>
+      
+      <div class="stat-card subscribed">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="subscribedOrders">0</h3>
+          <p>مشترك</p>
+        </div>
+      </div>
+      
+      <div class="stat-card cancelled">
+        <div class="stat-icon">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="cancelledOrders">0</h3>
+          <p>تم الإلغاء</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-container">
+      <div class="filter-group">
+        <label>فلترة حسب الحالة:</label>
+        <select id="statusFilter">
+          <option value="all">جميع الطلبات</option>
+          <option value="pending">بانتظار الاشتراك</option>
+          <option value="subscribed">مشترك</option>
+          <option value="cancelled">تم الإلغاء</option>
+          <option value="not-subscribed">غير مشترك</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>فلترة حسب الباقة:</label>
+        <select id="packageFilter">
+          <option value="all">جميع الباقات</option>
+          <option value="hrhub">HR Hub</option>
+          <option value="webhub">Web Hub</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label>البحث:</label>
+        <input type="text" id="searchInput" placeholder="البحث بالاسم أو الإيميل...">
+      </div>
+      
+      <button id="clearFilters" class="clear-btn">
+        <i class="fas fa-times"></i>
+        مسح الفلاتر
+      </button>
+    </div>
+
+    <!-- Orders Table -->
+    <div class="orders-container">
+      <div class="orders-header">
+        <h2>طلبات العملاء</h2>
+        <button id="exportBtn" class="export-btn">
+          <i class="fas fa-download"></i>
+          تصدير البيانات
+        </button>
+      </div>
+      
+      <div class="table-container">
+        <table id="ordersTable" class="orders-table">
+          <thead>
+            <tr>
+              <th>التاريخ</th>
+              <th>الاسم</th>
+              <th>الإيميل</th>
+              <th>الهاتف</th>
+              <th>الرسالة</th>
+              <th>الباقة</th>
+              <th>الحالة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <!-- Orders will be populated here -->
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="noOrders" class="no-orders hidden">
+        <i class="fas fa-inbox"></i>
+        <h3>لا توجد طلبات</h3>
+        <p>لم يتم استلام أي طلبات بعد</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div id="orderModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>تفاصيل الطلب</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="order-details">
+          <div class="detail-row">
+            <strong>التاريخ:</strong>
+            <span id="modalDate"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الاسم:</strong>
+            <span id="modalName"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الإيميل:</strong>
+            <span id="modalEmail"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الهاتف:</strong>
+            <span id="modalPhone"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الباقة:</strong>
+            <span id="modalHub"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الحالة:</strong>
+            <span id="modalStatus" class="status-badge"></span>
+          </div>
+          <div class="detail-row message-row">
+            <strong>الرسالة:</strong>
+            <div id="modalMessage" class="message-content"></div>
+          </div>
+        </div>
+        
+        <div class="status-actions">
+          <h4>تغيير الحالة:</h4>
+          <div class="status-buttons">
+            <button class="status-btn pending" data-status="pending">
+              <i class="fas fa-clock"></i>
+              بانتظار الاشتراك
+            </button>
+            <button class="status-btn subscribed" data-status="subscribed">
+              <i class="fas fa-check-circle"></i>
+              مشترك
+            </button>
+            <button class="status-btn cancelled" data-status="cancelled">
+              <i class="fas fa-times-circle"></i>
+              تم الإلغاء
+            </button>
+            <button class="status-btn not-subscribed" data-status="not-subscribed">
+              <i class="fas fa-user-times"></i>
+              غير مشترك
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="deleteOrderBtn" class="delete-btn">
+          <i class="fas fa-trash"></i>
+          حذف الطلب
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="admin-script.js"></script>
+</body>
+</html>
