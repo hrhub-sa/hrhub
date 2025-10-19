@@ -1,4 +1,5 @@
 import { ordersAPI } from './supabase-client.js';
+import { bannerAPI, productsAPI } from './supabase-client.js';
 
 // Language detection & redirect
 if (!localStorage.getItem("preferredLanguage")) {
@@ -120,6 +121,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize animations on page load
   initializeAnimations();
+
+  // Load dynamic content
+  loadBannerImages();
+  loadWebHubProducts();
 
   // Slider auto-cycle
   function initializeSlider() {
@@ -243,5 +248,102 @@ document.addEventListener("DOMContentLoaded", () => {
       card.style.transform = 'translateY(0) scale(1)';
     });
   });
+
+  // Load banner images from database
+  async function loadBannerImages() {
+    const result = await bannerAPI.getAllBanners();
+    
+    if (result.success && result.data.length > 0) {
+      updateBannerSliders(result.data);
+    }
+  }
+
+  // Update banner sliders with dynamic content
+  function updateBannerSliders(banners) {
+    const hrhubBanners = banners.filter(b => b.hub_type === 'hrhub');
+    const webhubBanners = banners.filter(b => b.hub_type === 'webhub');
+    
+    // Update HR Hub slider
+    const hrhubSlider = document.querySelector('#hrhub-content .banner-slider');
+    if (hrhubSlider && hrhubBanners.length > 0) {
+      hrhubSlider.innerHTML = hrhubBanners.map((banner, index) => `
+        <div class="slide ${index === 0 ? 'active' : ''}">
+          <img src="${banner.image_url}" alt="${banner.alt_text}">
+        </div>
+      `).join('');
+    }
+    
+    // Update Web Hub slider (keep service cards for now)
+    // You can modify this to use banner images if needed
+  }
+
+  // Load Web Hub products from database
+  async function loadWebHubProducts() {
+    const result = await productsAPI.getAllProducts();
+    
+    if (result.success && result.data.length > 0) {
+      updateWebHubProducts(result.data);
+    }
+  }
+
+  // Update Web Hub products section
+  function updateWebHubProducts(products) {
+    const webhubContent = document.getElementById('webhub-content');
+    
+    // Create products section if it doesn't exist
+    let productsSection = webhubContent.querySelector('.products-section');
+    if (!productsSection) {
+      productsSection = document.createElement('section');
+      productsSection.className = 'section products-section';
+      productsSection.innerHTML = `
+        <h2>خدماتنا</h2>
+        <div class="products-grid" id="webhub-products-grid"></div>
+      `;
+      
+      // Insert before coming soon section
+      const comingSoonSection = webhubContent.querySelector('.coming-soon-section');
+      webhubContent.insertBefore(productsSection, comingSoonSection);
+    }
+    
+    const productsGrid = productsSection.querySelector('.products-grid');
+    productsGrid.innerHTML = products.map(product => `
+      <div class="product-card">
+        <div class="product-icon">
+          <i class="${product.icon}"></i>
+        </div>
+        <h3>${product.name}</h3>
+        <p>${product.description}</p>
+        <div class="product-details">
+          <div class="duration">
+            <i class="fas fa-clock"></i>
+            ${product.duration}
+          </div>
+          <div class="price">${product.price} ريال</div>
+        </div>
+        <a href="#contact" class="product-btn">اطلب الآن</a>
+      </div>
+    `).join('');
+    
+    // Re-initialize animations for new products
+    setTimeout(() => {
+      gsap.utils.toArray('.product-card').forEach((card, index) => {
+        gsap.fromTo(card, 
+          { y: 60, opacity: 0, scale: 0.9 },
+          {
+            y: 0, 
+            opacity: 1, 
+            scale: 1,
+            duration: 0.6,
+            delay: index * 0.1,
+            scrollTrigger: { 
+              trigger: card, 
+              start: 'top 85%',
+              toggleActions: 'play none none reverse'
+            }
+          }
+        );
+      });
+    }, 100);
+  }
 
 });
