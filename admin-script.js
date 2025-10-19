@@ -1,16 +1,6 @@
 import { ordersAPI, authAPI } from './supabase-client.js';
 import { bannerAPI, productsAPI } from './supabase-client.js';
 
-// Admin credentials (مشفرة)
-const getAdminCredentials = () => {
-  // تشفير بسيط لإخفاء البيانات
-  const encoded = {
-    email: atob('YWRtaW5AaHJodWIuc2E='), // admin@hrhub.sa
-    password: atob('aHJodWIyMDI1') // hrhub2025
-  };
-  return encoded;
-};
-
 // فحص إضافي للأمان
 const validateAdminAccess = () => {
   const currentTime = new Date().getTime();
@@ -106,6 +96,14 @@ function showLogin() {
 function showDashboard() {
   loginScreen.classList.add('hidden');
   adminDashboard.classList.remove('hidden');
+  
+  // تحديث رسالة الترحيب
+  const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
+  const welcomeText = document.getElementById('welcomeText');
+  if (welcomeText && adminUser.full_name) {
+    welcomeText.textContent = `مرحباً، ${adminUser.full_name}`;
+  }
+  
   loadOrders();
   updateStats();
   loadBanners();
@@ -600,32 +598,26 @@ async function handleLogin(e) {
   const email = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   
-  const adminCreds = getAdminCredentials();
+  console.log('🔐 Attempting admin login...');
   
-  // التحقق من البيانات
-  if (email === adminCreds.email && password === adminCreds.password) {
-    localStorage.setItem('adminLoggedIn', 'true');
-    localStorage.removeItem('loginAttempts');
-    localStorage.removeItem('lastLoginAttempt');
-    showDashboard();
-    loginError.classList.remove('show');
-    return;
-  }
-  
-  // محاولة المصادقة عبر Supabase
+  // المصادقة عبر قاعدة البيانات
   try {
     const result = await authAPI.signInAdmin(email, password);
     if (result.success) {
+      console.log('✅ Admin login successful');
       localStorage.setItem('adminLoggedIn', 'true');
+      localStorage.setItem('adminUser', JSON.stringify(result.data));
       localStorage.removeItem('loginAttempts');
       localStorage.removeItem('lastLoginAttempt');
       showDashboard();
       loginError.classList.remove('show');
       return;
     } else {
-      throw new Error('Invalid credentials');
+      throw new Error(result.error || 'Invalid credentials');
     }
   } catch (error) {
+    console.error('❌ Admin login failed:', error);
+    
     // تسجيل المحاولة الفاشلة
     const attempts = parseInt(localStorage.getItem('loginAttempts') || '0') + 1;
     localStorage.setItem('loginAttempts', attempts.toString());
@@ -634,7 +626,7 @@ async function handleLogin(e) {
     if (attempts >= 3) {
       loginError.textContent = 'تم تجاوز عدد المحاولات المسموحة. سيتم حظر تسجيل الدخول لمدة 5 دقائق.';
     } else {
-      loginError.textContent = `اسم المستخدم أو كلمة المرور غير صحيحة. المحاولات المتبقية: ${3 - attempts}`;
+      loginError.textContent = `بيانات تسجيل الدخول غير صحيحة. المحاولات المتبقية: ${3 - attempts}`;
     }
     loginError.classList.add('show');
   }
@@ -643,6 +635,7 @@ async function handleLogin(e) {
 // Handle logout
 function handleLogout() {
   localStorage.removeItem('adminLoggedIn');
+  localStorage.removeItem('adminUser');
   showLogin();
   loginForm.reset();
   loginError.classList.remove('show');
