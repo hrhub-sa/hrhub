@@ -460,42 +460,35 @@ export const productsAPI = {
 
 // Authentication functions
 export const authAPI = {
-  // تسجيل دخول المدير
+  // تسجيل دخول المدير من قاعدة البيانات
   async signInAdmin(email, password) {
-    // بيانات المدير المشفرة
-    const getSecureCredentials = () => {
-      return {
-        email: atob('YWRtaW5AaHJodWIuc2E='),
-        password: atob('aHJodWIyMDI1')
-      };
-    };
-    
-    const creds = getSecureCredentials();
-    
-    if (email === creds.email && password === creds.password) {
-      console.log('✅ Local admin authentication successful');
-      return { success: true, data: { user: { email } } };
-    }
-    
-    // Try Supabase authentication if available
     if (isSupabaseAvailable()) {
       try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password
+        console.log('🔐 Authenticating admin via database...');
+        
+        // استدعاء دالة المصادقة من قاعدة البيانات
+        const { data, error } = await supabase.rpc('authenticate_admin', {
+          user_email: email,
+          user_password: password
         });
         
         if (error) throw error;
-        console.log('✅ Supabase authentication successful');
-        return { success: true, data };
+        
+        if (data && data.success) {
+          console.log('✅ Database authentication successful');
+          return { success: true, data: data.user };
+        } else {
+          console.log('❌ Database authentication failed:', data?.error);
+          return { success: false, error: data?.error || 'Authentication failed' };
+        }
       } catch (error) {
-        console.error('❌ Supabase authentication failed:', error);
+        console.error('❌ Database authentication error:', error);
         return { success: false, error: error.message };
       }
     }
     
-    console.log('❌ Authentication failed - invalid credentials');
-    return { success: false, error: 'Invalid credentials' };
+    console.log('❌ Database not available');
+    return { success: false, error: 'Authentication service unavailable' };
   },
 
   // تسجيل خروج
