@@ -3,7 +3,7 @@ import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
 
 // Supabase configuration - البيانات الصحيحة من قاعدة البيانات
 const supabaseUrl = 'https://wufvlgmlxqdgqqsnsgxa.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1ZnZsZ21seHFkZ3Fxc25zZ3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzQ2MjY4NzQsImV4cCI6MjA1MDIwMjg3NH0.dummy';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1ZnZsZ21seHFkZ3Fxc25zZ3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTU0ODcsImV4cCI6MjA3NjQ3MTQ4N30.GtP6FafY8D3u9UBx9BcToBc9oeaV8ilOp-P6jI_Fb8s';
 
 // Create Supabase client
 let supabase = null;
@@ -11,12 +11,12 @@ let isSupabaseConnected = false;
 
 // محاولة الاتصال بـ Supabase
 try {
-  if (supabaseUrl && supabaseAnonKey && !supabaseAnonKey.includes('dummy')) {
+  if (supabaseUrl && supabaseAnonKey) {
     supabase = createClient(supabaseUrl, supabaseAnonKey);
     isSupabaseConnected = true;
-    console.log('✅ Supabase connected successfully');
+    console.log('✅ Supabase client created successfully');
   } else {
-    console.log('⚠️ Supabase not configured properly, using fallback system');
+    console.log('⚠️ Supabase configuration missing, using fallback system');
     isSupabaseConnected = false;
   }
 } catch (error) {
