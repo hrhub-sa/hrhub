@@ -518,6 +518,8 @@ function openProductModal(productId = null) {
 async function saveProduct(e) {
   e.preventDefault();
   
+  console.log('🔄 Saving product...');
+  
   const featuresText = document.getElementById('productFeatures').value;
   const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
   
@@ -532,11 +534,15 @@ async function saveProduct(e) {
     features: features
   };
   
+  console.log('📝 Product data:', productData);
+  
   try {
     let result;
     if (currentProductId) {
+      console.log('🔄 Updating existing product:', currentProductId);
       result = await productsAPI.updateProduct(currentProductId, productData);
     } else {
+      console.log('🔄 Creating new product');
       result = await productsAPI.createProduct(productData);
     }
     
@@ -545,6 +551,7 @@ async function saveProduct(e) {
       closeProductModal();
       loadProducts();
     } else {
+      console.error('❌ Save failed:', result.error);
       showNotification('خطأ في حفظ المنتج: ' + result.error, 'error');
     }
   } catch (error) {
