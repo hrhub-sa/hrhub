@@ -682,7 +682,7 @@ async function changeOrderStatus(newStatus) {
 }
 
 // Confirm delete order
-function confirmDeleteOrder(orderId) {
+async function confirmDeleteOrder(orderId) {
   if (confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
     await deleteOrderById(orderId);
   }
@@ -720,7 +720,7 @@ async function deleteOrderById(orderId) {
   
   // Refresh UI
   applyFilters();
-  await updateStats();
+  updateStats();
   
   showNotification('تم حذف الطلب بنجاح', 'success');
 }
@@ -822,4 +822,4 @@ window.deleteProduct = deleteProduct;
 window.editBanner = editBanner;
 window.deleteBanner = deleteBanner;
 window.editProduct = editProduct;
-window.deleteProduct = deleteProduct;
+window.deleteProduct = deleteProduct;  
