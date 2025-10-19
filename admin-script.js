@@ -35,6 +35,9 @@ const exportBtn = document.getElementById('exportBtn');
 const navBtns = document.querySelectorAll('.nav-btn');
 const adminSections = document.querySelectorAll('.admin-section');
 
+// Settings elements
+const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+
 // Banner elements
 const addBannerBtn = document.getElementById('addBannerBtn');
 const bannerModal = document.getElementById('bannerModal');
@@ -132,6 +135,11 @@ function setupEventListeners() {
     btn.addEventListener('click', () => switchSection(btn.dataset.section));
   });
   
+  // Settings
+  if (saveSettingsBtn) {
+    saveSettingsBtn.addEventListener('click', saveSettings);
+  }
+  
   // Banner management
   if (addBannerBtn) {
     addBannerBtn.addEventListener('click', () => openBannerModal());
@@ -166,12 +174,120 @@ function switchSection(sectionName) {
     loadBanners();
   } else if (sectionName === 'products') {
     loadProducts();
+  } else if (sectionName === 'settings') {
+    loadSettings();
   } else if (sectionName === 'orders') {
     loadOrders();
     updateStats();
   }
 }
 
+// ===== Settings Management =====
+
+// Load settings
+function loadSettings() {
+  // Load saved settings from localStorage or use defaults
+  const settings = JSON.parse(localStorage.getItem('siteSettings') || '{}');
+  
+  // Contact Information
+  document.getElementById('whatsappNumber').value = settings.whatsappNumber || '+966530017278';
+  document.getElementById('phoneNumber').value = settings.phoneNumber || '+966542345930';
+  document.getElementById('emailAddress').value = settings.emailAddress || 'hrhub.sa@gmail.com';
+  document.getElementById('address').value = settings.address || 'المدينة المنورة، السعودية';
+  
+  // Social Media
+  document.getElementById('instagramUrl').value = settings.instagramUrl || '';
+  document.getElementById('twitterUrl').value = settings.twitterUrl || '';
+  document.getElementById('linkedinUrl').value = settings.linkedinUrl || '';
+  document.getElementById('facebookUrl').value = settings.facebookUrl || '';
+  
+  // Site Content
+  document.getElementById('siteTitleAr').value = settings.siteTitleAr || 'HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية';
+  document.getElementById('siteTitleEn').value = settings.siteTitleEn || 'HR Hub ‒ HR & Government Affairs Solutions';
+  document.getElementById('siteDescription').value = settings.siteDescription || 'شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية';
+  
+  // Package Pricing
+  document.getElementById('economyPrice').value = settings.economyPrice || 3000;
+  document.getElementById('comprehensivePrice').value = settings.comprehensivePrice || 6000;
+  
+  // Web Hub Settings
+  document.getElementById('webHubStatus').value = settings.webHubStatus || 'coming-soon';
+  document.getElementById('webHubMessage').value = settings.webHubMessage || 'نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية';
+}
+
+// Save settings
+function saveSettings() {
+  const settings = {
+    // Contact Information
+    whatsappNumber: document.getElementById('whatsappNumber').value,
+    phoneNumber: document.getElementById('phoneNumber').value,
+    emailAddress: document.getElementById('emailAddress').value,
+    address: document.getElementById('address').value,
+    
+    // Social Media
+    instagramUrl: document.getElementById('instagramUrl').value,
+    twitterUrl: document.getElementById('twitterUrl').value,
+    linkedinUrl: document.getElementById('linkedinUrl').value,
+    facebookUrl: document.getElementById('facebookUrl').value,
+    
+    // Site Content
+    siteTitleAr: document.getElementById('siteTitleAr').value,
+    siteTitleEn: document.getElementById('siteTitleEn').value,
+    siteDescription: document.getElementById('siteDescription').value,
+    
+    // Package Pricing
+    economyPrice: parseInt(document.getElementById('economyPrice').value),
+    comprehensivePrice: parseInt(document.getElementById('comprehensivePrice').value),
+    
+    // Web Hub Settings
+    webHubStatus: document.getElementById('webHubStatus').value,
+    webHubMessage: document.getElementById('webHubMessage').value,
+    
+    // Timestamp
+    lastUpdated: new Date().toISOString()
+  };
+  
+  // Handle password change
+  const newPassword = document.getElementById('newAdminPassword').value;
+  const confirmPassword = document.getElementById('confirmAdminPassword').value;
+  
+  if (newPassword && confirmPassword) {
+    if (newPassword === confirmPassword) {
+      if (newPassword.length >= 6) {
+        localStorage.setItem('adminPassword', newPassword);
+        showNotification('تم تغيير كلمة المرور بنجاح', 'success');
+        document.getElementById('newAdminPassword').value = '';
+        document.getElementById('confirmAdminPassword').value = '';
+      } else {
+        showNotification('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
+        return;
+      }
+    } else {
+      showNotification('كلمة المرور وتأكيدها غير متطابقين', 'error');
+      return;
+    }
+  }
+  
+  // Save settings
+  localStorage.setItem('siteSettings', JSON.stringify(settings));
+  
+  // Update live site (this would normally update the database)
+  updateLiveSite(settings);
+  
+  showNotification('تم حفظ الإعدادات بنجاح', 'success');
+}
+
+// Update live site with new settings
+function updateLiveSite(settings) {
+  // This function would normally send the settings to update the live website
+  // For now, we'll just log the settings
+  console.log('🔄 Updating live site with settings:', settings);
+  
+  // In a real implementation, you would:
+  // 1. Send settings to your backend API
+  // 2. Update the database
+  // 3. Refresh the live website content
+}
 // ===== Banner Management =====
 
 // Load banners
