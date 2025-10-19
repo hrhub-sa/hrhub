@@ -1,9 +1,9 @@
 // Supabase Client Configuration
 import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
 
-// Supabase configuration
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+// Supabase configuration - سيتم تحديثها تلقائياً عند ربط Supabase
+const supabaseUrl = 'https://wufvlgmlxqdgqqsnsgxa.supabase.co';
+const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1ZnZsZ21seHFkZ3Fxc25zZ3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTU0ODcsImV4cCI6MjA3NjQ3MTQ4N30.GtP6FafY8D3u9UBx9BcToBc9oeaV8ilOp-P6jI_Fb8s';
 
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
