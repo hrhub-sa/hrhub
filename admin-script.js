@@ -97,19 +97,33 @@ function showDashboard() {
 // Setup event listeners
 function setupEventListeners() {
   // Login form
-  loginForm.addEventListener('submit', handleLogin);
+  if (loginForm) {
+    loginForm.addEventListener('submit', handleLogin);
+  }
   
   // Logout button
-  logoutBtn.addEventListener('click', handleLogout);
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', handleLogout);
+  }
   
   // Filters
-  statusFilter.addEventListener('change', applyFilters);
-  packageFilter.addEventListener('change', applyFilters);
-  searchInput.addEventListener('input', applyFilters);
-  clearFiltersBtn.addEventListener('click', clearFilters);
+  if (statusFilter) {
+    statusFilter.addEventListener('change', applyFilters);
+  }
+  if (packageFilter) {
+    packageFilter.addEventListener('change', applyFilters);
+  }
+  if (searchInput) {
+    searchInput.addEventListener('input', applyFilters);
+  }
+  if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener('click', clearFilters);
+  }
   
   // Export button
-  exportBtn.addEventListener('click', exportData);
+  if (exportBtn) {
+    exportBtn.addEventListener('click', exportData);
+  }
   
   // Modal close buttons
   closeModalBtns.forEach(btn => {
