@@ -819,3 +819,7 @@ window.editBanner = editBanner;
 window.deleteBanner = deleteBanner;
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
+window.editBanner = editBanner;
+window.deleteBanner = deleteBanner;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
