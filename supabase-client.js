@@ -96,6 +96,153 @@ export const ordersAPI = {
   }
 };
 
+// Banner Images API functions
+export const bannerAPI = {
+  // جلب جميع صور البنر
+  async getAllBanners(hubType = null) {
+    try {
+      let query = supabase
+        .from('banner_images')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+      
+      if (hubType) {
+        query = query.eq('hub_type', hubType);
+      }
+      
+      const { data, error } = await query;
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching banners:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // إضافة صورة بنر جديدة
+  async createBanner(bannerData) {
+    try {
+      const { data, error } = await supabase
+        .from('banner_images')
+        .insert([bannerData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error creating banner:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // تحديث صورة بنر
+  async updateBanner(bannerId, bannerData) {
+    try {
+      const { data, error } = await supabase
+        .from('banner_images')
+        .update(bannerData)
+        .eq('id', bannerId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error updating banner:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // حذف صورة بنر
+  async deleteBanner(bannerId) {
+    try {
+      const { error } = await supabase
+        .from('banner_images')
+        .delete()
+        .eq('id', bannerId);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting banner:', error);
+      return { success: false, error: error.message };
+    }
+  }
+};
+
+// Products API functions
+export const productsAPI = {
+  // جلب جميع المنتجات
+  async getAllProducts() {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .eq('is_active', true)
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // إضافة منتج جديد
+  async createProduct(productData) {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .insert([productData])
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error creating product:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // تحديث منتج
+  async updateProduct(productId, productData) {
+    try {
+      const { data, error } = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', productId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return { success: true, data };
+    } catch (error) {
+      console.error('Error updating product:', error);
+      return { success: false, error: error.message };
+    }
+  },
+
+  // حذف منتج
+  async deleteProduct(productId) {
+    try {
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', productId);
+
+      if (error) throw error;
+      return { success: true };
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      return { success: false, error: error.message };
+    }
+  }
+};
+
 // Authentication functions
 export const authAPI = {
   // تسجيل دخول المدير
