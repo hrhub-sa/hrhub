@@ -1,10 +1,28 @@
 import { ordersAPI, authAPI } from './supabase-client.js';
 import { bannerAPI, productsAPI } from './supabase-client.js';
 
-// Admin credentials (بيانات تسجيل الدخول المحلية)
-const ADMIN_CREDENTIALS = {
-  email: 'admin@hrhub.sa',
-  password: 'hrhub2025'
+// Admin credentials (مشفرة)
+const getAdminCredentials = () => {
+  // تشفير بسيط لإخفاء البيانات
+  const encoded = {
+    email: atob('YWRtaW5AaHJodWIuc2E='), // admin@hrhub.sa
+    password: atob('aHJodWIyMDI1') // hrhub2025
+  };
+  return encoded;
+};
+
+// فحص إضافي للأمان
+const validateAdminAccess = () => {
+  const currentTime = new Date().getTime();
+  const lastAttempt = localStorage.getItem('lastLoginAttempt');
+  const attempts = parseInt(localStorage.getItem('loginAttempts') || '0');
+  
+  // منع المحاولات المتكررة
+  if (attempts >= 3 && lastAttempt && (currentTime - parseInt(lastAttempt)) < 300000) { // 5 دقائق
+    return false;
+  }
+  
+  return true;
 };
 
 // DOM Elements
@@ -572,29 +590,52 @@ function closeProductModal() {
 async function handleLogin(e) {
   e.preventDefault();
   
+  // فحص الأمان
+  if (!validateAdminAccess()) {
+    loginError.textContent = 'تم حظر تسجيل الدخول مؤقتاً بسبب المحاولات المتكررة. حاول بعد 5 دقائق.';
+    loginError.classList.add('show');
+    return;
+  }
+  
   const email = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   
-  // استخدام المصادقة المحلية أولاً
-  if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+  const adminCreds = getAdminCredentials();
+  
+  // التحقق من البيانات
+  if (email === adminCreds.email && password === adminCreds.password) {
     localStorage.setItem('adminLoggedIn', 'true');
+    localStorage.removeItem('loginAttempts');
+    localStorage.removeItem('lastLoginAttempt');
     showDashboard();
     loginError.classList.remove('show');
     return;
   }
   
-  // محاولة المصادقة عبر Supabase كخيار ثانوي
+  // محاولة المصادقة عبر Supabase
   try {
     const result = await authAPI.signInAdmin(email, password);
     if (result.success) {
       localStorage.setItem('adminLoggedIn', 'true');
+      localStorage.removeItem('loginAttempts');
+      localStorage.removeItem('lastLoginAttempt');
       showDashboard();
       loginError.classList.remove('show');
+      return;
     } else {
       throw new Error('Invalid credentials');
     }
   } catch (error) {
-    loginError.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
+    // تسجيل المحاولة الفاشلة
+    const attempts = parseInt(localStorage.getItem('loginAttempts') || '0') + 1;
+    localStorage.setItem('loginAttempts', attempts.toString());
+    localStorage.setItem('lastLoginAttempt', new Date().getTime().toString());
+    
+    if (attempts >= 3) {
+      loginError.textContent = 'تم تجاوز عدد المحاولات المسموحة. سيتم حظر تسجيل الدخول لمدة 5 دقائق.';
+    } else {
+      loginError.textContent = `اسم المستخدم أو كلمة المرور غير صحيحة. المحاولات المتبقية: ${3 - attempts}`;
+    }
     loginError.classList.add('show');
   }
 }
