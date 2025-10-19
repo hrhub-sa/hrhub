@@ -1,12 +1,22 @@
 // Supabase Client Configuration
 import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@2';
 
-// Supabase configuration - سيتم تحديثها تلقائياً عند ربط Supabase
-const supabaseUrl = 'https://wufvlgmlxqdgqqsnsgxa.supabase.co';
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1ZnZsZ21seHFkZ3Fxc25zZ3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA4OTU0ODcsImV4cCI6MjA3NjQ3MTQ4N30.GtP6FafY8D3u9UBx9BcToBc9oeaV8ilOp-P6jI_Fb8s';
+// Supabase configuration - ضع بياناتك هنا بعد إنشاء المشروع
+const supabaseUrl = 'YOUR_SUPABASE_URL';
+const supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
 
-// Create Supabase client
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create Supabase client (مع التحقق من وجود البيانات)
+let supabase = null;
+
+if (supabaseUrl !== 'YOUR_SUPABASE_URL' && supabaseAnonKey !== 'YOUR_SUPABASE_ANON_KEY') {
+  try {
+    supabase = createClient(supabaseUrl, supabaseAnonKey);
+  } catch (error) {
+    console.warn('Supabase connection failed, using localStorage fallback');
+  }
+}
+
+export { supabase };
 
 // Orders API functions
 export const ordersAPI = {
