@@ -48,6 +48,20 @@
       </div>
       <div class="header-right">
         <span class="welcome-text">مرحباً، المدير</span>
+        <nav class="admin-nav">
+          <button class="nav-btn active" data-section="orders">
+            <i class="fas fa-clipboard-list"></i>
+            الطلبات
+          </button>
+          <button class="nav-btn" data-section="banners">
+            <i class="fas fa-images"></i>
+            صور البنر
+          </button>
+          <button class="nav-btn" data-section="products">
+            <i class="fas fa-box"></i>
+            المنتجات
+          </button>
+        </nav>
         <button id="logoutBtn" class="logout-btn">
           <i class="fas fa-sign-out-alt"></i>
           تسجيل الخروج
@@ -97,8 +111,41 @@
         </div>
       </div>
     </div>
+    </div>
 
-    <!-- Filters -->
+    <!-- Banner Management Section -->
+    <div id="bannersSection" class="admin-section">
+      <div class="section-header">
+        <h2>إدارة صور البنر</h2>
+        <button id="addBannerBtn" class="add-btn">
+          <i class="fas fa-plus"></i>
+          إضافة صورة جديدة
+        </button>
+      </div>
+      
+      <div class="banners-grid" id="bannersGrid">
+        <!-- Banner cards will be populated here -->
+      </div>
+    </div>
+
+    <!-- Products Management Section -->
+    <div id="productsSection" class="admin-section">
+      <div class="section-header">
+        <h2>إدارة منتجات Web Hub</h2>
+        <button id="addProductBtn" class="add-btn">
+          <i class="fas fa-plus"></i>
+          إضافة منتج جديد
+        </button>
+      </div>
+      
+      <div class="products-admin-grid" id="productsAdminGrid">
+        <!-- Product cards will be populated here -->
+      </div>
+    </div>
+
+    <!-- Orders Section -->
+    <div id="ordersSection" class="admin-section active">
+      <!-- Filters -->
     <div class="filters-container">
       <div class="filter-group">
         <label>فلترة حسب الحالة:</label>
@@ -239,6 +286,143 @@
           <i class="fas fa-trash"></i>
           حذف الطلب
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner Modal -->
+  <div id="bannerModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="bannerModalTitle">إضافة صورة بنر</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="bannerForm" class="admin-form">
+          <div class="form-group">
+            <label>عنوان الصورة:</label>
+            <input type="text" id="bannerTitle" required>
+          </div>
+          
+          <div class="form-group">
+            <label>رابط الصورة:</label>
+            <input type="url" id="bannerImageUrl" required>
+          </div>
+          
+          <div class="form-group">
+            <label>النص البديل:</label>
+            <input type="text" id="bannerAltText">
+          </div>
+          
+          <div class="form-group">
+            <label>القسم:</label>
+            <select id="bannerHubType" required>
+              <option value="hrhub">HR Hub</option>
+              <option value="webhub">Web Hub</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label>ترتيب العرض:</label>
+            <input type="number" id="bannerOrder" min="0" value="0">
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal hidden">
+    <div class="modal-content large-modal">
+      <div class="modal-header">
+        <h3 id="productModalTitle">إضافة منتج جديد</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="productForm" class="admin-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم المنتج:</label>
+              <input type="text" id="productName" required>
+            </div>
+            
+            <div class="form-group">
+              <label>السعر (ريال):</label>
+              <input type="number" id="productPrice" min="0" step="0.01" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>وصف المنتج:</label>
+            <textarea id="productDescription" rows="3" required></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>المدة التقديرية:</label>
+              <input type="text" id="productDuration" placeholder="مثال: 2-3 أسابيع" required>
+            </div>
+            
+            <div class="form-group">
+              <label>رابط الصورة:</label>
+              <input type="url" id="productImageUrl">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>الأيقونة:</label>
+              <select id="productIcon">
+                <option value="fas fa-code">كود</option>
+                <option value="fas fa-mobile-alt">جوال</option>
+                <option value="fas fa-shopping-cart">متجر</option>
+                <option value="fas fa-cogs">نظام</option>
+                <option value="fas fa-globe">موقع</option>
+                <option value="fas fa-chart-line">تحليلات</option>
+                <option value="fas fa-cloud">سحابي</option>
+                <option value="fas fa-database">قاعدة بيانات</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>ترتيب العرض:</label>
+              <input type="number" id="productOrder" min="0" value="0">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>المميزات (كل مميزة في سطر منفصل):</label>
+            <textarea id="productFeatures" rows="4" placeholder="مميزة 1&#10;مميزة 2&#10;مميزة 3"></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ المنتج
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
