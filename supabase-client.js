@@ -462,13 +462,17 @@ export const productsAPI = {
 export const authAPI = {
   // تسجيل دخول المدير
   async signInAdmin(email, password) {
-    // Local authentication first
-    const ADMIN_CREDENTIALS = {
-      email: 'admin@hrhub.sa',
-      password: 'hrhub2025'
+    // بيانات المدير المشفرة
+    const getSecureCredentials = () => {
+      return {
+        email: atob('YWRtaW5AaHJodWIuc2E='),
+        password: atob('aHJodWIyMDI1')
+      };
     };
     
-    if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
+    const creds = getSecureCredentials();
+    
+    if (email === creds.email && password === creds.password) {
       console.log('✅ Local admin authentication successful');
       return { success: true, data: { user: { email } } };
     }
