@@ -283,12 +283,45 @@ document.addEventListener("DOMContentLoaded", () => {
     
     if (result.success && result.data.length > 0) {
       updateWebHubProducts(result.data);
+    } else {
+      // إضافة منتجات افتراضية إذا لم توجد منتجات في قاعدة البيانات
+      const defaultProducts = [
+        {
+          id: 'default-1',
+          name: 'موقع إلكتروني احترافي',
+          description: 'تصميم وتطوير موقع إلكتروني متجاوب مع جميع الأجهزة',
+          price: 2500,
+          duration: '2-3 أسابيع',
+          icon: 'fas fa-globe',
+          features: ['تصميم متجاوب', 'لوحة إدارة', 'تحسين محركات البحث']
+        },
+        {
+          id: 'default-2',
+          name: 'متجر إلكتروني',
+          description: 'متجر إلكتروني كامل مع نظام دفع وإدارة المنتجات',
+          price: 4500,
+          duration: '3-4 أسابيع',
+          icon: 'fas fa-shopping-cart',
+          features: ['نظام دفع آمن', 'إدارة المخزون', 'تقارير المبيعات']
+        },
+        {
+          id: 'default-3',
+          name: 'تطبيق جوال',
+          description: 'تطبيق جوال لنظامي iOS و Android',
+          price: 8000,
+          duration: '4-6 أسابيع',
+          icon: 'fas fa-mobile-alt',
+          features: ['متوافق مع iOS و Android', 'واجهة سهلة الاستخدام', 'إشعارات فورية']
+        }
+      ];
+      updateWebHubProducts(defaultProducts);
     }
   }
 
   // Update Web Hub products section
   function updateWebHubProducts(products) {
     const webhubContent = document.getElementById('webhub-content');
+    if (!webhubContent) return;
     
     // Create products section if it doesn't exist
     let productsSection = webhubContent.querySelector('.products-section');
@@ -296,16 +329,22 @@ document.addEventListener("DOMContentLoaded", () => {
       productsSection = document.createElement('section');
       productsSection.className = 'section products-section';
       productsSection.innerHTML = `
-        <h2>خدماتنا</h2>
+        <h2>منتجاتنا وخدماتنا</h2>
         <div class="products-grid" id="webhub-products-grid"></div>
       `;
       
       // Insert before coming soon section
       const comingSoonSection = webhubContent.querySelector('.coming-soon-section');
-      webhubContent.insertBefore(productsSection, comingSoonSection);
+      if (comingSoonSection) {
+        webhubContent.insertBefore(productsSection, comingSoonSection);
+      } else {
+        webhubContent.appendChild(productsSection);
+      }
     }
     
     const productsGrid = productsSection.querySelector('.products-grid');
+    if (!productsGrid) return;
+    
     productsGrid.innerHTML = products.map(product => `
       <div class="product-card">
         <div class="product-icon">
@@ -313,6 +352,14 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
         <h3>${product.name}</h3>
         <p>${product.description}</p>
+        ${product.features && product.features.length > 0 ? `
+          <div class="product-features">
+            <h4>المميزات:</h4>
+            <ul>
+              ${product.features.map(feature => `<li>${feature}</li>`).join('')}
+            </ul>
+          </div>
+        ` : ''}
         <div class="product-details">
           <div class="duration">
             <i class="fas fa-clock"></i>
