@@ -53,6 +53,10 @@
             <i class="fas fa-clipboard-list"></i>
             الطلبات
           </button>
+          <button class="nav-btn" data-section="settings">
+            <i class="fas fa-cog"></i>
+            إعدادات الموقع
+          </button>
           <button class="nav-btn" data-section="banners">
             <i class="fas fa-images"></i>
             صور البنر
@@ -111,6 +115,123 @@
         </div>
       </div>
     </div>
+    </div>
+
+    <!-- Site Settings Section -->
+    <div id="settingsSection" class="admin-section">
+      <div class="section-header">
+        <h2>إعدادات الموقع</h2>
+        <button id="saveSettingsBtn" class="add-btn">
+          <i class="fas fa-save"></i>
+          حفظ الإعدادات
+        </button>
+      </div>
+      
+      <div class="settings-container">
+        <div class="settings-grid">
+          <!-- Contact Information -->
+          <div class="settings-card">
+            <h3><i class="fas fa-phone"></i> معلومات التواصل</h3>
+            <div class="form-group">
+              <label>رقم الواتساب:</label>
+              <input type="tel" id="whatsappNumber" value="+966530017278">
+            </div>
+            <div class="form-group">
+              <label>رقم الهاتف:</label>
+              <input type="tel" id="phoneNumber" value="+966542345930">
+            </div>
+            <div class="form-group">
+              <label>البريد الإلكتروني:</label>
+              <input type="email" id="emailAddress" value="hrhub.sa@gmail.com">
+            </div>
+            <div class="form-group">
+              <label>العنوان:</label>
+              <input type="text" id="address" value="المدينة المنورة، السعودية">
+            </div>
+          </div>
+
+          <!-- Social Media -->
+          <div class="settings-card">
+            <h3><i class="fab fa-instagram"></i> حسابات التواصل الاجتماعي</h3>
+            <div class="form-group">
+              <label>رابط الإنستغرام:</label>
+              <input type="url" id="instagramUrl" placeholder="https://instagram.com/hrhub">
+            </div>
+            <div class="form-group">
+              <label>رابط تويتر/X:</label>
+              <input type="url" id="twitterUrl" placeholder="https://x.com/hrhub">
+            </div>
+            <div class="form-group">
+              <label>رابط لينكد إن:</label>
+              <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/company/hrhub">
+            </div>
+            <div class="form-group">
+              <label>رابط فيسبوك:</label>
+              <input type="url" id="facebookUrl" placeholder="https://facebook.com/hrhub">
+            </div>
+          </div>
+
+          <!-- Site Content -->
+          <div class="settings-card">
+            <h3><i class="fas fa-edit"></i> محتوى الموقع</h3>
+            <div class="form-group">
+              <label>عنوان الموقع (عربي):</label>
+              <input type="text" id="siteTitleAr" value="HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية">
+            </div>
+            <div class="form-group">
+              <label>عنوان الموقع (إنجليزي):</label>
+              <input type="text" id="siteTitleEn" value="HR Hub ‒ HR & Government Affairs Solutions">
+            </div>
+            <div class="form-group">
+              <label>وصف الموقع:</label>
+              <textarea id="siteDescription" rows="3">شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية</textarea>
+            </div>
+          </div>
+
+          <!-- Package Pricing -->
+          <div class="settings-card">
+            <h3><i class="fas fa-dollar-sign"></i> أسعار الباقات</h3>
+            <div class="form-group">
+              <label>سعر الباقة الاقتصادية (ريال):</label>
+              <input type="number" id="economyPrice" value="3000">
+            </div>
+            <div class="form-group">
+              <label>سعر الباقة الشاملة (ريال):</label>
+              <input type="number" id="comprehensivePrice" value="6000">
+            </div>
+          </div>
+
+          <!-- Web Hub Settings -->
+          <div class="settings-card">
+            <h3><i class="fas fa-globe"></i> إعدادات Web Hub</h3>
+            <div class="form-group">
+              <label>حالة Web Hub:</label>
+              <select id="webHubStatus">
+                <option value="coming-soon">قريباً</option>
+                <option value="active">نشط</option>
+                <option value="maintenance">تحت الصيانة</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>رسالة Web Hub:</label>
+              <textarea id="webHubMessage" rows="2">نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية</textarea>
+            </div>
+          </div>
+
+          <!-- Admin Settings -->
+          <div class="settings-card">
+            <h3><i class="fas fa-user-shield"></i> إعدادات الإدارة</h3>
+            <div class="form-group">
+              <label>تغيير كلمة مرور الإدارة:</label>
+              <input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة">
+            </div>
+            <div class="form-group">
+              <label>تأكيد كلمة المرور:</label>
+              <input type="password" id="confirmAdminPassword" placeholder="تأكيد كلمة المرور">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Banner Management Section -->
