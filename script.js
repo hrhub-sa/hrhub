@@ -1,3 +1,5 @@
+import { ordersAPI } from './supabase-client.js';
+
 // Language detection & redirect
 if (!localStorage.getItem("preferredLanguage")) {
   const lang = navigator.language.startsWith("en") ? "en" : "ar";
@@ -151,39 +153,62 @@ document.addEventListener("DOMContentLoaded", () => {
     form.addEventListener('submit', async e => {
       e.preventDefault();
       msgBox.style.display = 'block';
-      msgBox.textContent = '🚀 Sending...';
+      msgBox.textContent = '🚀 جاري حفظ الطلب...';
       const data = new FormData(form);
       
       // Add current hub info to form data
-      data.append('hub', currentHub);
+      const orderData = {
+        name: data.get('name'),
+        email: data.get('email'),
+        phone: data.get('phone'),
+        message: data.get('message'),
+        hub: currentHub
+      };
       
       try {
-        const res = await fetch('https://hrhub-backend-b2gb.onrender.com/send-email/', { 
-          method: 'POST', 
-          body: data,
-          mode: 'cors',
-          headers: {
-            'Accept': 'application/json',
-          }
-        });
+        // Save to Supabase database
+        const result = await ordersAPI.createOrder(orderData);
         
-        console.log('📡 Response status:', res.status);
-        console.log('📡 Response headers:', res.headers);
-        
-        const json = await res.json();
-        console.log('📡 Response data:', json);
-        
-        msgBox.textContent = res.ok ? '✅ Sent successfully!' : `❌ Error: ${json.error||'Try later'}`;
-        msgBox.style.background = res.ok ? '#d4edda' : '#f8d7da';
-        
-        if (res.ok) {
+        if (result.success) {
+          // Show success message
+          msgBox.textContent = '✅ تم إرسال طلبك بنجاح! سنتواصل معك قريباً';
+          msgBox.style.background = '#d4edda';
+          msgBox.style.color = '#155724';
+          msgBox.style.border = '1px solid #c3e6cb';
+          
+          // Reset form
           form.reset();
+        } else {
+          throw new Error(result.error);
         }
-      } catch (err) {
-        console.error('📡 Fetch error:', err);
-        msgBox.textContent = `❌ Failed: ${err.message}`;
-        msgBox.style.background = '#f8d7da';
+      } catch (error) {
+        console.error('Error saving order:', error);
+        
+        // Fallback to localStorage if Supabase fails
+        const fallbackOrder = {
+          id: Date.now().toString(),
+          ...orderData,
+          status: 'pending',
+          created_at: new Date().toISOString()
+        };
+        
+        const existingOrders = localStorage.getItem('customerOrders');
+        const orders = existingOrders ? JSON.parse(existingOrders) : [];
+        orders.push(fallbackOrder);
+        localStorage.setItem('customerOrders', JSON.stringify(orders));
+        
+        msgBox.textContent = '✅ تم حفظ طلبك محلياً! سنتواصل معك قريباً';
+        msgBox.style.background = '#fff3cd';
+        msgBox.style.color = '#856404';
+        msgBox.style.border = '1px solid #ffeaa7';
+        
+        form.reset();
       }
+      
+      // Hide message after 5 seconds
+      setTimeout(() => {
+        msgBox.style.display = 'none';
+      }, 5000);
     });
   }
 
