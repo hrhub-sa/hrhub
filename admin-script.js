@@ -1,7 +1,7 @@
 import { ordersAPI, authAPI } from './supabase-client.js';
 import { bannerAPI, productsAPI } from './supabase-client.js';
 
-// Admin credentials (في التطبيق الحقيقي، يجب تشفير هذه البيانات)
+// Admin credentials (بيانات تسجيل الدخول المحلية)
 const ADMIN_CREDENTIALS = {
   email: 'admin@hrhub.sa',
   password: 'hrhub2025'
@@ -64,33 +64,32 @@ let ordersSubscription = null;
 document.addEventListener('DOMContentLoaded', () => {
   checkAuthStatus();
   setupEventListeners();
-  setupRealtimeSubscription();
-  loadBanners();
-  loadProducts();
 });
 
-// Check if user is already logged in
-async function checkAuthStatus() {
-  const { user } = await authAPI.getCurrentUser();
-  if (user) {
-    await showDashboard();
+// Check if user is already logged in (محلياً)
+function checkAuthStatus() {
+  const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
+  if (isLoggedIn) {
+    showDashboard();
   } else {
-    await showLogin();
+    showLogin();
   }
 }
 
 // Show login screen
-async function showLogin() {
+function showLogin() {
   loginScreen.classList.remove('hidden');
   adminDashboard.classList.add('hidden');
 }
 
 // Show dashboard
-async function showDashboard() {
+function showDashboard() {
   loginScreen.classList.add('hidden');
   adminDashboard.classList.remove('hidden');
-  await loadOrders();
-  await updateStats();
+  loadOrders();
+  updateStats();
+  loadBanners();
+  loadProducts();
 }
 
 // Setup event listeners
@@ -116,14 +115,18 @@ function setupEventListeners() {
   });
   
   // Click outside modal to close
-  orderModal.addEventListener('click', (e) => {
-    if (e.target === orderModal) {
-      closeModal();
-    }
-  });
+  if (orderModal) {
+    orderModal.addEventListener('click', (e) => {
+      if (e.target === orderModal) {
+        closeModal();
+      }
+    });
+  }
   
   // Delete order button
-  deleteOrderBtn.addEventListener('click', deleteOrder);
+  if (deleteOrderBtn) {
+    deleteOrderBtn.addEventListener('click', deleteOrder);
+  }
   
   // Navigation
   navBtns.forEach(btn => {
@@ -131,26 +134,26 @@ function setupEventListeners() {
   });
   
   // Banner management
-  addBannerBtn.addEventListener('click', () => openBannerModal());
-  bannerForm.addEventListener('submit', saveBanner);
+  if (addBannerBtn) {
+    addBannerBtn.addEventListener('click', () => openBannerModal());
+  }
+  if (bannerForm) {
+    bannerForm.addEventListener('submit', saveBanner);
+  }
   
   // Product management
-  addProductBtn.addEventListener('click', () => openProductModal());
-  productForm.addEventListener('submit', saveProduct);
-}
-
-// Setup realtime subscription
-function setupRealtimeSubscription() {
-  ordersSubscription = ordersAPI.subscribeToOrders((payload) => {
-    console.log('Realtime update:', payload);
-    // Reload orders when there's a change
-    loadOrders();
-    updateStats();
-  });
+  if (addProductBtn) {
+    addProductBtn.addEventListener('click', () => openProductModal());
+  }
+  if (productForm) {
+    productForm.addEventListener('submit', saveProduct);
+  }
 }
 
 // Switch between admin sections
 function switchSection(sectionName) {
+  console.log('Switching to section:', sectionName);
+  
   // Update navigation
   navBtns.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.section === sectionName);
@@ -166,6 +169,9 @@ function switchSection(sectionName) {
     loadBanners();
   } else if (sectionName === 'products') {
     loadProducts();
+  } else if (sectionName === 'orders') {
+    loadOrders();
+    updateStats();
   }
 }
 
@@ -173,22 +179,29 @@ function switchSection(sectionName) {
 
 // Load banners
 async function loadBanners() {
-  const result = await bannerAPI.getAllBanners();
-  
-  if (result.success) {
-    renderBanners(result.data);
-  } else {
-    console.error('Error loading banners:', result.error);
-    showNotification('خطأ في تحميل صور البنر', 'error');
+  try {
+    const result = await bannerAPI.getAllBanners();
+    
+    if (result.success) {
+      renderBanners(result.data);
+    } else {
+      console.error('Error loading banners:', result.error);
+      renderBanners([]);
+    }
+  } catch (error) {
+    console.error('Error loading banners:', error);
+    renderBanners([]);
   }
 }
 
 // Render banners
 function renderBanners(banners) {
+  if (!bannersGrid) return;
+  
   if (banners.length === 0) {
     bannersGrid.innerHTML = `
-      <div class="no-data">
-        <i class="fas fa-images"></i>
+      <div class="no-data" style="text-align: center; padding: 3rem; color: #666;">
+        <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem;"></i>
         <h3>لا توجد صور بنر</h3>
         <p>اضغط على "إضافة صورة جديدة" لإضافة أول صورة</p>
       </div>
@@ -224,16 +237,15 @@ function renderBanners(banners) {
 
 // Open banner modal
 function openBannerModal(bannerId = null) {
+  if (!bannerModal) return;
+  
   currentBannerId = bannerId;
   
   if (bannerId) {
-    // Edit mode
     document.getElementById('bannerModalTitle').textContent = 'تعديل صورة البنر';
-    // Load banner data (you'll need to implement this)
   } else {
-    // Add mode
     document.getElementById('bannerModalTitle').textContent = 'إضافة صورة بنر';
-    bannerForm.reset();
+    if (bannerForm) bannerForm.reset();
   }
   
   bannerModal.classList.remove('hidden');
@@ -251,45 +263,32 @@ async function saveBanner(e) {
     display_order: parseInt(document.getElementById('bannerOrder').value)
   };
   
-  let result;
-  if (currentBannerId) {
-    result = await bannerAPI.updateBanner(currentBannerId, bannerData);
-  } else {
-    result = await bannerAPI.createBanner(bannerData);
-  }
-  
-  if (result.success) {
-    showNotification('تم حفظ صورة البنر بنجاح', 'success');
-    closeBannerModal();
-    loadBanners();
-  } else {
-    showNotification('خطأ في حفظ صورة البنر: ' + result.error, 'error');
-  }
-}
-
-// Edit banner
-async function editBanner(bannerId) {
-  // You'll need to implement getting banner by ID
-  openBannerModal(bannerId);
-}
-
-// Delete banner
-async function deleteBanner(bannerId) {
-  if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
-    const result = await bannerAPI.deleteBanner(bannerId);
+  try {
+    let result;
+    if (currentBannerId) {
+      result = await bannerAPI.updateBanner(currentBannerId, bannerData);
+    } else {
+      result = await bannerAPI.createBanner(bannerData);
+    }
     
     if (result.success) {
-      showNotification('تم حذف صورة البنر بنجاح', 'success');
+      showNotification('تم حفظ صورة البنر بنجاح', 'success');
+      closeBannerModal();
       loadBanners();
     } else {
-      showNotification('خطأ في حذف صورة البنر: ' + result.error, 'error');
+      showNotification('خطأ في حفظ صورة البنر: ' + result.error, 'error');
     }
+  } catch (error) {
+    console.error('Error saving banner:', error);
+    showNotification('خطأ في حفظ صورة البنر', 'error');
   }
 }
 
 // Close banner modal
 function closeBannerModal() {
-  bannerModal.classList.add('hidden');
+  if (bannerModal) {
+    bannerModal.classList.add('hidden');
+  }
   currentBannerId = null;
 }
 
@@ -297,22 +296,29 @@ function closeBannerModal() {
 
 // Load products
 async function loadProducts() {
-  const result = await productsAPI.getAllProducts();
-  
-  if (result.success) {
-    renderProducts(result.data);
-  } else {
-    console.error('Error loading products:', result.error);
-    showNotification('خطأ في تحميل المنتجات', 'error');
+  try {
+    const result = await productsAPI.getAllProducts();
+    
+    if (result.success) {
+      renderProducts(result.data);
+    } else {
+      console.error('Error loading products:', result.error);
+      renderProducts([]);
+    }
+  } catch (error) {
+    console.error('Error loading products:', error);
+    renderProducts([]);
   }
 }
 
 // Render products
 function renderProducts(products) {
+  if (!productsAdminGrid) return;
+  
   if (products.length === 0) {
     productsAdminGrid.innerHTML = `
-      <div class="no-data">
-        <i class="fas fa-box"></i>
+      <div class="no-data" style="text-align: center; padding: 3rem; color: #666;">
+        <i class="fas fa-box" style="font-size: 3rem; margin-bottom: 1rem;"></i>
         <h3>لا توجد منتجات</h3>
         <p>اضغط على "إضافة منتج جديد" لإضافة أول منتج</p>
       </div>
@@ -367,16 +373,15 @@ function renderProducts(products) {
 
 // Open product modal
 function openProductModal(productId = null) {
+  if (!productModal) return;
+  
   currentProductId = productId;
   
   if (productId) {
-    // Edit mode
     document.getElementById('productModalTitle').textContent = 'تعديل المنتج';
-    // Load product data (you'll need to implement this)
   } else {
-    // Add mode
     document.getElementById('productModalTitle').textContent = 'إضافة منتج جديد';
-    productForm.reset();
+    if (productForm) productForm.reset();
   }
   
   productModal.classList.remove('hidden');
@@ -400,56 +405,33 @@ async function saveProduct(e) {
     features: features
   };
   
-  let result;
-  if (currentProductId) {
-    result = await productsAPI.updateProduct(currentProductId, productData);
-  } else {
-    result = await productsAPI.createProduct(productData);
-  }
-  
-  if (result.success) {
-    showNotification('تم حفظ المنتج بنجاح', 'success');
-    closeProductModal();
-    loadProducts();
-    // Update the main website products
-    updateWebsiteProducts();
-  } else {
-    showNotification('خطأ في حفظ المنتج: ' + result.error, 'error');
-  }
-}
-
-// Edit product
-async function editProduct(productId) {
-  // You'll need to implement getting product by ID
-  openProductModal(productId);
-}
-
-// Delete product
-async function deleteProduct(productId) {
-  if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-    const result = await productsAPI.deleteProduct(productId);
+  try {
+    let result;
+    if (currentProductId) {
+      result = await productsAPI.updateProduct(currentProductId, productData);
+    } else {
+      result = await productsAPI.createProduct(productData);
+    }
     
     if (result.success) {
-      showNotification('تم حذف المنتج بنجاح', 'success');
+      showNotification('تم حفظ المنتج بنجاح', 'success');
+      closeProductModal();
       loadProducts();
-      updateWebsiteProducts();
     } else {
-      showNotification('خطأ في حذف المنتج: ' + result.error, 'error');
+      showNotification('خطأ في حفظ المنتج: ' + result.error, 'error');
     }
+  } catch (error) {
+    console.error('Error saving product:', error);
+    showNotification('خطأ في حفظ المنتج', 'error');
   }
 }
 
 // Close product modal
 function closeProductModal() {
-  productModal.classList.add('hidden');
+  if (productModal) {
+    productModal.classList.add('hidden');
+  }
   currentProductId = null;
-}
-
-// Update website products (this would typically trigger a rebuild)
-function updateWebsiteProducts() {
-  // In a real application, you might want to trigger a rebuild
-  // or update the products in real-time
-  console.log('Products updated - website should refresh products');
 }
 
 // Handle login
@@ -459,46 +441,53 @@ async function handleLogin(e) {
   const email = document.getElementById('username').value;
   const password = document.getElementById('password').value;
   
-  // Try Supabase authentication first
-  const result = await authAPI.signInAdmin(email, password);
-  
-  if (result.success) {
-    await showDashboard();
-    loginError.classList.remove('show');
-  } else if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
-    // Fallback to local authentication
+  // استخدام المصادقة المحلية أولاً
+  if (email === ADMIN_CREDENTIALS.email && password === ADMIN_CREDENTIALS.password) {
     localStorage.setItem('adminLoggedIn', 'true');
-    await showDashboard();
+    showDashboard();
     loginError.classList.remove('show');
-  } else {
+    return;
+  }
+  
+  // محاولة المصادقة عبر Supabase كخيار ثانوي
+  try {
+    const result = await authAPI.signInAdmin(email, password);
+    if (result.success) {
+      localStorage.setItem('adminLoggedIn', 'true');
+      showDashboard();
+      loginError.classList.remove('show');
+    } else {
+      throw new Error('Invalid credentials');
+    }
+  } catch (error) {
     loginError.textContent = 'اسم المستخدم أو كلمة المرور غير صحيحة';
     loginError.classList.add('show');
   }
 }
 
 // Handle logout
-async function handleLogout() {
-  await authAPI.signOut();
+function handleLogout() {
   localStorage.removeItem('adminLoggedIn');
-  await showLogin();
-  // Clear form
+  showLogin();
   loginForm.reset();
   loginError.classList.remove('show');
-  if (ordersSubscription) ordersSubscription.unsubscribe();
 }
 
-// Load orders from localStorage
+// Load orders
 async function loadOrders() {
-  // Try to load from Supabase first
-  const result = await ordersAPI.getAllOrders();
-  
-  if (result.success) {
-    currentOrders = result.data.map(order => ({
-      ...order,
-      date: order.created_at // Map created_at to date for compatibility
-    }));
-  } else {
-    // Fallback to localStorage
+  try {
+    const result = await ordersAPI.getAllOrders();
+    
+    if (result.success) {
+      currentOrders = result.data.map(order => ({
+        ...order,
+        date: order.created_at
+      }));
+    } else {
+      const orders = localStorage.getItem('customerOrders');
+      currentOrders = orders ? JSON.parse(orders) : [];
+    }
+  } catch (error) {
     const orders = localStorage.getItem('customerOrders');
     currentOrders = orders ? JSON.parse(orders) : [];
   }
@@ -508,23 +497,23 @@ async function loadOrders() {
 }
 
 // Update statistics
-async function updateStats() {
+function updateStats() {
   const total = currentOrders.length;
   const pending = currentOrders.filter(order => order.status === 'pending').length;
   const subscribed = currentOrders.filter(order => order.status === 'subscribed').length;
   const cancelled = currentOrders.filter(order => order.status === 'cancelled').length;
   
-  totalOrdersEl.textContent = total;
-  pendingOrdersEl.textContent = pending;
-  subscribedOrdersEl.textContent = subscribed;
-  cancelledOrdersEl.textContent = cancelled;
+  if (totalOrdersEl) totalOrdersEl.textContent = total;
+  if (pendingOrdersEl) pendingOrdersEl.textContent = pending;
+  if (subscribedOrdersEl) subscribedOrdersEl.textContent = subscribed;
+  if (cancelledOrdersEl) cancelledOrdersEl.textContent = cancelled;
 }
 
 // Apply filters
 function applyFilters() {
-  const statusValue = statusFilter.value;
-  const packageValue = packageFilter.value;
-  const searchValue = searchInput.value.toLowerCase();
+  const statusValue = statusFilter ? statusFilter.value : 'all';
+  const packageValue = packageFilter ? packageFilter.value : 'all';
+  const searchValue = searchInput ? searchInput.value.toLowerCase() : '';
   
   filteredOrders = currentOrders.filter(order => {
     const matchesStatus = statusValue === 'all' || order.status === statusValue;
@@ -542,22 +531,24 @@ function applyFilters() {
 
 // Clear all filters
 function clearFilters() {
-  statusFilter.value = 'all';
-  packageFilter.value = 'all';
-  searchInput.value = '';
+  if (statusFilter) statusFilter.value = 'all';
+  if (packageFilter) packageFilter.value = 'all';
+  if (searchInput) searchInput.value = '';
   filteredOrders = [...currentOrders];
   renderOrders();
 }
 
 // Render orders table
 function renderOrders() {
+  if (!ordersTableBody) return;
+  
   if (filteredOrders.length === 0) {
     ordersTableBody.innerHTML = '';
-    noOrdersEl.classList.remove('hidden');
+    if (noOrdersEl) noOrdersEl.classList.remove('hidden');
     return;
   }
   
-  noOrdersEl.classList.add('hidden');
+  if (noOrdersEl) noOrdersEl.classList.add('hidden');
   
   ordersTableBody.innerHTML = filteredOrders.map(order => `
     <tr>
@@ -639,27 +630,29 @@ function viewOrder(orderId) {
   // Setup status change buttons
   const statusButtons = document.querySelectorAll('.status-btn');
   statusButtons.forEach(btn => {
-    btn.addEventListener('click', () => changeOrderStatus(btn.dataset.status));
+    btn.onclick = () => changeOrderStatus(btn.dataset.status);
   });
   
   // Show modal
-  orderModal.classList.remove('hidden');
+  if (orderModal) orderModal.classList.remove('hidden');
 }
 
 // Change order status
 async function changeOrderStatus(newStatus) {
   if (!currentOrderId) return;
   
-  // Try to update in Supabase first
-  const result = await ordersAPI.updateOrderStatus(currentOrderId, newStatus);
-  
-  if (result.success) {
-    // Update local data
-    const orderIndex = currentOrders.findIndex(o => o.id === currentOrderId);
-    if (orderIndex !== -1) {
-      currentOrders[orderIndex].status = newStatus;
+  try {
+    const result = await ordersAPI.updateOrderStatus(currentOrderId, newStatus);
+    
+    if (result.success) {
+      const orderIndex = currentOrders.findIndex(o => o.id === currentOrderId);
+      if (orderIndex !== -1) {
+        currentOrders[orderIndex].status = newStatus;
+      }
+    } else {
+      throw new Error('Failed to update via Supabase');
     }
-  } else {
+  } catch (error) {
     // Fallback to localStorage
     const orderIndex = currentOrders.findIndex(o => o.id === currentOrderId);
     if (orderIndex === -1) return;
@@ -675,41 +668,42 @@ async function changeOrderStatus(newStatus) {
   
   // Refresh table and stats
   applyFilters();
-  await updateStats();
+  updateStats();
   
-  // Show success message
   showNotification('تم تحديث حالة الطلب بنجاح', 'success');
 }
 
 // Confirm delete order
-async function confirmDeleteOrder(orderId) {
+function confirmDeleteOrder(orderId) {
   if (confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
-    await deleteOrderById(orderId);
+    deleteOrderById(orderId);
   }
 }
 
 // Delete order
-async function deleteOrder() {
+function deleteOrder() {
   if (!currentOrderId) return;
   
   if (confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
-    await deleteOrderById(currentOrderId);
+    deleteOrderById(currentOrderId);
     closeModal();
   }
 }
 
 // Delete order by ID
 async function deleteOrderById(orderId) {
-  // Try to delete from Supabase first
-  const result = await ordersAPI.deleteOrder(orderId);
-  
-  if (result.success) {
-    // Remove from local data
-    const orderIndex = currentOrders.findIndex(o => o.id === orderId);
-    if (orderIndex !== -1) {
-      currentOrders.splice(orderIndex, 1);
+  try {
+    const result = await ordersAPI.deleteOrder(orderId);
+    
+    if (result.success) {
+      const orderIndex = currentOrders.findIndex(o => o.id === orderId);
+      if (orderIndex !== -1) {
+        currentOrders.splice(orderIndex, 1);
+      }
+    } else {
+      throw new Error('Failed to delete via Supabase');
     }
-  } else {
+  } catch (error) {
     // Fallback to localStorage
     const orderIndex = currentOrders.findIndex(o => o.id === orderId);
     if (orderIndex === -1) return;
@@ -727,7 +721,9 @@ async function deleteOrderById(orderId) {
 
 // Close modal
 function closeModal() {
-  orderModal.classList.add('hidden');
+  if (orderModal) orderModal.classList.add('hidden');
+  if (bannerModal) bannerModal.classList.add('hidden');
+  if (productModal) productModal.classList.add('hidden');
   currentOrderId = null;
 }
 
@@ -746,13 +742,12 @@ function exportData() {
       order.name,
       order.email,
       order.phone,
-      `"${order.message.replace(/"/g, '""')}"`, // Escape quotes in message
+      `"${order.message.replace(/"/g, '""')}"`,
       order.hub === 'hrhub' ? 'HR Hub' : 'Web Hub',
       getStatusText(order.status)
     ].join(','))
   ].join('\n');
   
-  // Create and download file
   const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
   const link = document.createElement('a');
   const url = URL.createObjectURL(blob);
@@ -768,7 +763,6 @@ function exportData() {
 
 // Show notification
 function showNotification(message, type = 'info') {
-  // Create notification element
   const notification = document.createElement('div');
   notification.className = `notification ${type}`;
   notification.innerHTML = `
@@ -776,7 +770,6 @@ function showNotification(message, type = 'info') {
     <span>${message}</span>
   `;
   
-  // Add styles
   notification.style.cssText = `
     position: fixed;
     top: 20px;
@@ -798,16 +791,16 @@ function showNotification(message, type = 'info') {
   
   document.body.appendChild(notification);
   
-  // Animate in
   setTimeout(() => {
     notification.style.transform = 'translateX(0)';
   }, 100);
   
-  // Remove after 3 seconds
   setTimeout(() => {
     notification.style.transform = 'translateX(100%)';
     setTimeout(() => {
-      document.body.removeChild(notification);
+      if (document.body.contains(notification)) {
+        document.body.removeChild(notification);
+      }
     }, 300);
   }, 3000);
 }
@@ -819,7 +812,51 @@ window.editBanner = editBanner;
 window.deleteBanner = deleteBanner;
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
-window.editBanner = editBanner;
-window.deleteBanner = deleteBanner;
-window.editProduct = editProduct;
-window.deleteProduct = deleteProduct;  
+
+// Edit banner function
+async function editBanner(bannerId) {
+  openBannerModal(bannerId);
+}
+
+// Delete banner function
+async function deleteBanner(bannerId) {
+  if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+    try {
+      const result = await bannerAPI.deleteBanner(bannerId);
+      
+      if (result.success) {
+        showNotification('تم حذف صورة البنر بنجاح', 'success');
+        loadBanners();
+      } else {
+        showNotification('خطأ في حذف صورة البنر: ' + result.error, 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting banner:', error);
+      showNotification('خطأ في حذف صورة البنر', 'error');
+    }
+  }
+}
+
+// Edit product function
+async function editProduct(productId) {
+  openProductModal(productId);
+}
+
+// Delete product function
+async function deleteProduct(productId) {
+  if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+    try {
+      const result = await productsAPI.deleteProduct(productId);
+      
+      if (result.success) {
+        showNotification('تم حذف المنتج بنجاح', 'success');
+        loadProducts();
+      } else {
+        showNotification('خطأ في حذف المنتج: ' + result.error, 'error');
+      }
+    } catch (error) {
+      console.error('Error deleting product:', error);
+      showNotification('خطأ في حذف المنتج', 'error');
+    }
+  }
+}
