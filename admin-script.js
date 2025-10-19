@@ -58,7 +58,6 @@ let filteredOrders = [];
 let currentOrderId = null;
 let currentBannerId = null;
 let currentProductId = null;
-let ordersSubscription = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -152,8 +151,6 @@ function setupEventListeners() {
 
 // Switch between admin sections
 function switchSection(sectionName) {
-  console.log('Switching to section:', sectionName);
-  
   // Update navigation
   navBtns.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.section === sectionName);
@@ -483,13 +480,14 @@ async function loadOrders() {
         ...order,
         date: order.created_at
       }));
+      console.log('✅ Orders loaded successfully:', currentOrders.length);
     } else {
-      const orders = localStorage.getItem('customerOrders');
-      currentOrders = orders ? JSON.parse(orders) : [];
+      console.error('❌ Failed to load orders:', result.error);
+      currentOrders = [];
     }
   } catch (error) {
-    const orders = localStorage.getItem('customerOrders');
-    currentOrders = orders ? JSON.parse(orders) : [];
+    console.error('❌ Error loading orders:', error);
+    currentOrders = [];
   }
   
   filteredOrders = [...currentOrders];
@@ -700,16 +698,12 @@ async function deleteOrderById(orderId) {
       if (orderIndex !== -1) {
         currentOrders.splice(orderIndex, 1);
       }
+      console.log('✅ Order deleted successfully');
     } else {
-      throw new Error('Failed to delete via Supabase');
+      console.error('❌ Failed to delete order:', result.error);
     }
   } catch (error) {
-    // Fallback to localStorage
-    const orderIndex = currentOrders.findIndex(o => o.id === orderId);
-    if (orderIndex === -1) return;
-    
-    currentOrders.splice(orderIndex, 1);
-    localStorage.setItem('customerOrders', JSON.stringify(currentOrders));
+    console.error('❌ Error deleting order:', error);
   }
   
   // Refresh UI
