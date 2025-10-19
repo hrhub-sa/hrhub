@@ -1,4 +1,5 @@
 import { ordersAPI, authAPI } from './supabase-client.js';
+import { bannerAPI, productsAPI } from './supabase-client.js';
 
 // Admin credentials (في التطبيق الحقيقي، يجب تشفير هذه البيانات)
 const ADMIN_CREDENTIALS = {
@@ -30,6 +31,22 @@ const ordersTableBody = document.getElementById('ordersTableBody');
 const noOrdersEl = document.getElementById('noOrders');
 const exportBtn = document.getElementById('exportBtn');
 
+// Navigation elements
+const navBtns = document.querySelectorAll('.nav-btn');
+const adminSections = document.querySelectorAll('.admin-section');
+
+// Banner elements
+const addBannerBtn = document.getElementById('addBannerBtn');
+const bannerModal = document.getElementById('bannerModal');
+const bannerForm = document.getElementById('bannerForm');
+const bannersGrid = document.getElementById('bannersGrid');
+
+// Product elements
+const addProductBtn = document.getElementById('addProductBtn');
+const productModal = document.getElementById('productModal');
+const productForm = document.getElementById('productForm');
+const productsAdminGrid = document.getElementById('productsAdminGrid');
+
 // Modal elements
 const orderModal = document.getElementById('orderModal');
 const closeModalBtns = document.querySelectorAll('.close-modal');
@@ -39,6 +56,8 @@ const deleteOrderBtn = document.getElementById('deleteOrderBtn');
 let currentOrders = [];
 let filteredOrders = [];
 let currentOrderId = null;
+let currentBannerId = null;
+let currentProductId = null;
 let ordersSubscription = null;
 
 // Initialize app
@@ -46,6 +65,8 @@ document.addEventListener('DOMContentLoaded', () => {
   checkAuthStatus();
   setupEventListeners();
   setupRealtimeSubscription();
+  loadBanners();
+  loadProducts();
 });
 
 // Check if user is already logged in
@@ -103,6 +124,19 @@ function setupEventListeners() {
   
   // Delete order button
   deleteOrderBtn.addEventListener('click', deleteOrder);
+  
+  // Navigation
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => switchSection(btn.dataset.section));
+  });
+  
+  // Banner management
+  addBannerBtn.addEventListener('click', () => openBannerModal());
+  bannerForm.addEventListener('submit', saveBanner);
+  
+  // Product management
+  addProductBtn.addEventListener('click', () => openProductModal());
+  productForm.addEventListener('submit', saveProduct);
 }
 
 // Setup realtime subscription
@@ -113,6 +147,309 @@ function setupRealtimeSubscription() {
     loadOrders();
     updateStats();
   });
+}
+
+// Switch between admin sections
+function switchSection(sectionName) {
+  // Update navigation
+  navBtns.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.section === sectionName);
+  });
+  
+  // Update sections
+  adminSections.forEach(section => {
+    section.classList.toggle('active', section.id === sectionName + 'Section');
+  });
+  
+  // Load data for the active section
+  if (sectionName === 'banners') {
+    loadBanners();
+  } else if (sectionName === 'products') {
+    loadProducts();
+  }
+}
+
+// ===== Banner Management =====
+
+// Load banners
+async function loadBanners() {
+  const result = await bannerAPI.getAllBanners();
+  
+  if (result.success) {
+    renderBanners(result.data);
+  } else {
+    console.error('Error loading banners:', result.error);
+    showNotification('خطأ في تحميل صور البنر', 'error');
+  }
+}
+
+// Render banners
+function renderBanners(banners) {
+  if (banners.length === 0) {
+    bannersGrid.innerHTML = `
+      <div class="no-data">
+        <i class="fas fa-images"></i>
+        <h3>لا توجد صور بنر</h3>
+        <p>اضغط على "إضافة صورة جديدة" لإضافة أول صورة</p>
+      </div>
+    `;
+    return;
+  }
+  
+  bannersGrid.innerHTML = banners.map(banner => `
+    <div class="banner-card">
+      <img src="${banner.image_url}" alt="${banner.alt_text}" class="banner-image" 
+           onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDMwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTkiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZHk9Ii4zZW0iPtmE2Kcg2YrZhdmD2YYg2KrYrdmF2YrZhCDYp9mE2LXZiNix2KU8L3RleHQ+Cjwvc3ZnPg=='">
+      <div class="banner-info">
+        <h3 class="banner-title">${banner.title}</h3>
+        <div class="banner-meta">
+          <span class="hub-type ${banner.hub_type}">
+            ${banner.hub_type === 'hrhub' ? 'HR Hub' : 'Web Hub'}
+          </span>
+          <span>ترتيب: ${banner.display_order}</span>
+        </div>
+        <div class="banner-actions">
+          <button class="edit-btn" onclick="editBanner('${banner.id}')">
+            <i class="fas fa-edit"></i>
+            تعديل
+          </button>
+          <button class="delete-btn" onclick="deleteBanner('${banner.id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Open banner modal
+function openBannerModal(bannerId = null) {
+  currentBannerId = bannerId;
+  
+  if (bannerId) {
+    // Edit mode
+    document.getElementById('bannerModalTitle').textContent = 'تعديل صورة البنر';
+    // Load banner data (you'll need to implement this)
+  } else {
+    // Add mode
+    document.getElementById('bannerModalTitle').textContent = 'إضافة صورة بنر';
+    bannerForm.reset();
+  }
+  
+  bannerModal.classList.remove('hidden');
+}
+
+// Save banner
+async function saveBanner(e) {
+  e.preventDefault();
+  
+  const bannerData = {
+    title: document.getElementById('bannerTitle').value,
+    image_url: document.getElementById('bannerImageUrl').value,
+    alt_text: document.getElementById('bannerAltText').value,
+    hub_type: document.getElementById('bannerHubType').value,
+    display_order: parseInt(document.getElementById('bannerOrder').value)
+  };
+  
+  let result;
+  if (currentBannerId) {
+    result = await bannerAPI.updateBanner(currentBannerId, bannerData);
+  } else {
+    result = await bannerAPI.createBanner(bannerData);
+  }
+  
+  if (result.success) {
+    showNotification('تم حفظ صورة البنر بنجاح', 'success');
+    closeBannerModal();
+    loadBanners();
+  } else {
+    showNotification('خطأ في حفظ صورة البنر: ' + result.error, 'error');
+  }
+}
+
+// Edit banner
+async function editBanner(bannerId) {
+  // You'll need to implement getting banner by ID
+  openBannerModal(bannerId);
+}
+
+// Delete banner
+async function deleteBanner(bannerId) {
+  if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
+    const result = await bannerAPI.deleteBanner(bannerId);
+    
+    if (result.success) {
+      showNotification('تم حذف صورة البنر بنجاح', 'success');
+      loadBanners();
+    } else {
+      showNotification('خطأ في حذف صورة البنر: ' + result.error, 'error');
+    }
+  }
+}
+
+// Close banner modal
+function closeBannerModal() {
+  bannerModal.classList.add('hidden');
+  currentBannerId = null;
+}
+
+// ===== Products Management =====
+
+// Load products
+async function loadProducts() {
+  const result = await productsAPI.getAllProducts();
+  
+  if (result.success) {
+    renderProducts(result.data);
+  } else {
+    console.error('Error loading products:', result.error);
+    showNotification('خطأ في تحميل المنتجات', 'error');
+  }
+}
+
+// Render products
+function renderProducts(products) {
+  if (products.length === 0) {
+    productsAdminGrid.innerHTML = `
+      <div class="no-data">
+        <i class="fas fa-box"></i>
+        <h3>لا توجد منتجات</h3>
+        <p>اضغط على "إضافة منتج جديد" لإضافة أول منتج</p>
+      </div>
+    `;
+    return;
+  }
+  
+  productsAdminGrid.innerHTML = products.map(product => `
+    <div class="product-admin-card">
+      <div class="product-header">
+        <div class="product-icon-display">
+          <i class="${product.icon}"></i>
+        </div>
+        <h3 class="product-name">${product.name}</h3>
+      </div>
+      
+      <p class="product-description">${product.description}</p>
+      
+      <div class="product-details-grid">
+        <div class="product-detail">
+          <strong>${product.price} ريال</strong>
+          <span>السعر</span>
+        </div>
+        <div class="product-detail">
+          <strong>${product.duration}</strong>
+          <span>المدة</span>
+        </div>
+      </div>
+      
+      ${product.features && product.features.length > 0 ? `
+        <div class="product-features-list">
+          <h4>المميزات:</h4>
+          <ul>
+            ${product.features.map(feature => `<li>${feature}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+      
+      <div class="product-actions">
+        <button class="edit-btn" onclick="editProduct('${product.id}')">
+          <i class="fas fa-edit"></i>
+          تعديل
+        </button>
+        <button class="delete-btn" onclick="deleteProduct('${product.id}')">
+          <i class="fas fa-trash"></i>
+          حذف
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Open product modal
+function openProductModal(productId = null) {
+  currentProductId = productId;
+  
+  if (productId) {
+    // Edit mode
+    document.getElementById('productModalTitle').textContent = 'تعديل المنتج';
+    // Load product data (you'll need to implement this)
+  } else {
+    // Add mode
+    document.getElementById('productModalTitle').textContent = 'إضافة منتج جديد';
+    productForm.reset();
+  }
+  
+  productModal.classList.remove('hidden');
+}
+
+// Save product
+async function saveProduct(e) {
+  e.preventDefault();
+  
+  const featuresText = document.getElementById('productFeatures').value;
+  const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
+  
+  const productData = {
+    name: document.getElementById('productName').value,
+    description: document.getElementById('productDescription').value,
+    price: parseFloat(document.getElementById('productPrice').value),
+    duration: document.getElementById('productDuration').value,
+    image_url: document.getElementById('productImageUrl').value,
+    icon: document.getElementById('productIcon').value,
+    display_order: parseInt(document.getElementById('productOrder').value),
+    features: features
+  };
+  
+  let result;
+  if (currentProductId) {
+    result = await productsAPI.updateProduct(currentProductId, productData);
+  } else {
+    result = await productsAPI.createProduct(productData);
+  }
+  
+  if (result.success) {
+    showNotification('تم حفظ المنتج بنجاح', 'success');
+    closeProductModal();
+    loadProducts();
+    // Update the main website products
+    updateWebsiteProducts();
+  } else {
+    showNotification('خطأ في حفظ المنتج: ' + result.error, 'error');
+  }
+}
+
+// Edit product
+async function editProduct(productId) {
+  // You'll need to implement getting product by ID
+  openProductModal(productId);
+}
+
+// Delete product
+async function deleteProduct(productId) {
+  if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
+    const result = await productsAPI.deleteProduct(productId);
+    
+    if (result.success) {
+      showNotification('تم حذف المنتج بنجاح', 'success');
+      loadProducts();
+      updateWebsiteProducts();
+    } else {
+      showNotification('خطأ في حذف المنتج: ' + result.error, 'error');
+    }
+  }
+}
+
+// Close product modal
+function closeProductModal() {
+  productModal.classList.add('hidden');
+  currentProductId = null;
+}
+
+// Update website products (this would typically trigger a rebuild)
+function updateWebsiteProducts() {
+  // In a real application, you might want to trigger a rebuild
+  // or update the products in real-time
+  console.log('Products updated - website should refresh products');
 }
 
 // Handle login
@@ -478,3 +815,7 @@ function showNotification(message, type = 'info') {
 // Make functions globally available
 window.viewOrder = viewOrder;
 window.confirmDeleteOrder = confirmDeleteOrder;
+window.editBanner = editBanner;
+window.deleteBanner = deleteBanner;
+window.editProduct = editProduct;
+window.deleteProduct = deleteProduct;
