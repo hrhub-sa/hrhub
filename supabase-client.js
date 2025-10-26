@@ -152,14 +152,18 @@ export const ordersAPI = {
 // Banner Images API functions
 export const bannerAPI = {
   // جلب جميع صور البنر
-  async getAllBanners(hubType = null) {
+  async getAllBanners(hubType = null, includeHidden = false) {
     if (isSupabaseAvailable()) {
       try {
         let query = supabase
           .from('banner_images')
           .select('*')
-          .eq('is_active', true)
           .order('display_order', { ascending: true });
+        
+        // إذا لم نطلب المخفية، فلتر فقط الظاهرة
+        if (!includeHidden) {
+          query = query.eq('is_active', true);
+        }
         
         if (hubType) {
           query = query.eq('hub_type', hubType);
@@ -168,7 +172,7 @@ export const bannerAPI = {
         const { data, error } = await query;
         
         if (error) throw error;
-        console.log('✅ Banners fetched from Supabase:', data?.length || 0);
+        console.log(`✅ Banners fetched from Supabase: ${data?.length || 0} ${includeHidden ? '(including hidden)' : '(visible only)'}`);
         return { success: true, data: data || [] };
       } catch (error) {
         console.error('❌ Error fetching banners from Supabase:', error);
@@ -379,17 +383,23 @@ export const settingsAPI = {
 // Products API functions
 export const productsAPI = {
   // جلب جميع المنتجات
-  async getAllProducts() {
+  async getAllProducts(includeHidden = false) {
     if (isSupabaseAvailable()) {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('products')
           .select('*')
-          .eq('is_active', true)
           .order('display_order', { ascending: true });
         
+        // إذا لم نطلب المخفية، فلتر فقط الظاهرة
+        if (!includeHidden) {
+          query = query.eq('is_active', true);
+        }
+        
+        const { data, error } = await query;
+        
         if (error) throw error;
-        console.log('✅ Products fetched from Supabase:', data?.length || 0);
+        console.log(`✅ Products fetched from Supabase: ${data?.length || 0} ${includeHidden ? '(including hidden)' : '(visible only)'}`);
         return { success: true, data: data || [] };
       } catch (error) {
         console.error('❌ Error fetching products from Supabase:', error);
