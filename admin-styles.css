@@ -814,10 +814,66 @@ body {
   color: var(--accent);
 }
 
+.visibility-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.visibility-status.visible {
+  background: rgba(76,175,80,0.1);
+  color: var(--success);
+  border: 1px solid rgba(76,175,80,0.3);
+}
+
+.visibility-status.hidden {
+  background: rgba(158,158,158,0.1);
+  color: #9e9e9e;
+  border: 1px solid rgba(158,158,158,0.3);
+}
+
+.visibility-btn {
+  background: var(--warning);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.visibility-btn.show {
+  background: var(--success);
+}
+
+.visibility-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.9;
+}
+
 .banner-actions,
 .product-actions {
   display: flex;
   gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.product-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.product-header .product-name {
+  flex: 1;
+  margin: 0 1rem 0 0;
 }
 
 .edit-btn {
