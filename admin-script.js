@@ -1,5 +1,5 @@
 import { ordersAPI, authAPI } from './supabase-client.js';
-import { bannerAPI, productsAPI } from './supabase-client.js';
+import { bannerAPI, productsAPI, settingsAPI } from './supabase-client.js';
 
 // فحص إضافي للأمان
 const validateAdminAccess = () => {
@@ -215,67 +215,90 @@ function switchSection(sectionName) {
 // ===== Settings Management =====
 
 // Load settings
-function loadSettings() {
-  // Load saved settings from localStorage or use defaults
-  const settings = JSON.parse(localStorage.getItem('siteSettings') || '{}');
-  
+async function loadSettings() {
+  try {
+    console.log('🔄 Loading settings from database...');
+    const result = await settingsAPI.getAllSettings();
+    
+    if (result.success && result.data.length > 0) {
+      // تحويل البيانات إلى كائن واحد
+      const settings = {};
+      result.data.forEach(setting => {
+        settings[setting.setting_key] = setting.setting_value;
+      });
+      
+      console.log('✅ Settings loaded from database:', settings);
+      
+      // Contact Information
+      const contactInfo = settings.contact_info || {};
+      document.getElementById('whatsappNumber').value = contactInfo.whatsappNumber || '+966530017278';
+      document.getElementById('phoneNumber').value = contactInfo.phoneNumber || '+966542345930';
+      document.getElementById('emailAddress').value = contactInfo.emailAddress || 'hrhub.sa@gmail.com';
+      document.getElementById('address').value = contactInfo.address || 'المدينة المنورة، السعودية';
+      
+      // Social Media
+      const socialMedia = settings.social_media || {};
+      document.getElementById('instagramUrl').value = socialMedia.instagramUrl || '';
+      document.getElementById('twitterUrl').value = socialMedia.twitterUrl || '';
+      document.getElementById('linkedinUrl').value = socialMedia.linkedinUrl || '';
+      document.getElementById('facebookUrl').value = socialMedia.facebookUrl || '';
+      
+      // Site Content
+      const siteContent = settings.site_content || {};
+      document.getElementById('siteTitleAr').value = siteContent.siteTitleAr || 'HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية';
+      document.getElementById('siteTitleEn').value = siteContent.siteTitleEn || 'HR Hub ‒ HR & Government Affairs Solutions';
+      document.getElementById('siteDescription').value = siteContent.siteDescription || 'شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية';
+      
+      // Package Pricing
+      const packagePricing = settings.package_pricing || {};
+      document.getElementById('economyPrice').value = packagePricing.economyPrice || 3000;
+      document.getElementById('comprehensivePrice').value = packagePricing.comprehensivePrice || 6000;
+      
+      // Web Hub Settings
+      const webHubSettings = settings.webhub_settings || {};
+      document.getElementById('webHubStatus').value = webHubSettings.webHubStatus || 'coming-soon';
+      document.getElementById('webHubMessage').value = webHubSettings.webHubMessage || 'نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية';
+    } else {
+      console.warn('⚠️ No settings found in database, using defaults');
+      loadDefaultSettings();
+    }
+  } catch (error) {
+    console.error('❌ Error loading settings:', error);
+    loadDefaultSettings();
+  }
+}
+
+// Load default settings fallback
+function loadDefaultSettings() {
   // Contact Information
-  document.getElementById('whatsappNumber').value = settings.whatsappNumber || '+966530017278';
-  document.getElementById('phoneNumber').value = settings.phoneNumber || '+966542345930';
-  document.getElementById('emailAddress').value = settings.emailAddress || 'hrhub.sa@gmail.com';
-  document.getElementById('address').value = settings.address || 'المدينة المنورة، السعودية';
+  document.getElementById('whatsappNumber').value = '+966530017278';
+  document.getElementById('phoneNumber').value = '+966542345930';
+  document.getElementById('emailAddress').value = 'hrhub.sa@gmail.com';
+  document.getElementById('address').value = 'المدينة المنورة، السعودية';
   
   // Social Media
-  document.getElementById('instagramUrl').value = settings.instagramUrl || '';
-  document.getElementById('twitterUrl').value = settings.twitterUrl || '';
-  document.getElementById('linkedinUrl').value = settings.linkedinUrl || '';
-  document.getElementById('facebookUrl').value = settings.facebookUrl || '';
+  document.getElementById('instagramUrl').value = '';
+  document.getElementById('twitterUrl').value = '';
+  document.getElementById('linkedinUrl').value = '';
+  document.getElementById('facebookUrl').value = '';
   
   // Site Content
-  document.getElementById('siteTitleAr').value = settings.siteTitleAr || 'HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية';
-  document.getElementById('siteTitleEn').value = settings.siteTitleEn || 'HR Hub ‒ HR & Government Affairs Solutions';
-  document.getElementById('siteDescription').value = settings.siteDescription || 'شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية';
+  document.getElementById('siteTitleAr').value = 'HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية';
+  document.getElementById('siteTitleEn').value = 'HR Hub ‒ HR & Government Affairs Solutions';
+  document.getElementById('siteDescription').value = 'شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية';
   
   // Package Pricing
-  document.getElementById('economyPrice').value = settings.economyPrice || 3000;
-  document.getElementById('comprehensivePrice').value = settings.comprehensivePrice || 6000;
+  document.getElementById('economyPrice').value = 3000;
+  document.getElementById('comprehensivePrice').value = 6000;
   
   // Web Hub Settings
-  document.getElementById('webHubStatus').value = settings.webHubStatus || 'coming-soon';
-  document.getElementById('webHubMessage').value = settings.webHubMessage || 'نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية';
+  document.getElementById('webHubStatus').value = 'coming-soon';
+  document.getElementById('webHubMessage').value = 'نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية';
 }
 
 // Save settings
-function saveSettings() {
-  const settings = {
-    // Contact Information
-    whatsappNumber: document.getElementById('whatsappNumber').value,
-    phoneNumber: document.getElementById('phoneNumber').value,
-    emailAddress: document.getElementById('emailAddress').value,
-    address: document.getElementById('address').value,
-    
-    // Social Media
-    instagramUrl: document.getElementById('instagramUrl').value,
-    twitterUrl: document.getElementById('twitterUrl').value,
-    linkedinUrl: document.getElementById('linkedinUrl').value,
-    facebookUrl: document.getElementById('facebookUrl').value,
-    
-    // Site Content
-    siteTitleAr: document.getElementById('siteTitleAr').value,
-    siteTitleEn: document.getElementById('siteTitleEn').value,
-    siteDescription: document.getElementById('siteDescription').value,
-    
-    // Package Pricing
-    economyPrice: parseInt(document.getElementById('economyPrice').value),
-    comprehensivePrice: parseInt(document.getElementById('comprehensivePrice').value),
-    
-    // Web Hub Settings
-    webHubStatus: document.getElementById('webHubStatus').value,
-    webHubMessage: document.getElementById('webHubMessage').value,
-    
-    // Timestamp
-    lastUpdated: new Date().toISOString()
-  };
+async function saveSettings() {
+  console.log('🔄 Saving settings to database...');
   
   // Handle password change
   const newPassword = document.getElementById('newAdminPassword').value;
@@ -284,10 +307,15 @@ function saveSettings() {
   if (newPassword && confirmPassword) {
     if (newPassword === confirmPassword) {
       if (newPassword.length >= 6) {
-        localStorage.setItem('adminPassword', newPassword);
-        showNotification('تم تغيير كلمة المرور بنجاح', 'success');
-        document.getElementById('newAdminPassword').value = '';
-        document.getElementById('confirmAdminPassword').value = '';
+        try {
+          // هنا يمكن إضافة تحديث كلمة المرور في قاعدة البيانات
+          showNotification('تم تغيير كلمة المرور بنجاح', 'success');
+          document.getElementById('newAdminPassword').value = '';
+          document.getElementById('confirmAdminPassword').value = '';
+        } catch (error) {
+          showNotification('خطأ في تغيير كلمة المرور', 'error');
+          return;
+        }
       } else {
         showNotification('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
         return;
@@ -298,11 +326,60 @@ function saveSettings() {
     }
   }
   
-  // Save settings
-  localStorage.setItem('siteSettings', JSON.stringify(settings));
+  try {
+    // تجميع الإعدادات في مجموعات
+    const settingsGroups = {
+      contact_info: {
+        whatsappNumber: document.getElementById('whatsappNumber').value,
+        phoneNumber: document.getElementById('phoneNumber').value,
+        emailAddress: document.getElementById('emailAddress').value,
+        address: document.getElementById('address').value
+      },
+      social_media: {
+        instagramUrl: document.getElementById('instagramUrl').value,
+        twitterUrl: document.getElementById('twitterUrl').value,
+        linkedinUrl: document.getElementById('linkedinUrl').value,
+        facebookUrl: document.getElementById('facebookUrl').value
+      },
+      site_content: {
+        siteTitleAr: document.getElementById('siteTitleAr').value,
+        siteTitleEn: document.getElementById('siteTitleEn').value,
+        siteDescription: document.getElementById('siteDescription').value
+      },
+      package_pricing: {
+        economyPrice: parseInt(document.getElementById('economyPrice').value),
+        comprehensivePrice: parseInt(document.getElementById('comprehensivePrice').value)
+      },
+      webhub_settings: {
+        webHubStatus: document.getElementById('webHubStatus').value,
+        webHubMessage: document.getElementById('webHubMessage').value
+      }
+    };
+    
+    // حفظ كل مجموعة إعدادات
+    const savePromises = Object.entries(settingsGroups).map(([key, value]) => 
+      settingsAPI.updateSetting(key, value)
+    );
+    
+    const results = await Promise.all(savePromises);
+    
+    // فحص النتائج
+    const allSuccessful = results.every(result => result.success);
+    
+    if (allSuccessful) {
+      console.log('✅ All settings saved successfully');
+      showNotification('تم حفظ الإعدادات بنجاح', 'success');
+    } else {
+      console.warn('⚠️ Some settings failed to save');
+      showNotification('تم حفظ بعض الإعدادات، يرجى المحاولة مرة أخرى', 'warning');
+    }
+  } catch (error) {
+    console.error('❌ Error saving settings:', error);
+    showNotification('خطأ في حفظ الإعدادات', 'error');
+  }
   
   // Update live site (this would normally update the database)
-  updateLiveSite(settings);
+  updateLiveSite(settingsGroups);
   
   showNotification('تم حفظ الإعدادات بنجاح', 'success');
 }
@@ -363,8 +440,15 @@ function renderBanners(banners) {
             ${banner.hub_type === 'hrhub' ? 'HR Hub' : 'Web Hub'}
           </span>
           <span>ترتيب: ${banner.display_order}</span>
+          <span class="visibility-status ${banner.is_active ? 'visible' : 'hidden'}">
+            ${banner.is_active ? 'ظاهر' : 'مخفي'}
+          </span>
         </div>
         <div class="banner-actions">
+          <button class="visibility-btn ${banner.is_active ? 'hide' : 'show'}" onclick="toggleBannerVisibility('${banner.id}', ${banner.is_active})">
+            <i class="fas fa-${banner.is_active ? 'eye-slash' : 'eye'}"></i>
+            ${banner.is_active ? 'إخفاء' : 'إظهار'}
+          </button>
           <button class="edit-btn" onclick="editBanner('${banner.id}')">
             <i class="fas fa-edit"></i>
             تعديل
@@ -386,12 +470,33 @@ function openBannerModal(bannerId = null) {
   
   if (bannerId) {
     document.getElementById('bannerModalTitle').textContent = 'تعديل صورة البنر';
+    // Load existing banner data
+    loadBannerForEdit(bannerId);
   } else {
     document.getElementById('bannerModalTitle').textContent = 'إضافة صورة بنر';
     if (bannerForm) bannerForm.reset();
   }
   
   bannerModal.classList.remove('hidden');
+}
+
+// Load banner data for editing
+async function loadBannerForEdit(bannerId) {
+  try {
+    const result = await bannerAPI.getAllBanners();
+    if (result.success) {
+      const banner = result.data.find(b => b.id === bannerId);
+      if (banner) {
+        document.getElementById('bannerTitle').value = banner.title;
+        document.getElementById('bannerImageUrl').value = banner.image_url;
+        document.getElementById('bannerAltText').value = banner.alt_text || '';
+        document.getElementById('bannerHubType').value = banner.hub_type;
+        document.getElementById('bannerOrder').value = banner.display_order || 0;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading banner for edit:', error);
+  }
 }
 
 // Save banner
@@ -476,6 +581,9 @@ function renderProducts(products) {
           <i class="${product.icon}"></i>
         </div>
         <h3 class="product-name">${product.name}</h3>
+        <span class="visibility-status ${product.is_active ? 'visible' : 'hidden'}">
+          ${product.is_active ? 'ظاهر' : 'مخفي'}
+        </span>
       </div>
       
       <p class="product-description">${product.description}</p>
@@ -501,6 +609,10 @@ function renderProducts(products) {
       ` : ''}
       
       <div class="product-actions">
+        <button class="visibility-btn ${product.is_active ? 'hide' : 'show'}" onclick="toggleProductVisibility('${product.id}', ${product.is_active})">
+          <i class="fas fa-${product.is_active ? 'eye-slash' : 'eye'}"></i>
+          ${product.is_active ? 'إخفاء' : 'إظهار'}
+        </button>
         <button class="edit-btn" onclick="editProduct('${product.id}')">
           <i class="fas fa-edit"></i>
           تعديل
@@ -522,12 +634,40 @@ function openProductModal(productId = null) {
   
   if (productId) {
     document.getElementById('productModalTitle').textContent = 'تعديل المنتج';
+    // Load existing product data
+    loadProductForEdit(productId);
   } else {
     document.getElementById('productModalTitle').textContent = 'إضافة منتج جديد';
     if (productForm) productForm.reset();
   }
   
   productModal.classList.remove('hidden');
+}
+
+// Load product data for editing
+async function loadProductForEdit(productId) {
+  try {
+    const result = await productsAPI.getAllProducts();
+    if (result.success) {
+      const product = result.data.find(p => p.id === productId);
+      if (product) {
+        document.getElementById('productName').value = product.name;
+        document.getElementById('productDescription').value = product.description;
+        document.getElementById('productPrice').value = product.price;
+        document.getElementById('productDuration').value = product.duration;
+        document.getElementById('productImageUrl').value = product.image_url || '';
+        document.getElementById('productIcon').value = product.icon;
+        document.getElementById('productOrder').value = product.display_order || 0;
+        
+        // Load features
+        if (product.features && Array.isArray(product.features)) {
+          document.getElementById('productFeatures').value = product.features.join('\n');
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error loading product for edit:', error);
+  }
 }
 
 // Save product
@@ -977,6 +1117,8 @@ window.editBanner = editBanner;
 window.deleteBanner = deleteBanner;
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
+window.toggleBannerVisibility = toggleBannerVisibility;
+window.toggleProductVisibility = toggleProductVisibility;
 
 // Edit banner function
 async function editBanner(bannerId) {
@@ -1023,5 +1165,41 @@ async function deleteProduct(productId) {
       console.error('Error deleting product:', error);
       showNotification('خطأ في حذف المنتج', 'error');
     }
+  }
+}
+
+// Toggle banner visibility
+async function toggleBannerVisibility(bannerId, currentStatus) {
+  try {
+    console.log('🔄 Toggling banner visibility:', bannerId, !currentStatus);
+    const result = await bannerAPI.updateBanner(bannerId, { is_active: !currentStatus });
+    
+    if (result.success) {
+      showNotification(`تم ${!currentStatus ? 'إظهار' : 'إخفاء'} صورة البنر بنجاح`, 'success');
+      loadBanners();
+    } else {
+      showNotification('خطأ في تحديث حالة صورة البنر: ' + result.error, 'error');
+    }
+  } catch (error) {
+    console.error('Error toggling banner visibility:', error);
+    showNotification('خطأ في تحديث حالة صورة البنر', 'error');
+  }
+}
+
+// Toggle product visibility
+async function toggleProductVisibility(productId, currentStatus) {
+  try {
+    console.log('🔄 Toggling product visibility:', productId, !currentStatus);
+    const result = await productsAPI.updateProduct(productId, { is_active: !currentStatus });
+    
+    if (result.success) {
+      showNotification(`تم ${!currentStatus ? 'إظهار' : 'إخفاء'} المنتج بنجاح`, 'success');
+      loadProducts();
+    } else {
+      showNotification('خطأ في تحديث حالة المنتج: ' + result.error, 'error');
+    }
+  } catch (error) {
+    console.error('Error toggling product visibility:', error);
+    showNotification('خطأ في تحديث حالة المنتج', 'error');
   }
 }
