@@ -400,7 +400,8 @@ function updateLiveSite(settings) {
 // Load banners
 async function loadBanners() {
   try {
-    const result = await bannerAPI.getAllBanners();
+    // تحميل جميع صور البنر بما في ذلك المخفية للإدارة
+    const result = await bannerAPI.getAllBanners(null, true); // true = include hidden
     
     if (result.success) {
       renderBanners(result.data);
@@ -545,7 +546,8 @@ function closeBannerModal() {
 // Load products
 async function loadProducts() {
   try {
-    const result = await productsAPI.getAllProducts();
+    // تحميل جميع المنتجات بما في ذلك المخفية للإدارة
+    const result = await productsAPI.getAllProducts(true); // true = include hidden
     
     if (result.success) {
       renderProducts(result.data);
@@ -1171,11 +1173,13 @@ async function deleteProduct(productId) {
 // Toggle banner visibility
 async function toggleBannerVisibility(bannerId, currentStatus) {
   try {
-    console.log('🔄 Toggling banner visibility:', bannerId, !currentStatus);
+    const newStatus = !currentStatus;
+    console.log('🔄 Toggling banner visibility:', bannerId, 'from', currentStatus, 'to', newStatus);
+    
     const result = await bannerAPI.updateBanner(bannerId, { is_active: !currentStatus });
     
     if (result.success) {
-      showNotification(`تم ${!currentStatus ? 'إظهار' : 'إخفاء'} صورة البنر بنجاح`, 'success');
+      showNotification(`تم ${newStatus ? 'إظهار' : 'إخفاء'} صورة البنر بنجاح`, 'success');
       loadBanners();
     } else {
       showNotification('خطأ في تحديث حالة صورة البنر: ' + result.error, 'error');
@@ -1189,11 +1193,13 @@ async function toggleBannerVisibility(bannerId, currentStatus) {
 // Toggle product visibility
 async function toggleProductVisibility(productId, currentStatus) {
   try {
-    console.log('🔄 Toggling product visibility:', productId, !currentStatus);
+    const newStatus = !currentStatus;
+    console.log('🔄 Toggling product visibility:', productId, 'from', currentStatus, 'to', newStatus);
+    
     const result = await productsAPI.updateProduct(productId, { is_active: !currentStatus });
     
     if (result.success) {
-      showNotification(`تم ${!currentStatus ? 'إظهار' : 'إخفاء'} المنتج بنجاح`, 'success');
+      showNotification(`تم ${newStatus ? 'إظهار' : 'إخفاء'} المنتج بنجاح`, 'success');
       loadProducts();
     } else {
       showNotification('خطأ في تحديث حالة المنتج: ' + result.error, 'error');
