@@ -379,23 +379,8 @@ async function saveSettings() {
     showNotification('خطأ في حفظ الإعدادات', 'error');
   }
   
-  // Update live site (this would normally update the database)
-  updateLiveSite(settingsGroups);
-  
-  showNotification('تم حفظ الإعدادات بنجاح', 'success');
 }
 
-// Update live site with new settings
-function updateLiveSite(settings) {
-  // This function would normally send the settings to update the live website
-  // For now, we'll just log the settings
-  console.log('🔄 Updating live site with settings:', settings);
-  
-  // In a real implementation, you would:
-  // 1. Send settings to your backend API
-  // 2. Update the database
-  // 3. Refresh the live website content
-}
 // ===== Banner Management =====
 
 // Load banners
