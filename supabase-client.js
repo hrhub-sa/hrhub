@@ -255,6 +255,7 @@ export const bannerAPI = {
   async updateBanner(bannerId, bannerData) {
     if (isSupabaseAvailable()) {
       try {
+        console.log('🔄 Updating banner in Supabase:', bannerId, bannerData);
         const { data, error } = await supabase
           .from('banner_images')
           .update({ ...bannerData, updated_at: getCurrentTimestamp() })
@@ -297,6 +298,81 @@ export const bannerAPI = {
     // Fallback: return success
     console.log('⚠️ Using fallback for banner deletion:', bannerId);
     return { success: true };
+  }
+};
+
+// Site Settings API functions
+export const settingsAPI = {
+  // جلب جميع الإعدادات
+  async getAllSettings() {
+    if (isSupabaseAvailable()) {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .select('*')
+          .eq('is_active', true);
+        
+        if (error) throw error;
+        console.log('✅ Settings fetched from Supabase:', data?.length || 0);
+        return { success: true, data: data || [] };
+      } catch (error) {
+        console.error('❌ Error fetching settings from Supabase:', error);
+        return { success: false, error: error.message };
+      }
+    }
+    
+    console.warn('⚠️ Using fallback - no settings available');
+    return { success: true, data: [] };
+  },
+
+  // تحديث إعداد معين
+  async updateSetting(settingKey, settingValue) {
+    if (isSupabaseAvailable()) {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .update({ 
+            setting_value: settingValue, 
+            updated_at: getCurrentTimestamp() 
+          })
+          .eq('setting_key', settingKey)
+          .select()
+          .single();
+        
+        if (error) throw error;
+        console.log('✅ Setting updated in Supabase:', settingKey);
+        return { success: true, data };
+      } catch (error) {
+        console.error('❌ Error updating setting in Supabase:', error);
+        return { success: false, error: error.message };
+      }
+    }
+    
+    console.warn('⚠️ Using fallback for setting update');
+    return { success: true, data: { setting_key: settingKey, setting_value: settingValue } };
+  },
+
+  // إضافة إعداد جديد
+  async createSetting(settingKey, settingValue) {
+    if (isSupabaseAvailable()) {
+      try {
+        const { data, error } = await supabase
+          .from('site_settings')
+          .insert([{ setting_key: settingKey, setting_value: settingValue }])
+          .select()
+          .single();
+        
+        if (error) throw error;
+        console.log('✅ Setting created in Supabase:', settingKey);
+        return { success: true, data };
+      } catch (error) {
+        console.error('❌ Error creating setting in Supabase:', error);
+        return { success: false, error: error.message };
+      }
+    }
+    
+    console.warn('⚠️ Using fallback for setting creation');
+    return { success: true, data: { setting_key: settingKey, setting_value: settingValue } };
   }
 };
 
@@ -413,6 +489,7 @@ export const productsAPI = {
   async updateProduct(productId, productData) {
     if (isSupabaseAvailable()) {
       try {
+        console.log('🔄 Updating product in Supabase:', productId, productData);
         const { data, error } = await supabase
           .from('products')
           .update({ ...productData, updated_at: getCurrentTimestamp() })
