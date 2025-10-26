@@ -333,26 +333,83 @@ export const settingsAPI = {
   async updateSetting(settingKey, settingValue) {
     if (isSupabaseAvailable()) {
       try {
-        const { data, error } = await supabase
+        console.log(`🔄 Updating setting ${settingKey} in Supabase:`, settingValue);
+        
+        // أولاً، تحقق من وجود الإعداد
+        const { data: existingData, error: checkError } = await supabase
           .from('site_settings')
-          .update({ 
-            setting_value: settingValue, 
-            updated_at: getCurrentTimestamp() 
-          })
+          .select('*')
           .eq('setting_key', settingKey)
-          .select()
           .single();
         
-        if (error) throw error;
-        console.log('✅ Setting updated in Supabase:', settingKey);
-        return { success: true, data };
+        let result;
+        if (existingData) {
+          // تحديث الإعداد الموجود
+          const { data, error } = await supabase
+            .from('site_settings')
+            .update({ 
+              setting_value: settingValue, 
+              updated_at: getCurrentTimestamp() 
+            })
+            .eq('setting_key', settingKey)
+            .select()
+            .single();
+          result = { data, error };
+        } else {
+          // إنشاء إعداد جديد
+          const { data, error } = await supabase
+            .from('site_settings')
+            .insert([{ 
+              setting_key: settingKey, 
+              setting_value: settingValue,
+              is_active: true
+            }])
+            .select()
+            .single();
+          result = { data, error };
+        }
+        
+        if (result.error) throw result.error;
+        console.log(`✅ Setting ${settingKey} saved successfully:`, result.data);
+        return { success: true, data: result.data };
       } catch (error) {
-        console.error('❌ Error updating setting in Supabase:', error);
+        console.error(`❌ Error saving setting ${settingKey}:`, error);
         return { success: false, error: error.message };
       }
     }
     
-    console.warn('⚠️ Using fallback for setting update');
+    console.warn(`⚠️ Using fallback for setting ${settingKey}`);
+    return { success: true, data: { setting_key: settingKey, setting_value: settingValue } };
+  },
+
+  // إضافة أو تحديث إعداد
+  async upsertSetting(settingKey, settingValue) {
+    if (isSupabaseAvailable()) {
+      try {
+        console.log(`🔄 Upserting setting ${settingKey}:`, settingValue);
+        const { data, error } = await supabase
+          .from('site_settings')
+          .upsert({ 
+            setting_key: settingKey,
+            setting_value: settingValue,
+            is_active: true,
+            updated_at: getCurrentTimestamp()
+          }, { 
+            onConflict: 'setting_key' 
+          })
+          .select()
+          .single();
+        
+        if (error) throw error;
+        console.log(`✅ Setting ${settingKey} upserted successfully:`, data);
+        return { success: true, data };
+      } catch (error) {
+        console.error(`❌ Error upserting setting ${settingKey}:`, error);
+        return { success: false, error: error.message };
+      }
+    }
+    
+    console.warn(`⚠️ Using fallback for setting ${settingKey}`);
     return { success: true, data: { setting_key: settingKey, setting_value: settingValue } };
   },
 
