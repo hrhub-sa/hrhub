@@ -357,9 +357,10 @@ async function saveSettings() {
     };
     
     // حفظ كل مجموعة إعدادات
-    const savePromises = Object.entries(settingsGroups).map(([key, value]) => 
-      settingsAPI.updateSetting(key, value)
-    );
+    const savePromises = Object.entries(settingsGroups).map(([key, value]) => {
+      console.log(`🔄 Preparing to save ${key}:`, value);
+      return settingsAPI.upsertSetting(key, value);
+    });
     
     const results = await Promise.all(savePromises);
     
