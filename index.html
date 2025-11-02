@@ -13,6 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="glassmorphism.css">
 </head>
 <body>
 
@@ -30,7 +31,7 @@
   <button id="backToTop" title="العودة للأعلى">↑</button>
 
   <!-- Header -->
-  <header class="site-header" style="display: none;">
+  <header class="site-header">
     <div class="logo-center">
       <img src="new-logo.png" alt="HR Hub Logo" id="logo">
     </div>
@@ -44,37 +45,22 @@
 
   <!-- HR Hub Content -->
   <div id="hrhub-content" class="hub-content active">
-    <!-- Back to Home Button -->
-    <div class="back-to-home">
-      <button onclick="returnToMain()" class="back-btn">
-        <i class="fas fa-arrow-right"></i>
-        العودة للرئيسية
-      </button>
+    <!-- Slider -->
+    <div class="banner-slider">
+      <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
+      <div class="slide"><img src="absher.png" alt="Absher"></div>
+      <div class="slide"><img src="balady.png" alt="Balady"></div>
+      <div class="slide"><img src="gosi.png" alt="GOSI"></div>
+      <div class="slide"><img src="ministry.png" alt="HRSD"></div>
     </div>
-    
-    <!-- HR Hub Services -->
-    <section class="section services-section">
-      <div class="services-header">
-        <div class="service-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <h1>إدارة الأعمال (HR Hub)</h1>
-        <p class="service-description">
-          خدمات شاملة لإدارة الموارد البشرية والشؤون الحكومية لمنشأتك
-        </p>
-      </div>
 
-      <!-- Government Platforms Slider -->
-      <div class="platforms-showcase">
-        <h3>المنصات الحكومية التي نتعامل معها</h3>
-        <div class="banner-slider">
-          <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
-          <div class="slide"><img src="absher.png" alt="Absher"></div>
-          <div class="slide"><img src="balady.png" alt="Balady"></div>
-          <div class="slide"><img src="gosi.png" alt="GOSI"></div>
-          <div class="slide"><img src="ministry.png" alt="HRSD"></div>
-        </div>
+    <!-- Greeting -->
+    <section id="home" class="section greeting">
+      <div class="greeting-icon">
+        <i class="fas fa-users"></i>
       </div>
+      <h1>مرحبًا بكم في HR Hub</h1>
+      <p class="greeting-subtitle">شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية</p>
     </section>
 
     <!-- About Us -->
@@ -228,74 +214,43 @@
         </div>
       </div>
     </section>
-
-    <!-- Contact Form for HR Hub -->
-    <section id="contact" class="section">
-      <h2>تواصل معنا</h2>
-      <form id="contactForm" class="contact-form">
-        <input type="text" name="name" placeholder="الاسم الكامل" required>
-        <input type="email" name="email" placeholder="البريد الإلكتروني" required>
-        <input type="tel" name="phone" placeholder="رقم الهاتف" required>
-        <textarea name="message" placeholder="رسالتك" required></textarea>
-        <button type="submit" class="submit-btn">إرسال الرسالة</button>
-      </form>
-      <div id="responseMessage" class="message-box"></div>
-    </section>
-
-    <!-- Contact Info -->
-    <section class="section">
-      <h2>تواصل معنا</h2>
-      <div class="footer-contact">
-        <p><i class="fab fa-whatsapp"></i> <a href="tel:+966530017278">+966530017278</a></p>
-        <p><i class="fas fa-phone"></i> <a href="tel:+966542345930">+966542345930</a></p>
-        <p><i class="fas fa-envelope"></i> <a href="mailto:hrhub.sa@gmail.com">hrhub.sa@gmail.com</a></p>
-        <p><i class="fas fa-map-marker-alt"></i> المدينة المنورة، السعودية</p>
-      </div>
-    </section>
   </div>
 
   <!-- Web Hub Content -->
   <div id="webhub-content" class="hub-content">
-    <!-- Back to Home Button -->
-    <div class="back-to-home">
-      <button onclick="returnToMain()" class="back-btn">
-        <i class="fas fa-arrow-right"></i>
-        العودة للرئيسية
-      </button>
-    </div>
-    
-    <!-- Web Hub Services -->
-    <section class="section services-section">
-      <div class="services-header">
-        <div class="service-icon">
+    <!-- Web Services Slider -->
+    <div class="banner-slider">
+      <div class="slide active">
+        <div class="web-service-card">
           <i class="fas fa-code"></i>
-        </div>
-        <h1>تطوير الأعمال (Web Hub)</h1>
-        <p class="service-description">
-          حلول تقنية متطورة لتطوير مواقعك وتطبيقاتك ومتاجرك الإلكترونية
-        </p>
-      </div>
-
-      <!-- Web Services Showcase -->
-      <div class="web-services-showcase">
-        <div class="service-preview">
-          <i class="fas fa-laptop-code"></i>
           <h3>تطوير المواقع</h3>
         </div>
-        <div class="service-preview">
+      </div>
+      <div class="slide">
+        <div class="web-service-card">
           <i class="fas fa-mobile-alt"></i>
           <h3>التطبيقات</h3>
         </div>
-        <div class="service-preview">
+      </div>
+      <div class="slide">
+        <div class="web-service-card">
           <i class="fas fa-shopping-cart"></i>
           <h3>المتاجر الإلكترونية</h3>
         </div>
-        <div class="service-preview">
+      </div>
+      <div class="slide">
+        <div class="web-service-card">
           <i class="fas fa-chart-line"></i>
           <h3>أنظمة الإدارة</h3>
         </div>
       </div>
-    </section>
+      <div class="slide">
+        <div class="web-service-card">
+          <i class="fas fa-cloud"></i>
+          <h3>الحلول السحابية</h3>
+        </div>
+      </div>
+    </div>
 
     <!-- Coming Soon Section -->
     <section class="section coming-soon-section">
@@ -340,119 +295,19 @@
         </div>
       </div>
     </section>
-
-    <!-- Contact Form for Web Hub -->
-    <section id="contact" class="section">
-      <h2>تواصل معنا</h2>
-      <form id="contactForm" class="contact-form">
-        <input type="text" name="name" placeholder="الاسم الكامل" required>
-        <input type="email" name="email" placeholder="البريد الإلكتروني" required>
-        <input type="tel" name="phone" placeholder="رقم الهاتف" required>
-        <textarea name="message" placeholder="رسالتك" required></textarea>
-        <button type="submit" class="submit-btn">إرسال الرسالة</button>
-      </form>
-      <div id="responseMessage" class="message-box"></div>
-    </section>
-
-    <!-- Contact Info -->
-    <section class="section">
-      <h2>تواصل معنا</h2>
-      <div class="footer-contact">
-        <p><i class="fab fa-whatsapp"></i> <a href="tel:+966530017278">+966530017278</a></p>
-        <p><i class="fas fa-phone"></i> <a href="tel:+966542345930">+966542345930</a></p>
-        <p><i class="fas fa-envelope"></i> <a href="mailto:hrhub.sa@gmail.com">hrhub.sa@gmail.com</a></p>
-        <p><i class="fas fa-map-marker-alt"></i> المدينة المنورة، السعودية</p>
-      </div>
-    </section>
   </div>
-
-  <!-- Main Introduction Section -->
-  <section id="main-intro" class="main-intro-section">
-    <div class="intro-content">
-      <div class="intro-header">
-        <div class="main-logo">
-          <img src="new-logo.png" alt="HR Hub Logo">
-        </div>
-        <h1 class="main-title">منصة شاملة لإدارة وتطوير الأعمال</h1>
-        <p class="intro-description">
-          شريككم المثالي في رحلة النجاح - نجمع بين خبرة إدارة الموارد البشرية والشؤون الحكومية مع قوة التطوير التقني المتقدم
-        </p>
-        
-        <div class="services-overview">
-          <div class="service-overview">
-            <div class="overview-icon hr-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <h3>إدارة الأعمال (HR Hub)</h3>
-            <p>إدارة شاملة للموارد البشرية والشؤون الحكومية - من التوظيف إلى المتابعة مع جميع المنصات الرسمية</p>
-          </div>
-          
-          <div class="service-overview">
-            <div class="overview-icon web-icon">
-              <i class="fas fa-code"></i>
-            </div>
-            <h3>تطوير الأعمال (Web Hub)</h3>
-            <p>حلول تقنية متطورة لتطوير المواقع والتطبيقات والمتاجر الإلكترونية بأحدث التقنيات العالمية</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="services-selection">
-        <h2 class="selection-title">اختر الخدمة المناسبة لمنشأتك</h2>
-        <div class="selection-cards">
-          <div class="selection-card hr-card" onclick="selectService('hrhub')">
-            <div class="card-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="card-content">
-              <h3>إدارة الأعمال</h3>
-              <p class="card-subtitle">(HR Hub)</p>
-              <div class="card-features">
-                <span><i class="fas fa-check"></i> إدارة الموظفين والرواتب</span>
-                <span><i class="fas fa-check"></i> الشؤون الحكومية</span>
-                <span><i class="fas fa-check"></i> المنصات الرسمية</span>
-                <span><i class="fas fa-check"></i> التراخيص والتجديدات</span>
-              </div>
-              <div class="card-button">
-                <span>ابدأ الآن</span>
-                <i class="fas fa-arrow-left"></i>
-              </div>
-            </div>
-          </div>
-
-          <div class="selection-card web-card" onclick="selectService('webhub')">
-            <div class="card-icon">
-              <i class="fas fa-code"></i>
-            </div>
-            <div class="card-content">
-              <h3>تطوير الأعمال</h3>
-              <p class="card-subtitle">(Web Hub)</p>
-              <div class="card-features">
-                <span><i class="fas fa-check"></i> تطوير المواقع الإلكترونية</span>
-                <span><i class="fas fa-check"></i> التطبيقات الذكية</span>
-                <span><i class="fas fa-check"></i> المتاجر الإلكترونية</span>
-                <span><i class="fas fa-check"></i> الأنظمة الإدارية</span>
-              </div>
-              <div class="card-button">
-                <span>ابدأ الآن</span>
-                <i class="fas fa-arrow-left"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <!-- Contact -->
   <section id="contact" class="section">
     <h2>تواصل معنا</h2>
-    <div class="footer-contact">
-      <p><i class="fab fa-whatsapp"></i> <a href="tel:+966530017278">+966530017278</a></p>
-      <p><i class="fas fa-phone"></i> <a href="tel:+966542345930">+966542345930</a></p>
-      <p><i class="fas fa-envelope"></i> <a href="mailto:hrhub.sa@gmail.com">hrhub.sa@gmail.com</a></p>
-      <p><i class="fas fa-map-marker-alt"></i> المدينة المنورة، السعودية</p>
-    </div>
+    <form id="contactForm" class="contact-form">
+      <input type="text" name="name" placeholder="الاسم الكامل" required>
+      <input type="email" name="email" placeholder="البريد الإلكتروني" required>
+      <input type="tel" name="phone" placeholder="رقم الهاتف" required>
+      <textarea name="message" placeholder="رسالتك" required></textarea>
+      <button type="submit" class="submit-btn">إرسال الرسالة</button>
+    </form>
+    <div id="responseMessage" class="message-box"></div>
   </section>
 
   <!-- Footer -->

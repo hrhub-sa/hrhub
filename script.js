@@ -15,52 +15,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const webhubBtn = document.getElementById('webhub-btn');
   const hrhubContent = document.getElementById('hrhub-content');
   const webhubContent = document.getElementById('webhub-content');
-  const mainIntro = document.getElementById('main-intro');
-  const siteHeader = document.querySelector('.site-header');
   const body = document.body;
 
-  // Initialize with main intro visible
-  let currentHub = null;
-  let isMainIntroVisible = true;
-
-  // Show main intro by default and hide everything else
-  if (mainIntro) {
-    mainIntro.style.display = 'block';
-  }
-  if (hrhubContent) {
-    hrhubContent.classList.remove('active');
-    hrhubContent.style.display = 'none';
-  }
-  if (webhubContent) {
-    webhubContent.classList.remove('active');
-    webhubContent.style.display = 'none';
-  }
-  if (siteHeader) {
-    siteHeader.style.display = 'none';
-  }
+  // Initialize with HR Hub active
+  let currentHub = 'hrhub';
 
   function switchToHub(hubType) {
-    // Hide main intro section
-    if (mainIntro && isMainIntroVisible) {
-      mainIntro.style.display = 'none';
-      isMainIntroVisible = false;
-    }
-    
-    // Show site header when switching to hub
-    if (siteHeader) {
-      siteHeader.style.display = 'block';
-    }
-    
     if (hubType === 'webhub') {
       // Switch to Web Hub
-      if (hrhubContent) {
-        hrhubContent.classList.remove('active');
-        hrhubContent.style.display = 'none';
-      }
-      if (webhubContent) {
-        webhubContent.classList.add('active');
-        webhubContent.style.display = 'block';
-      }
+      hrhubBtn.classList.remove('active');
+      webhubBtn.classList.add('active');
+      hrhubContent.classList.remove('active');
+      webhubContent.classList.add('active');
       body.classList.add('webhub-theme');
       currentHub = 'webhub';
       
@@ -70,14 +36,10 @@ document.addEventListener("DOMContentLoaded", () => {
         : 'Web Hub ‒ Web Development & Software Solutions';
     } else {
       // Switch to HR Hub
-      if (webhubContent) {
-        webhubContent.classList.remove('active');
-        webhubContent.style.display = 'none';
-      }
-      if (hrhubContent) {
-        hrhubContent.classList.add('active');
-        hrhubContent.style.display = 'block';
-      }
+      webhubBtn.classList.remove('active');
+      hrhubBtn.classList.add('active');
+      webhubContent.classList.remove('active');
+      hrhubContent.classList.add('active');
       body.classList.remove('webhub-theme');
       currentHub = 'hrhub';
       
@@ -95,53 +57,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 100);
   }
 
-  // Function to return to main intro
-  function returnToMain() {
-    // Show main intro
-    if (mainIntro) {
-      mainIntro.style.display = 'block';
-      isMainIntroVisible = true;
-    }
-    
-    // Hide hub contents
-    if (hrhubContent) {
-      hrhubContent.classList.remove('active');
-      hrhubContent.style.display = 'none';
-    }
-    if (webhubContent) {
-      webhubContent.classList.remove('active');
-      webhubContent.style.display = 'none';
-    }
-    
-    // Hide site header
-    if (siteHeader) {
-      siteHeader.style.display = 'none';
-    }
-    
-    body.classList.remove('webhub-theme');
-    currentHub = null;
-    
-    // Reset page title
-    document.title = document.documentElement.lang === 'ar'
-      ? 'HR Hub ‒ منصة شاملة لإدارة وتطوير الأعمال'
-      : 'HR Hub ‒ Comprehensive Business Management & Development Platform';
-  }
-
-  // Make returnToMain globally available
-  window.returnToMain = returnToMain;
-
   // Event listeners for hub switching
-  if (hrhubBtn) {
-    hrhubBtn.addEventListener('click', () => switchToHub('hrhub'));
-  }
-  if (webhubBtn) {
-    webhubBtn.addEventListener('click', () => switchToHub('webhub'));
-  }
-  
-  // Service selection function
-  window.selectService = function(serviceType) {
-    switchToHub(serviceType);
-  };
+  hrhubBtn.addEventListener('click', () => switchToHub('hrhub'));
+  webhubBtn.addEventListener('click', () => switchToHub('webhub'));
 
   // GSAP ScrollTrigger for cards
   function initializeAnimations() {
@@ -184,6 +102,20 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
       );
+    });
+
+    // Background parallax
+    gsap.utils.toArray('#background .lines, #background .dots').forEach(el => {
+      gsap.to(el, {
+        yPercent: el.classList.contains('lines') ? 20 : 40,
+        ease: 'none',
+        scrollTrigger: {
+          trigger: 'body',
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: true
+        }
+      });
     });
   }
 
@@ -287,12 +219,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Back to top
   const back = document.getElementById('backToTop');
-  if (back) {
-    window.addEventListener('scroll', () => {
-      back.style.display = window.scrollY > 300 ? 'block' : 'none';
-    });
-    back.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
-  }
+  window.addEventListener('scroll', () => {
+    back.style.display = window.scrollY > 300 ? 'block' : 'none';
+  });
+  back.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
 
   // Smooth scrolling for anchor links
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -342,6 +272,9 @@ document.addEventListener("DOMContentLoaded", () => {
         </div>
       `).join('');
     }
+    
+    // Update Web Hub slider (keep service cards for now)
+    // You can modify this to use banner images if needed
   }
 
   // Load Web Hub products from database

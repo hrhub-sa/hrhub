@@ -44,16 +44,9 @@ body.webhub-theme {
   position: fixed; top:0; left:0;
   width:100vw; height:100vh;
   z-index: -1;
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 25%, #2196f3 50%, #42a5f5 75%, #64b5f6 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 25%, #2196f3 50%, #03a9f4 75%, #00bcd4 100%);
   overflow: hidden;
   transition: all 0.5s ease;
-}
-
-/* Main intro gets white background */
-.main-intro-section {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%) !important;
-  position: relative;
-  z-index: 2;
 }
 
 body.webhub-theme #background {
@@ -170,28 +163,11 @@ body.webhub-theme .hub-btn.active {
   display: none;
   opacity: 0;
   transition: opacity 0.5s ease;
-  position: relative;
-  z-index: 10;
-  min-height: 100vh;
 }
 
 .hub-content.active {
   display: block;
   opacity: 1;
-}
-
-/* HR Hub keeps blue background */
-#hrhub-content {
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 25%, #2196f3 50%, #42a5f5 75%, #64b5f6 100%) !important;
-}
-
-/* Web Hub dark theme */
-body.webhub-theme .hub-content {
-  background: linear-gradient(to bottom, #000000, #1a1a1a 50%, #2d2d2d);
-}
-
-#webhub-content {
-  background: linear-gradient(to bottom, #000000, #1a1a1a 50%, #2d2d2d) !important;
 }
 
 /* ===== Slider ===== */
@@ -242,598 +218,25 @@ body.webhub-theme .banner-slider {
   margin-top: 1rem;
 }
 
-/* ===== Main Introduction Section ===== */
-.main-intro-section {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%);
-  position: relative;
-  overflow: hidden;
-  text-align: center;
-  z-index: 1;
-}
-
-.intro-content {
-  max-width: 1400px;
-  margin: 0 auto;
-  position: relative;
-  z-index: 2;
-}
-
-.intro-header {
-  margin-bottom: 5rem;
-}
-
-.main-logo {
-  margin-bottom: 3rem;
-  animation: logoGlow 3s ease-in-out infinite alternate;
-}
-
-@keyframes logoGlow {
-  from {
-    filter: drop-shadow(0 0 20px rgba(255,255,255,0.3));
-  }
-  to {
-    filter: drop-shadow(0 0 40px rgba(255,255,255,0.6));
-  }
-}
-
-.main-logo img {
-  width: 150px;
-  height: 150px;
-  transition: filter 0.5s ease;
-}
-
-body.webhub-theme .main-logo img {
-  filter: invert(1) brightness(1.2);
-}
-
-.main-title {
-  font-size: 3.5rem;
-  color: var(--primary-blue);
-  margin-bottom: 2rem;
-  font-weight: 700;
-  text-shadow: 0 2px 10px rgba(13,71,161,0.3);
-  line-height: 1.2;
-}
-
-body.webhub-theme .main-title {
-  color: var(--web-accent);
-  text-shadow: 0 0 30px rgba(0,212,170,0.5);
-}
-
-.intro-description {
-  font-size: 1.5rem;
-  line-height: 1.8;
-  color: var(--text-dark);
-  opacity: 0.8;
-  max-width: 1000px;
-  margin: 0 auto;
-  margin-bottom: 4rem;
-  text-shadow: 0 1px 5px rgba(0,0,0,0.1);
-}
-
-body.webhub-theme .intro-description {
-  color: var(--web-text);
-}
-
-/* Services Overview */
-.services-overview {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 3rem;
-  margin: 4rem 0;
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.service-overview {
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(13,71,161,0.1);
-  border-radius: 20px;
-  padding: 3rem 2rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  box-shadow: 0 8px 32px rgba(13,71,161,0.1);
-}
-
-body.webhub-theme .service-overview {
-  background: rgba(0,212,170,0.1);
-  border: 1px solid rgba(0,212,170,0.2);
-}
-
-.service-overview:hover {
-  transform: translateY(-10px);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-}
-
-body.webhub-theme .service-overview:hover {
-  box-shadow: 0 20px 40px rgba(0,212,170,0.2);
-}
-
-.overview-icon {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 2rem;
-  transition: all 0.3s ease;
-}
-
-.overview-icon.hr-icon {
-  background: linear-gradient(135deg, var(--primary-blue), var(--hr-glow));
-}
-
-.overview-icon.web-icon {
-  background: linear-gradient(135deg, var(--accent), #ff8f00);
-}
-
-body.webhub-theme .overview-icon.hr-icon,
-body.webhub-theme .overview-icon.web-icon {
-  background: var(--web-accent);
-}
-
-.overview-icon i {
-  font-size: 2.5rem;
-  color: white;
-}
-
-.service-overview h3 {
-  font-size: 1.8rem;
-  color: var(--primary-blue);
-  margin-bottom: 1rem;
-  font-weight: 700;
-}
-
-body.webhub-theme .service-overview h3 {
-  color: var(--web-text);
-}
-
-.service-overview p {
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  opacity: 0.8;
-  line-height: 1.6;
-}
-
-body.webhub-theme .service-overview p {
-  color: var(--web-text);
-}
-
-/* Services Selection */
-.services-selection {
-  margin-top: 5rem;
-}
-
-.selection-title {
-  font-size: 2.5rem;
-  color: var(--primary-blue);
-  margin-bottom: 4rem;
-  font-weight: 700;
-  text-shadow: 0 2px 10px rgba(13,71,161,0.2);
-}
-
-body.webhub-theme .selection-title {
-  color: var(--web-accent);
-  text-shadow: 0 0 20px rgba(0,212,170,0.3);
-}
-
-.selection-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-  gap: 4rem;
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.selection-card {
-  background: rgba(255,255,255,0.95);
-  backdrop-filter: blur(25px);
-  border: 2px solid rgba(13,71,161,0.1);
-  border-radius: 25px;
-  padding: 0;
-  text-align: center;
-  transition: all 0.5s ease;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  min-height: 500px;
-  box-shadow: 0 10px 30px rgba(13,71,161,0.15);
-}
-
-body.webhub-theme .selection-card {
-  background: rgba(0,0,0,0.3);
-  border: 2px solid rgba(0,212,170,0.2);
-}
-
-.selection-card::before,
-.selection-card::after {
-  content: '';
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  top: 0;
-  left: 0;
-  background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
-  opacity: 0;
-  transition: all 0.6s ease;
-  pointer-events: none;
-  transform: translateX(-100%);
-}
-
-.selection-card:hover::before,
-.selection-card:hover::after {
-  opacity: 1;
-  transform: translateX(100%);
-}
-
-.selection-card:hover {
-  transform: translateY(-15px) scale(1.05);
-  box-shadow: 0 25px 50px rgba(0,0,0,0.3);
-}
-
-.selection-card.hr-card:hover {
-  border-color: var(--primary-blue);
-  box-shadow: 0 25px 50px rgba(13,71,161,0.4);
-}
-
-.selection-card.web-card:hover {
-  border-color: var(--accent);
-  box-shadow: 0 25px 50px rgba(255,111,0,0.4);
-}
-
-body.webhub-theme .selection-card:hover {
-  border-color: var(--web-accent);
-  box-shadow: 0 25px 50px rgba(0,212,170,0.3);
-}
-
-.card-icon {
-  width: 120px;
-  height: 120px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 3rem auto 2rem;
-  transition: all 0.5s ease;
-  position: relative;
-  z-index: 2;
-}
-
-.hr-card .card-icon {
-  background: linear-gradient(135deg, var(--primary-blue), var(--hr-glow));
-}
-
-.web-card .card-icon {
-  background: linear-gradient(135deg, var(--accent), #ff8f00);
-}
-
-body.webhub-theme .hr-card .card-icon,
-body.webhub-theme .web-card .card-icon {
-  background: var(--web-accent);
-}
-
-.card-icon i {
-  font-size: 3.5rem;
-  color: white;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-}
-
-.selection-card:hover .card-icon {
-  transform: scale(1.2) rotate(5deg);
-}
-
-.hr-card:hover .card-icon {
-  box-shadow: 0 15px 40px rgba(13,71,161,0.5);
-}
-
-.web-card:hover .card-icon {
-  box-shadow: 0 15px 40px rgba(255,111,0,0.5);
-}
-
-body.webhub-theme .selection-card:hover .card-icon {
-  box-shadow: 0 15px 40px rgba(0,212,170,0.5);
-}
-
-.card-content {
-  padding: 0 3rem 3rem;
-  height: calc(100% - 180px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.selection-card h3 {
-  font-size: 2rem;
-  color: var(--primary-blue);
-  margin-bottom: 1rem;
-  font-weight: 700;
-  text-shadow: 0 1px 5px rgba(13,71,161,0.2);
-}
-
-body.webhub-theme .selection-card h3 {
-  color: var(--web-text);
-}
-
-.card-subtitle {
-  font-size: 1.3rem;
-  font-weight: 600;
-  margin-bottom: 2rem;
-  opacity: 0.9;
-}
-
-.hr-card .card-subtitle {
-  color: var(--hr-glow);
-}
-
-.web-card .card-subtitle {
-  color: var(--accent);
-}
-
-body.webhub-theme .card-subtitle {
-  color: var(--web-accent);
-}
-
-.card-features {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 3rem;
-  flex-grow: 1;
-}
-
-.card-features span {
-  font-size: 1.1rem;
-  color: var(--text-dark);
-  opacity: 0.8;
-  text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.5rem;
-  background: rgba(13,71,161,0.05);
-  border-radius: 10px;
-  transition: all 0.3s ease;
-}
-
-body.webhub-theme .card-features span {
-  color: var(--web-text);
-}
-
-.card-features span:hover {
-  background: rgba(13,71,161,0.1);
-  transform: translateX(5px);
-}
-
-.card-features i {
-  color: var(--success);
-  font-size: 1rem;
-}
-
-.card-button {
-  padding: 1.2rem 2rem;
-  border-radius: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  font-weight: 700;
-  font-size: 1.2rem;
-  transition: all 0.4s ease;
-  position: absolute;
-  overflow: hidden;
-  text-transform: uppercase;
-  z-index: 100;
-}
-
-.hr-card .card-button {
-  background: linear-gradient(135deg, #0d47a1, #2196f3);
-  color: white;
-  box-shadow: 0 4px 15px rgba(13,71,161,0.4);
-}
-
-.web-card .card-button {
-  background: linear-gradient(135deg, var(--accent), #ff8f00);
-  color: white;
-  box-shadow: 0 4px 15px rgba(255,111,0,0.4);
-}
-
-body.webhub-theme .hr-card .card-button,
-body.webhub-theme .web-card .card-button {
-  background: var(--web-accent);
-  color: var(--web-primary);
-  box-shadow: 0 4px 15px rgba(0,212,170,0.4);
-}
-
-.hr-card:hover .card-button {
-  transform: translateY(-2px) scale(1.05);
-  box-shadow: 0 6px 25px rgba(0,0,0,0.4);
-  background: linear-gradient(135deg, #1565c0, #42a5f5);
-}
-
-.web-card:hover .card-button {
-  background: linear-gradient(135deg, #00d4aa, #26a69a);
-  color: white;
-  box-shadow: 0 4px 20px rgba(0,212,170,0.3);
-
-body.webhub-theme .selection-card:hover .card-button {
-  transform: translateY(-3px);
-  background: linear-gradient(135deg, #26a69a, #4db6ac);
-  box-shadow: 0 6px 25px rgba(0,212,170,0.4);
-}
-
-/* ===== Back to Home Button ===== */
-.back-to-home {
-  position: fixed;
-  top: 2rem;
-  right: 2rem;
-  z-index: 1000;
-}
-
-.back-btn {
-  background: linear-gradient(135deg, rgba(13,71,161,0.9), rgba(33,150,243,0.9));
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: white;
-  border: 2px solid rgba(255,255,255,0.3);
-  padding: 1rem 2rem;
-  border-radius: 50px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  box-shadow: 0 8px 32px rgba(13,71,161,0.4);
-}
-
-body.webhub-theme .back-btn {
-  background: linear-gradient(135deg, rgba(0,212,170,0.9), rgba(38,166,154,0.9));
-  box-shadow: 0 8px 32px rgba(0,212,170,0.4);
-}
-
-.back-btn:hover {
-  transform: translateY(-3px) scale(1.05);
-  box-shadow: 0 12px 40px rgba(13,71,161,0.5);
-  background: linear-gradient(135deg, rgba(13,71,161,1), rgba(33,150,243,1));
-}
-
-body.webhub-theme .back-btn:hover {
-  box-shadow: 0 12px 40px rgba(0,212,170,0.5);
-  background: linear-gradient(135deg, rgba(0,212,170,1), rgba(38,166,154,1));
-}
-
-.back-btn i {
-  font-size: 1.1rem;
-}
-
-/* ===== Services Section ===== */
-.services-section {
-  background: rgba(255,255,255,0.2);
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255,255,255,0.3);
-}
-
-body.webhub-theme .services-section {
-  background: rgba(0,0,0,0.4);
-  border: 1px solid rgba(0,212,170,0.2);
-}
-
-.services-header {
-  text-align: center;
-  margin-bottom: 3rem;
-}
-
-.service-icon {
+/* ===== Enhanced Greeting Section ===== */
+.greeting { 
+  text-align: center; 
+  margin-top: 2rem; 
+  padding: 4rem 2rem;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(20px);
+  border: 2px solid rgba(255,255,255,0.2);
+}
+
+.greeting-icon {
   font-size: 4rem;
   color: var(--accent);
   margin-bottom: 2rem;
   animation: pulse 2s infinite;
 }
 
-body.webhub-theme .service-icon {
+body.webhub-theme .greeting-icon {
   color: var(--web-accent);
-}
-
-.services-header h1 {
-  font-size: 2.5rem;
-  color: var(--text-light);
-  margin-bottom: 1rem;
-  font-weight: 700;
-  text-shadow: 0 0 20px rgba(33,150,243,0.6);
-}
-
-body.webhub-theme .services-header h1 {
-  color: var(--web-accent);
-  text-shadow: 0 0 20px rgba(0,212,170,0.5);
-}
-
-.service-description {
-  font-size: 1.3rem;
-  color: var(--text-light);
-  opacity: 0.9;
-  line-height: 1.6;
-}
-
-body.webhub-theme .service-description {
-  color: var(--web-text);
-}
-
-/* ===== Platforms Showcase ===== */
-.platforms-showcase {
-  margin-top: 3rem;
-}
-
-.platforms-showcase h3 {
-  text-align: center;
-  font-size: 1.5rem;
-  color: var(--text-light);
-  margin-bottom: 2rem;
-  font-weight: 600;
-}
-
-body.webhub-theme .platforms-showcase h3 {
-  color: var(--web-accent);
-}
-
-/* ===== Web Services Showcase ===== */
-.web-services-showcase {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
-  margin-top: 3rem;
-}
-
-.service-preview {
-  background: rgba(255,255,255,0.1);
-  padding: 2rem 1rem;
-  border-radius: 16px;
-  border: 1px solid rgba(255,255,255,0.2);
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-body.webhub-theme .service-preview {
-  background: rgba(0,212,170,0.1);
-  border: 1px solid rgba(0,212,170,0.2);
-}
-
-.service-preview:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-}
-
-body.webhub-theme .service-preview:hover {
-  box-shadow: 0 10px 25px rgba(0,212,170,0.2);
-}
-
-.service-preview i {
-  font-size: 3rem;
-  color: var(--accent);
-  margin-bottom: 1rem;
-}
-
-body.webhub-theme .service-preview i {
-  color: var(--web-accent);
-}
-
-.service-preview h3 {
-  font-size: 1.2rem;
-  color: var(--text-light);
-  font-weight: 600;
-}
-
-body.webhub-theme .service-preview h3 {
-  color: var(--web-text);
 }
 
 @keyframes pulse {
@@ -846,6 +249,31 @@ body.webhub-theme .service-preview h3 {
   100% {
     transform: scale(1);
   }
+}
+
+.greeting h1 {
+  font-size: 2.5rem; 
+  color: var(--text-light);
+  transition: all 0.3s ease;
+  text-shadow: 0 0 20px rgba(33,150,243,0.6);
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+body.webhub-theme .greeting h1 {
+  color: var(--web-accent);
+  text-shadow: 0 0 20px rgba(0,212,170,0.5);
+}
+
+.greeting-subtitle {
+  font-size: 1.3rem;
+  color: var(--text-light);
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+body.webhub-theme .greeting-subtitle {
+  color: var(--web-text);
 }
 
 /* ===== About Section ===== */
@@ -1266,21 +694,6 @@ body.webhub-theme .section::after {
   clip-path: circle(50% at 50% 50%);
 }
 
-/* Contact only section for homepage */
-.contact-only {
-  background: rgba(255,255,255,0.9) !important;
-  color: var(--text-dark) !important;
-}
-
-.contact-only h2 {
-  color: var(--primary-blue) !important;
-}
-
-.contact-only .footer-contact p,
-.contact-only .footer-contact a {
-  color: var(--text-dark) !important;
-}
-
 /* ===== Coming Soon Section ===== */
 .coming-soon-section {
   text-align: center;
@@ -1443,9 +856,9 @@ body.webhub-theme .coming-soon-message p {
   align-items: center;
   gap: 0.5rem;
   background: linear-gradient(135deg, var(--accent), #ff8f00);
-  border: 2px solid rgba(255,255,255,0.2);
-  padding: 0.8rem 1.5rem;
-  border-radius: 25px;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 30px;
   text-decoration: none;
   font-weight: 600;
   font-size: 1.1rem;
@@ -1625,9 +1038,9 @@ body.webhub-theme .package-card:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
 }
 
 body.webhub-theme .product-card {
@@ -2001,117 +1414,7 @@ body.webhub-theme #backToTop {
 
 /* ===== Responsiveness ===== */
 @media(max-width:768px){
-  .back-to-home {
-    top: 1rem;
-    right: 1rem;
-  }
-  
-  .back-btn {
-    padding: 0.8rem 1.5rem;
-    font-size: 0.9rem;
-    border-radius: 30px;
-  }
-  
-  .back-btn i {
-    font-size: 1rem;
-  }
-  
-  .main-title { 
-    font-size: 2.5rem; 
-    margin-bottom: 1.5rem;
-  }
-  
-  .intro-description {
-    font-size: 1.2rem;
-    margin-bottom: 3rem;
-  }
-  
-  .main-logo img {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .services-overview {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    margin: 3rem 0;
-  }
-  
-  .service-overview {
-    padding: 2rem 1.5rem;
-  }
-  
-  .overview-icon {
-    width: 70px;
-    height: 70px;
-  }
-  
-  .overview-icon i {
-    font-size: 2rem;
-  }
-  
-  .service-overview h3 {
-    font-size: 1.5rem;
-  }
-  
-  .service-overview p {
-    font-size: 1rem;
-  }
-  
-  .selection-title {
-    font-size: 2rem;
-    margin-bottom: 3rem;
-  }
-  
-  .selection-cards {
-    grid-template-columns: 1fr;
-    gap: 3rem;
-  }
-  
-  .selection-card {
-    min-height: 450px;
-  }
-  
-  .card-icon {
-    width: 100px;
-    height: 100px;
-    margin: 2rem auto 1.5rem;
-  }
-  
-  .card-icon i {
-    font-size: 3rem;
-  }
-  
-  .card-content {
-    padding: 0 2rem 2rem;
-    height: calc(100% - 150px);
-  }
-  
-  .selection-card h3 {
-    font-size: 1.7rem;
-  }
-  
-  .card-subtitle {
-    font-size: 1.1rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .card-features {
-    gap: 0.8rem;
-    margin-bottom: 2rem;
-  }
-  
-  .card-features span {
-    font-size: 1rem;
-    padding: 0.4rem;
-  }
-  
-  .card-button {
-    padding: 1rem 1.5rem;
-    font-size: 1.1rem;
-  }
-  
-  .services-header h1 { font-size:2rem; }
+  .greeting h1 { font-size:2rem; }
   .packages-grid {
     flex-direction: column;
     align-items: center;
@@ -2176,30 +1479,6 @@ body.webhub-theme #backToTop {
     gap: 1.5rem;
   }
   
-  .selection-cards {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-  }
-  
-  .selection-card {
-    min-height: 350px;
-    padding: 2rem 1.5rem;
-  }
-  
-  .card-icon {
-    width: 80px;
-    height: 80px;
-  }
-  
-  .card-icon i {
-    font-size: 2.5rem;
-  }
-  
-  .web-services-showcase {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-  
   .about-content h2,
   .vision-content h2,
   .motto-content h2 {
@@ -2214,102 +1493,6 @@ body.webhub-theme #backToTop {
 }
 
 @media(max-width:480px) {
-  .main-intro-section {
-    padding: 1rem;
-  }
-  
-  .main-title {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-  }
-  
-  .intro-description {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-  }
-  
-  .main-logo img {
-    width: 100px;
-    height: 100px;
-  }
-  
-  .services-overview {
-    margin: 2rem 0;
-  }
-  
-  .service-overview {
-    padding: 1.5rem 1rem;
-  }
-  
-  .overview-icon {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .overview-icon i {
-    font-size: 1.8rem;
-  }
-  
-  .service-overview h3 {
-    font-size: 1.3rem;
-  }
-  
-  .service-overview p {
-    font-size: 0.9rem;
-  }
-  
-  .selection-title {
-    font-size: 1.8rem;
-    margin-bottom: 2rem;
-  }
-  
-  .selection-cards {
-    gap: 2rem;
-  }
-  
-  .selection-card {
-    min-height: 400px;
-  }
-  
-  .card-icon {
-    width: 80px;
-    height: 80px;
-    margin: 1.5rem auto 1rem;
-  }
-  
-  .card-icon i {
-    font-size: 2.5rem;
-  }
-  
-  .card-content {
-    padding: 0 1.5rem 1.5rem;
-    height: calc(100% - 120px);
-  }
-  
-  .selection-card h3 {
-    font-size: 1.5rem;
-  }
-  
-  .card-subtitle {
-    font-size: 1rem;
-    margin-bottom: 1rem;
-  }
-  
-  .card-features {
-    gap: 0.6rem;
-    margin-bottom: 1.5rem;
-  }
-  
-  .card-features span {
-    font-size: 0.9rem;
-    padding: 0.3rem;
-  }
-  
-  .card-button {
-    padding: 0.8rem 1.2rem;
-    font-size: 1rem;
-  }
-  
   .products-grid {
     padding: 0.5rem;
   }
@@ -2358,44 +1541,10 @@ body.webhub-theme #backToTop {
     grid-template-columns: 1fr;
   }
   
-  .service-icon,
+  .greeting-icon,
   .about-icon,
   .vision-icon,
   .motto-icon {
     font-size: 2.5rem;
-  }
-  
-  .intro-header h1 {
-    font-size: 1.8rem;
-  }
-  
-  .intro-description {
-    font-size: 1.1rem;
-  }
-  
-  .services-selection h2 {
-    font-size: 1.8rem;
-  }
-  
-  .selection-card {
-    min-height: 300px;
-    padding: 1.5rem 1rem;
-  }
-  
-  .card-icon {
-    width: 70px;
-    height: 70px;
-  }
-  
-  .card-icon i {
-    font-size: 2rem;
-  }
-  
-  .selection-card h3 {
-    font-size: 1.5rem;
-  }
-  
-  .web-services-showcase {
-    grid-template-columns: 1fr;
   }
 }
