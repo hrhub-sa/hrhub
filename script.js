@@ -15,18 +15,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const webhubBtn = document.getElementById('webhub-btn');
   const hrhubContent = document.getElementById('hrhub-content');
   const webhubContent = document.getElementById('webhub-content');
+  const mainIntro = document.getElementById('main-intro');
   const body = document.body;
 
-  // Initialize with HR Hub active
-  let currentHub = 'hrhub';
+  // Initialize with main intro visible
+  let currentHub = null;
   let isMainIntroVisible = true;
 
+  // Show main intro by default
+  if (mainIntro) {
+    mainIntro.style.display = 'block';
+  }
+  if (hrhubContent) {
+    hrhubContent.classList.remove('active');
+  }
+  if (webhubContent) {
+    webhubContent.classList.remove('active');
+  }
+
   function switchToHub(hubType) {
-    // Hide main intro section
-    const mainIntro = document.getElementById('main-intro');
+    // Hide main intro section and header
     if (mainIntro && isMainIntroVisible) {
       mainIntro.style.display = 'none';
       isMainIntroVisible = false;
+    }
+    
+    // Hide header when switching to hub
+    const header = document.querySelector('.site-header');
+    if (header) {
+      header.style.display = 'none';
     }
     
     if (hubType === 'webhub') {
@@ -64,6 +81,37 @@ document.addEventListener("DOMContentLoaded", () => {
       initializeSlider();
     }, 100);
   }
+
+  // Function to return to main intro
+  function returnToMain() {
+    // Show main intro
+    if (mainIntro) {
+      mainIntro.style.display = 'block';
+      isMainIntroVisible = true;
+    }
+    
+    // Show header
+    const header = document.querySelector('.site-header');
+    if (header) {
+      header.style.display = 'block';
+    }
+    
+    // Hide hub contents
+    hrhubContent.classList.remove('active');
+    webhubContent.classList.remove('active');
+    hrhubBtn.classList.remove('active');
+    webhubBtn.classList.remove('active');
+    body.classList.remove('webhub-theme');
+    currentHub = null;
+    
+    // Reset page title
+    document.title = document.documentElement.lang === 'ar'
+      ? 'HR Hub ‒ منصة شاملة لإدارة وتطوير الأعمال'
+      : 'HR Hub ‒ Comprehensive Business Management & Development Platform';
+  }
+
+  // Make returnToMain globally available
+  window.returnToMain = returnToMain;
 
   // Event listeners for hub switching
   hrhubBtn.addEventListener('click', () => switchToHub('hrhub'));
