@@ -51,7 +51,7 @@ body.webhub-theme {
 
 /* Main intro gets white background */
 .main-intro-section {
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%) !important;
   position: relative;
   z-index: 2;
 }
@@ -182,7 +182,7 @@ body.webhub-theme .hub-btn.active {
 
 /* HR Hub keeps blue background */
 #hrhub-content {
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 25%, #2196f3 50%, #42a5f5 75%, #64b5f6 100%);
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 25%, #2196f3 50%, #42a5f5 75%, #64b5f6 100%) !important;
 }
 
 /* Web Hub dark theme */
@@ -191,7 +191,7 @@ body.webhub-theme .hub-content {
 }
 
 #webhub-content {
-  background: linear-gradient(to bottom, #000000, #1a1a1a 50%, #2d2d2d);
+  background: linear-gradient(to bottom, #000000, #1a1a1a 50%, #2d2d2d) !important;
 }
 
 /* ===== Slider ===== */
