@@ -19,8 +19,16 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Initialize with HR Hub active
   let currentHub = 'hrhub';
+  let isMainIntroVisible = true;
 
   function switchToHub(hubType) {
+    // Hide main intro section
+    const mainIntro = document.getElementById('main-intro');
+    if (mainIntro && isMainIntroVisible) {
+      mainIntro.style.display = 'none';
+      isMainIntroVisible = false;
+    }
+    
     if (hubType === 'webhub') {
       // Switch to Web Hub
       hrhubBtn.classList.remove('active');
@@ -60,6 +68,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Event listeners for hub switching
   hrhubBtn.addEventListener('click', () => switchToHub('hrhub'));
   webhubBtn.addEventListener('click', () => switchToHub('webhub'));
+  
+  // Service selection function
+  window.selectService = function(serviceType) {
+    switchToHub(serviceType);
+  };
 
   // GSAP ScrollTrigger for cards
   function initializeAnimations() {
