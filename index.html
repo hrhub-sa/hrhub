@@ -45,22 +45,29 @@
 
   <!-- HR Hub Content -->
   <div id="hrhub-content" class="hub-content active">
-    <!-- Slider -->
-    <div class="banner-slider">
-      <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
-      <div class="slide"><img src="absher.png" alt="Absher"></div>
-      <div class="slide"><img src="balady.png" alt="Balady"></div>
-      <div class="slide"><img src="gosi.png" alt="GOSI"></div>
-      <div class="slide"><img src="ministry.png" alt="HRSD"></div>
-    </div>
-
-    <!-- Greeting -->
-    <section id="home" class="section greeting">
-      <div class="greeting-icon">
-        <i class="fas fa-users"></i>
+    <!-- HR Hub Services -->
+    <section class="section services-section">
+      <div class="services-header">
+        <div class="service-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h1>إدارة الأعمال (HR Hub)</h1>
+        <p class="service-description">
+          خدمات شاملة لإدارة الموارد البشرية والشؤون الحكومية لمنشأتك
+        </p>
       </div>
-      <h1>مرحبًا بكم في HR Hub</h1>
-      <p class="greeting-subtitle">شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية</p>
+
+      <!-- Government Platforms Slider -->
+      <div class="platforms-showcase">
+        <h3>المنصات الحكومية التي نتعامل معها</h3>
+        <div class="banner-slider">
+          <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
+          <div class="slide"><img src="absher.png" alt="Absher"></div>
+          <div class="slide"><img src="balady.png" alt="Balady"></div>
+          <div class="slide"><img src="gosi.png" alt="GOSI"></div>
+          <div class="slide"><img src="ministry.png" alt="HRSD"></div>
+        </div>
+      </div>
     </section>
 
     <!-- About Us -->
@@ -218,39 +225,38 @@
 
   <!-- Web Hub Content -->
   <div id="webhub-content" class="hub-content">
-    <!-- Web Services Slider -->
-    <div class="banner-slider">
-      <div class="slide active">
-        <div class="web-service-card">
+    <!-- Web Hub Services -->
+    <section class="section services-section">
+      <div class="services-header">
+        <div class="service-icon">
           <i class="fas fa-code"></i>
+        </div>
+        <h1>تطوير الأعمال (Web Hub)</h1>
+        <p class="service-description">
+          حلول تقنية متطورة لتطوير مواقعك وتطبيقاتك ومتاجرك الإلكترونية
+        </p>
+      </div>
+
+      <!-- Web Services Showcase -->
+      <div class="web-services-showcase">
+        <div class="service-preview">
+          <i class="fas fa-laptop-code"></i>
           <h3>تطوير المواقع</h3>
         </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
+        <div class="service-preview">
           <i class="fas fa-mobile-alt"></i>
           <h3>التطبيقات</h3>
         </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
+        <div class="service-preview">
           <i class="fas fa-shopping-cart"></i>
           <h3>المتاجر الإلكترونية</h3>
         </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
+        <div class="service-preview">
           <i class="fas fa-chart-line"></i>
           <h3>أنظمة الإدارة</h3>
         </div>
       </div>
-      <div class="slide">
-        <div class="web-service-card">
-          <i class="fas fa-cloud"></i>
-          <h3>الحلول السحابية</h3>
-        </div>
-      </div>
-    </div>
+    </section>
 
     <!-- Coming Soon Section -->
     <section class="section coming-soon-section">
@@ -296,6 +302,67 @@
       </div>
     </section>
   </div>
+
+  <!-- Main Introduction Section -->
+  <section id="main-intro" class="section main-intro-section">
+    <div class="intro-content">
+      <div class="intro-header">
+        <div class="main-logo">
+          <img src="new-logo.png" alt="HR Hub Logo">
+        </div>
+        <h1>منصة شاملة لإدارة وتطوير الأعمال</h1>
+        <p class="intro-description">
+          نحن منصة متكاملة تجمع بين إدارة الموارد البشرية والشؤون الحكومية مع حلول التطوير التقني المتقدمة. 
+          نساعد المنشآت على النمو والازدهار من خلال خدمات احترافية تلبي جميع احتياجاتها الإدارية والتقنية.
+        </p>
+      </div>
+
+      <div class="services-selection">
+        <h2>اختر الخدمة المناسبة لك</h2>
+        <div class="selection-cards">
+          <div class="selection-card hr-card" onclick="selectService('hrhub')">
+            <div class="card-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h3>إدارة الأعمال</h3>
+            <p class="card-subtitle">(HR Hub)</p>
+            <p class="card-description">
+              إدارة الموارد البشرية والشؤون الحكومية
+            </p>
+            <div class="card-features">
+              <span>• إدارة الموظفين</span>
+              <span>• الشؤون الحكومية</span>
+              <span>• المنصات الرسمية</span>
+            </div>
+            <div class="card-button">
+              <span>اختر هذه الخدمة</span>
+              <i class="fas fa-arrow-left"></i>
+            </div>
+          </div>
+
+          <div class="selection-card web-card" onclick="selectService('webhub')">
+            <div class="card-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3>تطوير الأعمال</h3>
+            <p class="card-subtitle">(Web Hub)</p>
+            <p class="card-description">
+              تطوير المواقع والتطبيقات والحلول التقنية
+            </p>
+            <div class="card-features">
+              <span>• تطوير المواقع</span>
+              <span>• التطبيقات الذكية</span>
+              <span>• المتاجر الإلكترونية</span>
+            </div>
+            <div class="card-button">
+              <span>اختر هذه الخدمة</span>
+              <i class="fas fa-arrow-left"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Contact -->
   <section id="contact" class="section">
