@@ -1,432 +1,553 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ar" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HR Hub ‒ HR & Government Affairs Solutions</title>
+  <title>لوحة الإدارة - HR Hub</title>
   <link rel="icon" type="image/png" href="new-logo.png">
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <!-- GSAP & ScrollTrigger -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="admin-styles.css" />
 </head>
 <body>
-
-  <!-- Background container -->
-  <div id="background">
-    <div class="lines"></div>
-    <div class="dots"></div>
+  <!-- Login Screen -->
+  <div id="loginScreen" class="login-screen">
+    <div class="login-container">
+      <div class="login-header">
+        <img src="new-logo.png" alt="HR Hub Logo" class="login-logo">
+        <h1>لوحة الإدارة</h1>
+        <p>تسجيل دخول المدير</p>
+      </div>
+      
+      <form id="loginForm" class="login-form">
+        <div class="input-group">
+          <i class="fas fa-user"></i>
+          <input type="email" id="username" placeholder="البريد الإلكتروني" required autocomplete="username">
+        </div>
+        <div class="input-group">
+          <i class="fas fa-lock"></i>
+          <input type="password" id="password" placeholder="كلمة المرور" required autocomplete="current-password">
+        </div>
+        <button type="submit" class="login-btn">
+          <i class="fas fa-sign-in-alt"></i>
+          تسجيل الدخول
+        </button>
+      </form>
+      
+      <div id="loginError" class="error-message"></div>
+    </div>
   </div>
 
-  <!-- Floating & Lang & WhatsApp -->
-  <a id="lang-switch" href="index.html">AR</a>
-  <a href="https://wa.me/966530017278" class="floating-whatsapp" target="_blank">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-  <button id="backToTop" title="Back to top">↑</button>
+  <!-- Admin Dashboard -->
+  <div id="adminDashboard" class="admin-dashboard hidden">
+    <!-- Header -->
+    <header class="admin-header">
+      <div class="header-left">
+        <img src="new-logo.png" alt="HR Hub Logo" class="header-logo">
+        <h1>لوحة الإدارة</h1>
+      </div>
+      <div class="header-right">
+        <span class="welcome-text" id="welcomeText">مرحباً، المدير</span>
+        <nav class="admin-nav">
+          <button class="nav-btn active" data-section="orders">
+            <i class="fas fa-clipboard-list"></i>
+            الطلبات
+          </button>
+          <button class="nav-btn" data-section="settings">
+            <i class="fas fa-cog"></i>
+            إعدادات الموقع
+          </button>
+          <button class="nav-btn" data-section="banners">
+            <i class="fas fa-images"></i>
+            صور البنر
+          </button>
+          <button class="nav-btn" data-section="products">
+            <i class="fas fa-box"></i>
+            المنتجات
+          </button>
+        </nav>
+        <button id="logoutBtn" class="logout-btn">
+          <i class="fas fa-sign-out-alt"></i>
+          تسجيل الخروج
+        </button>
+      </div>
+    </header>
 
-  <!-- Header -->
-  <header class="site-header" style="display: none;">
-    <div class="logo-center">
-      <img src="new-logo.png" alt="HR Hub Logo" id="logo">
+    <!-- Stats Cards -->
+    <div class="stats-container">
+      <div class="stat-card total">
+        <div class="stat-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="totalOrders">0</h3>
+          <p>إجمالي الطلبات</p>
+        </div>
+      </div>
+      
+      <div class="stat-card pending">
+        <div class="stat-icon">
+          <i class="fas fa-clock"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="pendingOrders">0</h3>
+          <p>بانتظار الاشتراك</p>
+        </div>
+      </div>
+      
+      <div class="stat-card subscribed">
+        <div class="stat-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="subscribedOrders">0</h3>
+          <p>مشترك</p>
+        </div>
+      </div>
+      
+      <div class="stat-card cancelled">
+        <div class="stat-icon">
+          <i class="fas fa-times-circle"></i>
+        </div>
+        <div class="stat-info">
+          <h3 id="cancelledOrders">0</h3>
+          <p>تم الإلغاء</p>
+        </div>
+      </div>
     </div>
-    <nav>
-      <ul class="hub-switcher">
-        <li><button id="hrhub-btn" class="hub-btn active">HR Hub</button></li>
-        <li><button id="webhub-btn" class="hub-btn">Web Hub</button></li>
-      </ul>
-    </nav>
-  </header>
 
-  <!-- HR Hub Content -->
-  <div id="hrhub-content" class="hub-content active">
-    <!-- Back to Home Button -->
-    <div class="back-to-home">
-      <button onclick="returnToMain()" class="back-btn">
-        <i class="fas fa-arrow-left"></i>
-        Back to Home
-      </button>
+    <!-- Orders Section -->
+    <div id="ordersSection" class="admin-section active">
+      <!-- Filters -->
+      <div class="filters-container">
+        <div class="filter-group">
+          <label>فلترة حسب الحالة:</label>
+          <select id="statusFilter">
+            <option value="all">جميع الطلبات</option>
+            <option value="pending">بانتظار الاشتراك</option>
+            <option value="subscribed">مشترك</option>
+            <option value="cancelled">تم الإلغاء</option>
+            <option value="not-subscribed">غير مشترك</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>فلترة حسب الباقة:</label>
+          <select id="packageFilter">
+            <option value="all">جميع الباقات</option>
+            <option value="hrhub">HR Hub</option>
+            <option value="webhub">Web Hub</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label>البحث:</label>
+          <input type="text" id="searchInput" placeholder="ابحث بالاسم أو الإيميل أو الهاتف">
+        </div>
+        
+        <button id="clearFilters" class="clear-btn">
+          <i class="fas fa-times"></i>
+          مسح الفلاتر
+        </button>
+      </div>
+
+      <!-- Orders Table -->
+      <div class="orders-container">
+        <div class="orders-header">
+          <h2>طلبات العملاء</h2>
+          <button id="exportBtn" class="export-btn">
+            <i class="fas fa-download"></i>
+            تصدير البيانات
+          </button>
+        </div>
+        
+        <div class="table-container">
+          <table id="ordersTable" class="orders-table">
+            <thead>
+              <tr>
+                <th>التاريخ</th>
+                <th>الاسم</th>
+                <th>الإيميل</th>
+                <th>الهاتف</th>
+                <th>الرسالة</th>
+                <th>الباقة</th>
+                <th>الحالة</th>
+                <th>الإجراءات</th>
+              </tr>
+            </thead>
+            <tbody id="ordersTableBody">
+              <!-- Orders will be populated here -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div id="noOrders" class="no-orders hidden">
+          <i class="fas fa-inbox"></i>
+          <h3>لا توجد طلبات</h3>
+          <p>لم يتم استلام أي طلبات بعد</p>
+        </div>
+      </div>
     </div>
-    
-    <!-- HR Hub Services -->
-    <section class="section services-section">
-      <div class="services-header">
-        <div class="service-icon">
-          <i class="fas fa-users"></i>
-        </div>
-        <h1>Business Management (HR Hub)</h1>
-        <p class="service-description">
-          Comprehensive HR and Government Affairs services for your business
-        </p>
+
+    <!-- Site Settings Section -->
+    <div id="settingsSection" class="admin-section">
+      <div class="section-header">
+        <h2>إعدادات الموقع</h2>
+        <button id="saveSettingsBtn" class="add-btn">
+          <i class="fas fa-save"></i>
+          حفظ الإعدادات
+        </button>
       </div>
-
-      <!-- Government Platforms Slider -->
-      <div class="platforms-showcase">
-        <h3>Government Platforms We Work With</h3>
-        <div class="banner-slider">
-          <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
-          <div class="slide"><img src="absher.png" alt="Absher"></div>
-          <div class="slide"><img src="balady.png" alt="Balady"></div>
-          <div class="slide"><img src="gosi.png" alt="GOSI"></div>
-          <div class="slide"><img src="ministry.png" alt="Ministry of HRSD"></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- About Us -->
-    <section id="about" class="section about-section">
-      <div class="about-content">
-        <div class="about-icon">
-          <i class="fas fa-building"></i>
-        </div>
-        <h2>About Us</h2>
-        <p class="about-description">
-          An integrated platform specialized in providing HR services, government affairs, and competency development,
-          designed to meet the needs of companies, institutions, and individuals of all sizes and sectors.
-        </p>
-        
-        <div class="experience-highlight">
-          <div class="experience-card">
-            <i class="fas fa-award"></i>
-            <h3>+10 Years</h3>
-            <p>of specialized experience</p>
-          </div>
-          <div class="experience-card">
-            <i class="fas fa-handshake"></i>
-            <h3>Professional Solutions</h3>
-            <p>helping manage resources effectively</p>
-          </div>
-          <div class="experience-card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>Full Compliance</h3>
-            <p>with government procedures easily</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Vision -->
-    <section id="vision" class="section vision-section">
-      <div class="vision-content">
-        <div class="vision-icon">
-          <i class="fas fa-eye"></i>
-        </div>
-        <h2>Our Vision</h2>
-        <p class="vision-description">
-          To be the ideal partner for companies on their journey to success, by providing high-quality services 
-          that contribute to achieving their operational and strategic goals.
-        </p>
-        
-        <div class="vision-features">
-          <div class="vision-feature">
-            <i class="fas fa-target"></i>
-            <h3>Strategic Goals</h3>
-          </div>
-          <div class="vision-feature">
-            <i class="fas fa-chart-line"></i>
-            <h3>Sustainable Growth</h3>
-          </div>
-          <div class="vision-feature">
-            <i class="fas fa-star"></i>
-            <h3>High Quality</h3>
-          </div>
-          <div class="vision-feature">
-            <i class="fas fa-rocket"></i>
-            <h3>Continuous Innovation</h3>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Packages -->
-    <section id="packages" class="section">
-      <h2 class="section-title">Service Packages</h2>
-      <div class="packages-grid">
-        <article class="package-card economy">
-          <h3>Economy Package</h3>
-          <div class="features">
-            <h4>Government Affairs</h4>
-            <ul>
-              <li>Full access & follow-up on all platforms</li>
-              <li>Activity updates & license transfers</li>
-              <li>Monitoring & renewal of official licenses</li>
-            </ul>
-          </div>
-          <div class="features">
-            <h4>HR Services</h4>
-            <ul>
-              <li>Payroll preparation & WPS submission</li>
-              <li>Employee registration on platforms</li>
-              <li>Issuing warnings & clearances</li>
-              <li>Employment contract creation</li>
-            </ul>
-          </div>
-          <div class="package-footer">
-            <span class="price">3000 SAR / mo</span>
-            <a href="#contact" class="btn">Subscribe</a>
-          </div>
-        </article>
-        <article class="package-card comprehensive">
-          <h3>Comprehensive Package</h3>
-          <div class="features">
-            <h4>Government Affairs</h4>
-            <ul>
-              <li>End-to-end entity & employee affairs</li>
-              <li>Platform management (QIWA, Absher, etc.)</li>
-              <li>License creation & renewal scheduling</li>
-              <li>Ongoing document monitoring</li>
-            </ul>
-          </div>
-          <div class="features">
-            <h4>HR Services</h4>
-            <ul>
-              <li>Contract management & daily HR tasks</li>
-              <li>Payroll & WPS justification</li>
-              <li>Policy & regulation development</li>
-              <li>Recruitment planning & follow-up</li>
-            </ul>
-          </div>
-          <div class="package-footer">
-            <span class="price">6000 SAR / mo</span>
-            <a href="#contact" class="btn">Subscribe</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Motto -->
-    <section id="motto" class="section motto-section">
-      <div class="motto-content">
-        <div class="motto-icon">
-          <i class="fas fa-lightbulb"></i>
-        </div>
-        <h2>Our Motto</h2>
-        <p class="motto-description">
-          We guide you toward an exceptional business experience that combines efficiency and innovation.
-        </p>
-        
-        <div class="motto-features">
-          <div class="motto-feature">
-            <i class="fas fa-cogs"></i>
-            <h3>Efficiency</h3>
-            <p>Innovative and effective solutions</p>
-          </div>
-          <div class="motto-feature">
-            <i class="fas fa-brain"></i>
-            <h3>Innovation</h3>
-            <p>Modern and advanced technologies</p>
-          </div>
-          <div class="motto-feature">
-            <i class="fas fa-heart"></i>
-            <h3>Excellence</h3>
-            <p>Exceptional and distinguished service</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Web Hub Content -->
-  <div id="webhub-content" class="hub-content">
-    <!-- Back to Home Button -->
-    <div class="back-to-home">
-      <button onclick="returnToMain()" class="back-btn">
-        <i class="fas fa-arrow-left"></i>
-        Back to Home
-      </button>
-    </div>
-    
-    <!-- Web Hub Services -->
-    <section class="section services-section">
-      <div class="services-header">
-        <div class="service-icon">
-          <i class="fas fa-code"></i>
-        </div>
-        <h1>Business Development (Web Hub)</h1>
-        <p class="service-description">
-          Advanced technical solutions for your websites, apps, and e-commerce
-        </p>
-      </div>
-
-      <!-- Web Services Showcase -->
-      <div class="web-services-showcase">
-        <div class="service-preview">
-          <i class="fas fa-laptop-code"></i>
-          <h3>Web Development</h3>
-        </div>
-        <div class="service-preview">
-          <i class="fas fa-mobile-alt"></i>
-          <h3>Mobile Apps</h3>
-        </div>
-        <div class="service-preview">
-          <i class="fas fa-shopping-cart"></i>
-          <h3>E-commerce</h3>
-        </div>
-        <div class="service-preview">
-          <i class="fas fa-chart-line"></i>
-          <h3>Management Systems</h3>
-        </div>
-      </div>
-    </section>
-
-    <!-- Coming Soon Section -->
-    <section class="section coming-soon-section">
-      <div class="coming-soon-content">
-        <div class="coming-soon-icon">
-          <i class="fas fa-rocket"></i>
-        </div>
-        <h1>Coming Soon... Web Hub</h1>
-        <p class="coming-soon-description">
-          We are currently developing the Web Hub platform to provide the best technical and software solutions
-        </p>
-        
-        <div class="coming-soon-features">
-          <div class="feature-preview">
-            <i class="fas fa-laptop-code"></i>
-            <h3>Website Development</h3>
-          </div>
-          <div class="feature-preview">
-            <i class="fas fa-mobile-alt"></i>
-            <h3>Mobile Applications</h3>
-          </div>
-          <div class="feature-preview">
-            <i class="fas fa-shopping-cart"></i>
-            <h3>E-commerce Stores</h3>
-          </div>
-          <div class="feature-preview">
-            <i class="fas fa-cogs"></i>
-            <h3>Management Systems</h3>
-          </div>
-        </div>
-
-        <div class="coming-soon-message">
-          <h2>🚀 Coming Very Soon</h2>
-          <p>All Web Hub services will be available soon with the latest technologies and innovative solutions</p>
-          <div class="notify-section">
-            <p>To get notified when we launch, contact us:</p>
-            <a href="#contact" class="notify-btn">
-              <i class="fas fa-bell"></i>
-              Notify Me at Launch
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Main Introduction Section -->
-  <section id="main-intro" class="main-intro-section">
-    <div class="intro-content">
-      <div class="intro-header">
-        <div class="main-logo">
-          <img src="new-logo.png" alt="HR Hub Logo">
-        </div>
-        <h1 class="main-title">Comprehensive Business Management & Development Platform</h1>
-        <p class="intro-description">
-          Your ideal partner for success - combining HR & Government Affairs expertise with advanced technical development power
-        </p>
-        
-        <div class="services-overview">
-          <div class="service-overview">
-            <div class="overview-icon hr-icon">
-              <i class="fas fa-users"></i>
+      
+      <div class="settings-container">
+        <div class="settings-grid">
+          <!-- Contact Information -->
+          <div class="settings-card">
+            <h3><i class="fas fa-phone"></i> معلومات التواصل</h3>
+            <div class="form-group">
+              <label>رقم الواتساب:</label>
+              <input type="tel" id="whatsappNumber" value="+966530017278">
             </div>
-            <h3>Business Management (HR Hub)</h3>
-            <p>Comprehensive HR and Government Affairs management - from recruitment to follow-up with all official platforms</p>
+            <div class="form-group">
+              <label>رقم الهاتف:</label>
+              <input type="tel" id="phoneNumber" value="+966542345930">
+            </div>
+            <div class="form-group">
+              <label>البريد الإلكتروني:</label>
+              <input type="email" id="emailAddress" value="hrhub.sa@gmail.com">
+            </div>
+            <div class="form-group">
+              <label>العنوان:</label>
+              <input type="text" id="address" value="المدينة المنورة، السعودية">
+            </div>
+          </div>
+
+          <!-- Social Media -->
+          <div class="settings-card">
+            <h3><i class="fab fa-instagram"></i> حسابات التواصل الاجتماعي</h3>
+            <div class="form-group">
+              <label>رابط الإنستغرام:</label>
+              <input type="url" id="instagramUrl" placeholder="https://instagram.com/hrhub">
+            </div>
+            <div class="form-group">
+              <label>رابط تويتر/X:</label>
+              <input type="url" id="twitterUrl" placeholder="https://x.com/hrhub">
+            </div>
+            <div class="form-group">
+              <label>رابط لينكد إن:</label>
+              <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/company/hrhub">
+            </div>
+            <div class="form-group">
+              <label>رابط فيسبوك:</label>
+              <input type="url" id="facebookUrl" placeholder="https://facebook.com/hrhub">
+            </div>
+          </div>
+
+          <!-- Site Content -->
+          <div class="settings-card">
+            <h3><i class="fas fa-edit"></i> محتوى الموقع</h3>
+            <div class="form-group">
+              <label>عنوان الموقع (عربي):</label>
+              <input type="text" id="siteTitleAr" value="HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية">
+            </div>
+            <div class="form-group">
+              <label>عنوان الموقع (إنجليزي):</label>
+              <input type="text" id="siteTitleEn" value="HR Hub ‒ HR & Government Affairs Solutions">
+            </div>
+            <div class="form-group">
+              <label>وصف الموقع:</label>
+              <textarea id="siteDescription" rows="3">شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية</textarea>
+            </div>
+          </div>
+
+          <!-- Package Pricing -->
+          <div class="settings-card">
+            <h3><i class="fas fa-dollar-sign"></i> أسعار الباقات</h3>
+            <div class="form-group">
+              <label>سعر الباقة الاقتصادية (ريال):</label>
+              <input type="number" id="economyPrice" value="3000">
+            </div>
+            <div class="form-group">
+              <label>سعر الباقة الشاملة (ريال):</label>
+              <input type="number" id="comprehensivePrice" value="6000">
+            </div>
+          </div>
+
+          <!-- Web Hub Settings -->
+          <div class="settings-card">
+            <h3><i class="fas fa-globe"></i> إعدادات Web Hub</h3>
+            <div class="form-group">
+              <label>حالة Web Hub:</label>
+              <select id="webHubStatus">
+                <option value="coming-soon">قريباً</option>
+                <option value="active">نشط</option>
+                <option value="maintenance">تحت الصيانة</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>رسالة Web Hub:</label>
+              <textarea id="webHubMessage" rows="2">نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية</textarea>
+            </div>
+          </div>
+
+          <!-- Admin Settings -->
+          <div class="settings-card">
+            <h3><i class="fas fa-user-shield"></i> إعدادات الإدارة</h3>
+            <div class="form-group">
+              <label>تغيير كلمة مرور الإدارة:</label>
+              <input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة">
+            </div>
+            <div class="form-group">
+              <label>تأكيد كلمة المرور:</label>
+              <input type="password" id="confirmAdminPassword" placeholder="تأكيد كلمة المرور">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Banner Management Section -->
+    <div id="bannersSection" class="admin-section">
+      <div class="section-header">
+        <h2>إدارة صور البنر</h2>
+        <button id="addBannerBtn" class="add-btn">
+          <i class="fas fa-plus"></i>
+          إضافة صورة جديدة
+        </button>
+      </div>
+      
+      <div class="banners-grid" id="bannersGrid">
+        <!-- Banner cards will be populated here -->
+      </div>
+    </div>
+
+    <!-- Products Management Section -->
+    <div id="productsSection" class="admin-section">
+      <div class="section-header">
+        <h2>إدارة منتجات Web Hub</h2>
+        <button id="addProductBtn" class="add-btn">
+          <i class="fas fa-plus"></i>
+          إضافة منتج جديد
+        </button>
+      </div>
+      
+      <div class="products-admin-grid" id="productsAdminGrid">
+        <!-- Product cards will be populated here -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Order Details Modal -->
+  <div id="orderModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>تفاصيل الطلب</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="order-details">
+          <div class="detail-row">
+            <strong>التاريخ:</strong>
+            <span id="modalDate"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الاسم:</strong>
+            <span id="modalName"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الإيميل:</strong>
+            <span id="modalEmail"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الهاتف:</strong>
+            <span id="modalPhone"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الباقة:</strong>
+            <span id="modalHub"></span>
+          </div>
+          <div class="detail-row">
+            <strong>الحالة:</strong>
+            <span id="modalStatus" class="status-badge"></span>
+          </div>
+          <div class="detail-row message-row">
+            <strong>الرسالة:</strong>
+            <div id="modalMessage" class="message-content"></div>
+          </div>
+        </div>
+        
+        <div class="status-actions">
+          <h4>تغيير الحالة:</h4>
+          <div class="status-buttons">
+            <button class="status-btn pending" data-status="pending">
+              <i class="fas fa-clock"></i>
+              بانتظار الاشتراك
+            </button>
+            <button class="status-btn subscribed" data-status="subscribed">
+              <i class="fas fa-check-circle"></i>
+              مشترك
+            </button>
+            <button class="status-btn cancelled" data-status="cancelled">
+              <i class="fas fa-times-circle"></i>
+              تم الإلغاء
+            </button>
+            <button class="status-btn not-subscribed" data-status="not-subscribed">
+              <i class="fas fa-user-times"></i>
+              غير مشترك
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <div class="modal-footer">
+        <button id="deleteOrderBtn" class="delete-btn">
+          <i class="fas fa-trash"></i>
+          حذف الطلب
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner Modal -->
+  <div id="bannerModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="bannerModalTitle">إضافة صورة بنر</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="bannerForm" class="admin-form">
+          <div class="form-group">
+            <label>عنوان الصورة:</label>
+            <input type="text" id="bannerTitle" required>
           </div>
           
-          <div class="service-overview">
-            <div class="overview-icon web-icon">
-              <i class="fas fa-code"></i>
-            </div>
-            <h3>Business Development (Web Hub)</h3>
-            <p>Advanced technical solutions for developing websites, applications and e-stores with the latest global technologies</p>
+          <div class="form-group">
+            <label>رابط الصورة:</label>
+            <input type="url" id="bannerImageUrl" required>
           </div>
-        </div>
-      </div>
-
-      <div class="services-selection">
-        <h2 class="selection-title">Choose the Right Service for Your Business</h2>
-        <div class="selection-cards">
-          <div class="selection-card hr-card" onclick="selectService('hrhub')">
-            <div class="card-icon">
-              <i class="fas fa-users"></i>
-            </div>
-            <div class="card-content">
-              <h3>Business Management</h3>
-              <p class="card-subtitle">(HR Hub)</p>
-              <div class="card-features">
-                <span><i class="fas fa-check"></i> Employee & Payroll Management</span>
-                <span><i class="fas fa-check"></i> Government Affairs</span>
-                <span><i class="fas fa-check"></i> Official Platforms</span>
-                <span><i class="fas fa-check"></i> Licenses & Renewals</span>
-              </div>
-              <div class="card-button">
-                <span>Get Started</span>
-                <i class="fas fa-arrow-right"></i>
-              </div>
-            </div>
+          
+          <div class="form-group">
+            <label>النص البديل:</label>
+            <input type="text" id="bannerAltText">
           </div>
-
-          <div class="selection-card web-card" onclick="selectService('webhub')">
-            <div class="card-icon">
-              <i class="fas fa-code"></i>
-            </div>
-            <div class="card-content">
-              <h3>Business Development</h3>
-              <p class="card-subtitle">(Web Hub)</p>
-              <div class="card-features">
-                <span><i class="fas fa-check"></i> Website Development</span>
-                <span><i class="fas fa-check"></i> Smart Applications</span>
-                <span><i class="fas fa-check"></i> E-commerce Stores</span>
-                <span><i class="fas fa-check"></i> Management Systems</span>
-              </div>
-              <div class="card-button">
-                <span>Get Started</span>
-                <i class="fas fa-arrow-right"></i>
-              </div>
-            </div>
+          
+          <div class="form-group">
+            <label>القسم:</label>
+            <select id="bannerHubType" required>
+              <option value="hrhub">HR Hub</option>
+              <option value="webhub">Web Hub</option>
+            </select>
           </div>
-        </div>
+          
+          <div class="form-group">
+            <label>ترتيب العرض:</label>
+            <input type="number" id="bannerOrder" min="0" value="0">
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
+        </form>
       </div>
     </div>
-  </section>
+  </div>
 
-  <!-- Contact -->
-  <section id="contact" class="section">
-    <h2>Contact Us</h2>
-    <form id="contactForm" class="contact-form">
-      <input type="text" name="name" placeholder="Full Name" required>
-      <input type="email" name="email" placeholder="Email Address" required>
-      <input type="tel" name="phone" placeholder="Phone Number" required>
-      <textarea name="message" placeholder="Your Message" required></textarea>
-      <button type="submit" class="submit-btn">Send Message</button>
-    </form>
-    <div id="responseMessage" class="message-box"></div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-contact">
-      <p><i class="fab fa-whatsapp"></i> <a href="tel:+966530017278">+966530017278</a></p>
-      <p><i class="fas fa-phone"></i> <a href="tel:+966542345930">+966542345930</a></p>
-      <p><i class="fas fa-envelope"></i> <a href="mailto:hrhub.sa@gmail.com">hrhub.sa@gmail.com</a></p>
-      <p><i class="fas fa-map-marker-alt"></i> Madinah, Saudi Arabia</p>
-      <p><a href="admin.html" style="color: #666; font-size: 0.8rem; text-decoration: none;">🔐 Admin Panel</a></p>
+  <!-- Product Modal -->
+  <div id="productModal" class="modal hidden">
+    <div class="modal-content large-modal">
+      <div class="modal-header">
+        <h3 id="productModalTitle">إضافة منتج جديد</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      
+      <div class="modal-body">
+        <form id="productForm" class="admin-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>اسم المنتج:</label>
+              <input type="text" id="productName" required>
+            </div>
+            
+            <div class="form-group">
+              <label>السعر (ريال):</label>
+              <input type="number" id="productPrice" min="0" step="0.01" required>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>وصف المنتج:</label>
+            <textarea id="productDescription" rows="3" required></textarea>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>المدة التقديرية:</label>
+              <input type="text" id="productDuration" placeholder="مثال: 2-3 أسابيع" required>
+            </div>
+            
+            <div class="form-group">
+              <label>رابط الصورة:</label>
+              <input type="url" id="productImageUrl">
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label>الأيقونة:</label>
+              <select id="productIcon">
+                <option value="fas fa-code">كود</option>
+                <option value="fas fa-mobile-alt">جوال</option>
+                <option value="fas fa-shopping-cart">متجر</option>
+                <option value="fas fa-cogs">نظام</option>
+                <option value="fas fa-globe">موقع</option>
+                <option value="fas fa-chart-line">تحليلات</option>
+                <option value="fas fa-cloud">سحابي</option>
+                <option value="fas fa-database">قاعدة بيانات</option>
+              </select>
+            </div>
+            
+            <div class="form-group">
+              <label>ترتيب العرض:</label>
+              <input type="number" id="productOrder" min="0" value="0">
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>المميزات (كل مميزة في سطر منفصل):</label>
+            <textarea id="productFeatures" rows="4" placeholder="مميزة 1&#10;مميزة 2&#10;مميزة 3"></textarea>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ المنتج
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
-    <div class="social-icons">
-      <a href="#"><i class="fab fa-whatsapp"></i></a>
-      <a href="#"><i class="fab fa-instagram"></i></a>
-      <a href="#"><i class="fab fa-x-twitter"></i></a>
-    </div>
-    <p>&copy; 2025 HR Hub. All rights reserved.</p>
-  </footer>
+  </div>
 
-  <!-- Script -->
-  <script type="module" src="script.js"></script>
+  <script type="module" src="admin-script.js"></script>
 </body>
 </html>
