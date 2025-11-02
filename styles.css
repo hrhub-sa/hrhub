@@ -163,11 +163,19 @@ body.webhub-theme .hub-btn.active {
   display: none;
   opacity: 0;
   transition: opacity 0.5s ease;
+  position: relative;
+  z-index: 10;
+  background: var(--primary-blue);
+  min-height: 100vh;
 }
 
 .hub-content.active {
   display: block;
   opacity: 1;
+}
+
+body.webhub-theme .hub-content {
+  background: var(--web-primary);
 }
 
 /* ===== Slider ===== */
@@ -225,31 +233,15 @@ body.webhub-theme .banner-slider {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 25%, #e3f2fd 50%, #bbdefb 75%, #90caf9 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 25%, #e3f2fd 50%, #bbdefb 75%, #90caf9 100%);
   position: relative;
   overflow: hidden;
   text-align: center;
+  z-index: 1;
 }
 
 body.webhub-theme .main-intro-section {
   background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
-}
-
-.main-intro-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-  opacity: 0.3;
-  animation: float 20s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  50% { transform: translateY(-20px) rotate(1deg); }
 }
 
 .intro-content {
@@ -624,14 +616,14 @@ body.webhub-theme .card-features span {
   font-weight: 700;
   font-size: 1.2rem;
   transition: all 0.4s ease;
-  position: relative;
+  position: absolute;
   overflow: hidden;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  z-index: 100;
 }
 
 .hr-card .card-button {
-  background: linear-gradient(135deg, var(--primary-blue), var(--hr-glow));
+  background: linear-gradient(135deg, #0d47a1, #2196f3);
   color: white;
   box-shadow: 0 4px 15px rgba(13,71,161,0.4);
 }
@@ -649,34 +641,21 @@ body.webhub-theme .web-card .card-button {
   box-shadow: 0 4px 15px rgba(0,212,170,0.4);
 }
 
-.card-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s ease;
-}
-
-.selection-card:hover .card-button::before {
-  left: 100%;
-}
-
 .hr-card:hover .card-button {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(13,71,161,0.6);
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+  background: linear-gradient(135deg, #1565c0, #42a5f5);
 }
 
 .web-card:hover .card-button {
-  transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(255,111,0,0.6);
-}
+  background: linear-gradient(135deg, #00d4aa, #26a69a);
+  color: white;
+  box-shadow: 0 4px 20px rgba(0,212,170,0.3);
 
 body.webhub-theme .selection-card:hover .card-button {
   transform: translateY(-3px);
-  box-shadow: 0 8px 25px rgba(0,212,170,0.6);
+  background: linear-gradient(135deg, #26a69a, #4db6ac);
+  box-shadow: 0 6px 25px rgba(0,212,170,0.4);
 }
 
 /* ===== Services Section ===== */
@@ -1391,9 +1370,9 @@ body.webhub-theme .coming-soon-message p {
   align-items: center;
   gap: 0.5rem;
   background: linear-gradient(135deg, var(--accent), #ff8f00);
-  color: white;
-  padding: 1rem 2rem;
-  border-radius: 30px;
+  border: 2px solid rgba(255,255,255,0.2);
+  padding: 0.8rem 1.5rem;
+  border-radius: 25px;
   text-decoration: none;
   font-weight: 600;
   font-size: 1.1rem;
@@ -1573,9 +1552,9 @@ body.webhub-theme .package-card:hover {
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
 }
 
 body.webhub-theme .product-card {
@@ -1955,9 +1934,9 @@ body.webhub-theme #backToTop {
   }
   
   .back-btn {
-    padding: 0.8rem 1.2rem;
+    padding: 0.6rem 1rem;
     font-size: 0.9rem;
-    border-radius: 40px;
+    border-radius: 20px;
   }
   
   .back-btn i {
