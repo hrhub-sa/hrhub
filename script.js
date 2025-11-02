@@ -46,6 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
       isMainIntroVisible = false;
     }
     
+    // Show site header when switching to hub
+    if (siteHeader) {
+      siteHeader.style.display = 'block';
+    }
+    
     if (hubType === 'webhub') {
       // Switch to Web Hub
       if (hrhubContent) {
