@@ -45,22 +45,29 @@
 
   <!-- HR Hub Content -->
   <div id="hrhub-content" class="hub-content active">
-    <!-- Slider -->
-    <div class="banner-slider">
-      <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
-      <div class="slide"><img src="absher.png" alt="Absher"></div>
-      <div class="slide"><img src="balady.png" alt="Balady"></div>
-      <div class="slide"><img src="gosi.png" alt="GOSI"></div>
-      <div class="slide"><img src="ministry.png" alt="Ministry of HRSD"></div>
-    </div>
-
-    <!-- Greeting -->
-    <section id="home" class="section greeting">
-      <div class="greeting-icon">
-        <i class="fas fa-users"></i>
+    <!-- HR Hub Services -->
+    <section class="section services-section">
+      <div class="services-header">
+        <div class="service-icon">
+          <i class="fas fa-users"></i>
+        </div>
+        <h1>Business Management (HR Hub)</h1>
+        <p class="service-description">
+          Comprehensive HR and Government Affairs services for your business
+        </p>
       </div>
-      <h1>Welcome to HR Hub</h1>
-      <p class="greeting-subtitle">Your ideal partner in HR and Government Affairs management</p>
+
+      <!-- Government Platforms Slider -->
+      <div class="platforms-showcase">
+        <h3>Government Platforms We Work With</h3>
+        <div class="banner-slider">
+          <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
+          <div class="slide"><img src="absher.png" alt="Absher"></div>
+          <div class="slide"><img src="balady.png" alt="Balady"></div>
+          <div class="slide"><img src="gosi.png" alt="GOSI"></div>
+          <div class="slide"><img src="ministry.png" alt="Ministry of HRSD"></div>
+        </div>
+      </div>
     </section>
 
     <!-- About Us -->
@@ -218,39 +225,38 @@
 
   <!-- Web Hub Content -->
   <div id="webhub-content" class="hub-content">
-    <!-- Web Services Slider -->
-    <div class="banner-slider">
-      <div class="slide active">
-        <div class="web-service-card">
+    <!-- Web Hub Services -->
+    <section class="section services-section">
+      <div class="services-header">
+        <div class="service-icon">
           <i class="fas fa-code"></i>
+        </div>
+        <h1>Business Development (Web Hub)</h1>
+        <p class="service-description">
+          Advanced technical solutions for your websites, apps, and e-commerce
+        </p>
+      </div>
+
+      <!-- Web Services Showcase -->
+      <div class="web-services-showcase">
+        <div class="service-preview">
+          <i class="fas fa-laptop-code"></i>
           <h3>Web Development</h3>
         </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
+        <div class="service-preview">
           <i class="fas fa-mobile-alt"></i>
           <h3>Mobile Apps</h3>
         </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
+        <div class="service-preview">
           <i class="fas fa-shopping-cart"></i>
           <h3>E-commerce</h3>
         </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
+        <div class="service-preview">
           <i class="fas fa-chart-line"></i>
           <h3>Management Systems</h3>
         </div>
       </div>
-      <div class="slide">
-        <div class="web-service-card">
-          <i class="fas fa-cloud"></i>
-          <h3>Cloud Solutions</h3>
-        </div>
-      </div>
-    </div>
+    </section>
 
     <!-- Coming Soon Section -->
     <section class="section coming-soon-section">
@@ -296,6 +302,67 @@
       </div>
     </section>
   </div>
+
+  <!-- Main Introduction Section -->
+  <section id="main-intro" class="section main-intro-section">
+    <div class="intro-content">
+      <div class="intro-header">
+        <div class="main-logo">
+          <img src="new-logo.png" alt="HR Hub Logo">
+        </div>
+        <h1>Comprehensive Business Management & Development Platform</h1>
+        <p class="intro-description">
+          We are an integrated platform that combines HR & Government Affairs management with advanced technical development solutions. 
+          We help businesses grow and thrive through professional services that meet all their administrative and technical needs.
+        </p>
+      </div>
+
+      <div class="services-selection">
+        <h2>Choose the Right Service for You</h2>
+        <div class="selection-cards">
+          <div class="selection-card hr-card" onclick="selectService('hrhub')">
+            <div class="card-icon">
+              <i class="fas fa-users"></i>
+            </div>
+            <h3>Business Management</h3>
+            <p class="card-subtitle">(HR Hub)</p>
+            <p class="card-description">
+              HR Management and Government Affairs
+            </p>
+            <div class="card-features">
+              <span>• Employee Management</span>
+              <span>• Government Affairs</span>
+              <span>• Official Platforms</span>
+            </div>
+            <div class="card-button">
+              <span>Choose This Service</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+
+          <div class="selection-card web-card" onclick="selectService('webhub')">
+            <div class="card-icon">
+              <i class="fas fa-code"></i>
+            </div>
+            <h3>Business Development</h3>
+            <p class="card-subtitle">(Web Hub)</p>
+            <p class="card-description">
+              Website, App & Technical Solutions Development
+            </p>
+            <div class="card-features">
+              <span>• Web Development</span>
+              <span>• Smart Applications</span>
+              <span>• E-commerce Stores</span>
+            </div>
+            <div class="card-button">
+              <span>Choose This Service</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- Contact -->
   <section id="contact" class="section">
