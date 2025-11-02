@@ -40,6 +40,12 @@ document.addEventListener("DOMContentLoaded", () => {
       isMainIntroVisible = false;
     }
     
+    // Hide site header
+    const siteHeader = document.querySelector('.site-header');
+    if (siteHeader) {
+      siteHeader.style.display = 'none';
+    }
+    
     if (hubType === 'webhub') {
       // Switch to Web Hub
       hrhubBtn.classList.remove('active');
@@ -82,6 +88,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (mainIntro) {
       mainIntro.style.display = 'block';
       isMainIntroVisible = true;
+    }
+    
+    // Show site header
+    const siteHeader = document.querySelector('.site-header');
+    if (siteHeader) {
+      siteHeader.style.display = 'none'; // Keep hidden on main page
     }
     
     // Hide hub contents
