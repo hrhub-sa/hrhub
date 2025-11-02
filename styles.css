@@ -165,7 +165,6 @@ body.webhub-theme .hub-btn.active {
   transition: opacity 0.5s ease;
   position: relative;
   z-index: 10;
-  background: var(--primary-blue);
   min-height: 100vh;
 }
 
@@ -174,6 +173,12 @@ body.webhub-theme .hub-btn.active {
   opacity: 1;
 }
 
+/* HR Hub keeps blue background */
+#hrhub-content {
+  background: var(--primary-blue);
+}
+
+/* Web Hub dark theme */
 body.webhub-theme .hub-content {
   background: var(--web-primary);
 }
@@ -233,15 +238,11 @@ body.webhub-theme .banner-slider {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 25%, #e3f2fd 50%, #bbdefb 75%, #90caf9 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%);
   position: relative;
   overflow: hidden;
   text-align: center;
   z-index: 1;
-}
-
-body.webhub-theme .main-intro-section {
-  background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2d2d2d 100%);
 }
 
 .intro-content {
@@ -656,6 +657,50 @@ body.webhub-theme .selection-card:hover .card-button {
   transform: translateY(-3px);
   background: linear-gradient(135deg, #26a69a, #4db6ac);
   box-shadow: 0 6px 25px rgba(0,212,170,0.4);
+}
+
+/* ===== Back to Home Button ===== */
+.back-to-home {
+  position: fixed;
+  top: 2rem;
+  right: 2rem;
+  z-index: 1000;
+}
+
+.back-btn {
+  background: linear-gradient(135deg, #0d47a1, #2196f3);
+  color: white;
+  border: none;
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(13,71,161,0.3);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+body.webhub-theme .back-btn {
+  background: linear-gradient(135deg, #00d4aa, #26a69a);
+  box-shadow: 0 4px 15px rgba(0,212,170,0.3);
+}
+
+.back-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 25px rgba(13,71,161,0.4);
+}
+
+body.webhub-theme .back-btn:hover {
+  box-shadow: 0 8px 25px rgba(0,212,170,0.4);
+}
+
+.back-btn i {
+  font-size: 1.1rem;
 }
 
 /* ===== Services Section ===== */
@@ -1934,9 +1979,9 @@ body.webhub-theme #backToTop {
   }
   
   .back-btn {
-    padding: 0.6rem 1rem;
+    padding: 0.8rem 1.5rem;
     font-size: 0.9rem;
-    border-radius: 20px;
+    border-radius: 30px;
   }
   
   .back-btn i {
