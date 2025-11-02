@@ -182,12 +182,16 @@ body.webhub-theme .hub-btn.active {
 
 /* HR Hub keeps blue background */
 #hrhub-content {
-  background: var(--primary-blue);
+  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 25%, #2196f3 50%, #42a5f5 75%, #64b5f6 100%);
 }
 
 /* Web Hub dark theme */
 body.webhub-theme .hub-content {
-  background: var(--web-primary);
+  background: linear-gradient(to bottom, #000000, #1a1a1a 50%, #2d2d2d);
+}
+
+#webhub-content {
+  background: linear-gradient(to bottom, #000000, #1a1a1a 50%, #2d2d2d);
 }
 
 /* ===== Slider ===== */
@@ -245,7 +249,7 @@ body.webhub-theme .banner-slider {
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  background: linear-gradient(135deg, #0d47a1 0%, #1976d2 25%, #2196f3 50%, #42a5f5 75%, #64b5f6 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%);
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -1260,6 +1264,21 @@ body.webhub-theme .section::after {
 .section::after {
   bottom: -20px; right: -20px;
   clip-path: circle(50% at 50% 50%);
+}
+
+/* Contact only section for homepage */
+.contact-only {
+  background: rgba(255,255,255,0.9) !important;
+  color: var(--text-dark) !important;
+}
+
+.contact-only h2 {
+  color: var(--primary-blue) !important;
+}
+
+.contact-only .footer-contact p,
+.contact-only .footer-contact a {
+  color: var(--text-dark) !important;
 }
 
 /* ===== Coming Soon Section ===== */
