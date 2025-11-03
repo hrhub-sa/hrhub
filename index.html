@@ -1,333 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية</title>
-  <link rel="icon" type="image/png" href="new-logo.png">
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <!-- GSAP & ScrollTrigger -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <!-- Styles -->
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="glassmorphism.css">
-</head>
-<body>
-
-  <!-- Background container -->
-  <div id="background">
-    <div class="lines"></div>
-    <div class="dots"></div>
-  </div>
-
-  <!-- Floating & Lang & WhatsApp -->
-  <a id="lang-switch" href="index-en.html">EN</a>
-  <a href="https://wa.me/966530017278" class="floating-whatsapp" target="_blank">
-    <i class="fab fa-whatsapp"></i>
-  </a>
-  <button id="backToTop" title="العودة للأعلى">↑</button>
-
-  <!-- Header -->
-  <header class="site-header">
-    <div class="logo-center">
-      <img src="new-logo.png" alt="HR Hub Logo" id="logo">
-    </div>
-    <nav>
-      <ul class="hub-switcher">
-        <li><button id="hrhub-btn" class="hub-btn active">HR Hub</button></li>
-        <li><button id="webhub-btn" class="hub-btn">Web Hub</button></li>
-      </ul>
-    </nav>
-  </header>
-
-  <!-- HR Hub Content -->
-  <div id="hrhub-content" class="hub-content active">
-    <!-- Slider -->
-    <div class="banner-slider">
-      <div class="slide active"><img src="qiwa.png" alt="QIWA"></div>
-      <div class="slide"><img src="absher.png" alt="Absher"></div>
-      <div class="slide"><img src="balady.png" alt="Balady"></div>
-      <div class="slide"><img src="gosi.png" alt="GOSI"></div>
-      <div class="slide"><img src="ministry.png" alt="HRSD"></div>
-    </div>
-
-    <!-- Greeting -->
-    <section id="home" class="section greeting">
-      <div class="greeting-icon">
-        <i class="fas fa-users"></i>
-      </div>
-      <h1>مرحبًا بكم في HR Hub</h1>
-      <p class="greeting-subtitle">شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية</p>
-    </section>
-
-    <!-- About Us -->
-    <section id="about" class="section about-section">
-      <div class="about-content">
-        <div class="about-icon">
-          <i class="fas fa-building"></i>
-        </div>
-        <h2>من نحن؟</h2>
-        <p class="about-description">
-          منصة متكاملة ومتخصصة في تقديم خدمات الموارد البشرية والشؤون الحكومية وتطوير الكفاءات،
-          مصممة لتلبية احتياجات الشركات والمؤسسات والأفراد بمختلف أحجامهم وقطاعاتهم.
-        </p>
-        
-        <div class="experience-highlight">
-          <div class="experience-card">
-            <i class="fas fa-award"></i>
-            <h3>+10 سنوات</h3>
-            <p>من الخبرة المتخصصة</p>
-          </div>
-          <div class="experience-card">
-            <i class="fas fa-handshake"></i>
-            <h3>حلول احترافية</h3>
-            <p>تساعد على إدارة الموارد بفعالية</p>
-          </div>
-          <div class="experience-card">
-            <i class="fas fa-shield-alt"></i>
-            <h3>امتثال كامل</h3>
-            <p>للإجراءات الحكومية بسهولة</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Vision -->
-    <section id="vision" class="section vision-section">
-      <div class="vision-content">
-        <div class="vision-icon">
-          <i class="fas fa-eye"></i>
-        </div>
-        <h2>رؤيتنا</h2>
-        <p class="vision-description">
-          أن نكون الشريك الأمثل للشركات في رحلتها نحو النجاح، من خلال تقديم خدمات ذات جودة عالية 
-          تساهم في تحقيق أهدافها التشغيلية والاستراتيجية.
-        </p>
-        
-        <div class="vision-features">
-          <div class="vision-feature">
-            <i class="fas fa-target"></i>
-            <h3>أهداف استراتيجية</h3>
-          </div>
-          <div class="vision-feature">
-            <i class="fas fa-chart-line"></i>
-            <h3>نمو مستدام</h3>
-          </div>
-          <div class="vision-feature">
-            <i class="fas fa-star"></i>
-            <h3>جودة عالية</h3>
-          </div>
-          <div class="vision-feature">
-            <i class="fas fa-rocket"></i>
-            <h3>ابتكار مستمر</h3>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Packages -->
-    <section id="packages" class="section">
-      <h2 class="section-title">الباقات</h2>
-      <div class="packages-grid">
-        <article class="package-card economy">
-          <h3>الباقة الاقتصادية</h3>
-          <div class="features">
-            <h4>الشؤون الحكومية</h4>
-            <ul>
-              <li>متابعة جميع المنصات الحكومية دورياً</li>
-              <li>تغيير النشاطات ونقل الرخص</li>
-              <li>تجديد التراخيص الرسمية</li>
-            </ul>
-          </div>
-          <div class="features">
-            <h4>خدمات الموارد البشرية</h4>
-            <ul>
-              <li>إعداد مسيرات الرواتب ورفعها في حماية الأجور</li>
-              <li>تسجيل الموظفين في المنصات الحكومية</li>
-              <li>إنذارات ومخالصات وتسويات</li>
-              <li>إنشاء عقود العمل</li>
-            </ul>
-          </div>
-          <div class="package-footer">
-            <span class="price">3000 ريال / شهريًا</span>
-            <a href="#contact" class="btn">اشترك الآن</a>
-          </div>
-        </article>
-        <article class="package-card comprehensive">
-          <h3>الباقة الشاملة</h3>
-          <div class="features">
-            <h4>الشؤون الحكومية</h4>
-            <ul>
-              <li>إدارة كاملة للمنشأة والموظفين</li>
-              <li>متابعة جميع المنصات الحكومية</li>
-              <li>إنشاء وتجديد الرخص والسجلات</li>
-              <li>مراقبة الوثائق الرسمية باستمرار</li>
-            </ul>
-          </div>
-          <div class="features">
-            <h4>خدمات الموارد البشرية</h4>
-            <ul>
-              <li>إدارة العقود والمهام اليومية</li>
-              <li>مسيرات الرواتب وتبرير الحماية</li>
-              <li>تطوير السياسات واللوائح</li>
-              <li>تخطيط والتوظيف والمتابعة</li>
-            </ul>
-          </div>
-          <div class="package-footer">
-            <span class="price">6000 ريال / شهريًا</span>
-            <a href="#contact" class="btn">اشترك الآن</a>
-          </div>
-        </article>
-      </div>
-    </section>
-
-    <!-- Motto -->
-    <section id="motto" class="section motto-section">
-      <div class="motto-content">
-        <div class="motto-icon">
-          <i class="fas fa-lightbulb"></i>
-        </div>
-        <h2>شعارنا</h2>
-        <p class="motto-description">
-          نأخذ بيدكم نحو تجربة متميزة في إدارة الأعمال تجمع بين الكفاءة والابتكار.
-        </p>
-        
-        <div class="motto-features">
-          <div class="motto-feature">
-            <i class="fas fa-cogs"></i>
-            <h3>الكفاءة</h3>
-            <p>حلول مبتكرة وفعالة</p>
-          </div>
-          <div class="motto-feature">
-            <i class="fas fa-brain"></i>
-            <h3>الابتكار</h3>
-            <p>تقنيات حديثة ومتطورة</p>
-          </div>
-          <div class="motto-feature">
-            <i class="fas fa-heart"></i>
-            <h3>التميز</h3>
-            <p>خدمة استثنائية ومتميزة</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Web Hub Content -->
-  <div id="webhub-content" class="hub-content">
-    <!-- Web Services Slider -->
-    <div class="banner-slider">
-      <div class="slide active">
-        <div class="web-service-card">
-          <i class="fas fa-code"></i>
-          <h3>تطوير المواقع</h3>
-        </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
-          <i class="fas fa-mobile-alt"></i>
-          <h3>التطبيقات</h3>
-        </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
-          <i class="fas fa-shopping-cart"></i>
-          <h3>المتاجر الإلكترونية</h3>
-        </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
-          <i class="fas fa-chart-line"></i>
-          <h3>أنظمة الإدارة</h3>
-        </div>
-      </div>
-      <div class="slide">
-        <div class="web-service-card">
-          <i class="fas fa-cloud"></i>
-          <h3>الحلول السحابية</h3>
-        </div>
-      </div>
-    </div>
-
-    <!-- Coming Soon Section -->
-    <section class="section coming-soon-section">
-      <div class="coming-soon-content">
-        <div class="coming-soon-icon">
-          <i class="fas fa-rocket"></i>
-        </div>
-        <h1>قريباً... Web Hub</h1>
-        <p class="coming-soon-description">
-          نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية
-        </p>
-        
-        <div class="coming-soon-features">
-          <div class="feature-preview">
-            <i class="fas fa-laptop-code"></i>
-            <h3>تطوير المواقع الإلكترونية</h3>
-          </div>
-          <div class="feature-preview">
-            <i class="fas fa-mobile-alt"></i>
-            <h3>تطبيقات الهواتف الذكية</h3>
-          </div>
-          <div class="feature-preview">
-            <i class="fas fa-shopping-cart"></i>
-            <h3>المتاجر الإلكترونية</h3>
-          </div>
-          <div class="feature-preview">
-            <i class="fas fa-cogs"></i>
-            <h3>الأنظمة الإدارية</h3>
-          </div>
-        </div>
-
-        <div class="coming-soon-message">
-          <h2>🚀 قريباً جداً</h2>
-          <p>ستتوفر جميع خدمات Web Hub قريباً مع أحدث التقنيات والحلول المبتكرة</p>
-          <div class="notify-section">
-            <p>للحصول على إشعار عند الإطلاق، تواصل معنا:</p>
-            <a href="#contact" class="notify-btn">
-              <i class="fas fa-bell"></i>
-              أشعرني عند الإطلاق
-            </a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </div>
-
-  <!-- Contact -->
-  <section id="contact" class="section">
-    <h2>تواصل معنا</h2>
-    <form id="contactForm" class="contact-form">
-      <input type="text" name="name" placeholder="الاسم الكامل" required>
-      <input type="email" name="email" placeholder="البريد الإلكتروني" required>
-      <input type="tel" name="phone" placeholder="رقم الهاتف" required>
-      <textarea name="message" placeholder="رسالتك" required></textarea>
-      <button type="submit" class="submit-btn">إرسال الرسالة</button>
-    </form>
-    <div id="responseMessage" class="message-box"></div>
-  </section>
-
-  <!-- Footer -->
-  <footer class="site-footer">
-    <div class="footer-contact">
-      <p><i class="fab fa-whatsapp"></i> <a href="tel:+966530017278">+966530017278</a></p>
-      <p><i class="fas fa-phone"></i> <a href="tel:+966542345930">+966542345930</a></p>
-      <p><i class="fas fa-envelope"></i> <a href="mailto:hrhub.sa@gmail.com">hrhub.sa@gmail.com</a></p>
-      <p><i class="fas fa-map-marker-alt"></i> المدينة المنورة، السعودية</p>
-      <p><a href="admin.html" style="color: #666; font-size: 0.8rem; text-decoration: none;">🔐 لوحة الإدارة</a></p>
-    </div>
-    <div class="social-icons">
-      <a href="#"><i class="fab fa-whatsapp"></i></a>
-      <a href="#"><i class="fab fa-instagram"></i></a>
-      <a href="#"><i class="fab fa-x-twitter"></i></a>
-    </div>
-    <p>&copy; 2025 HR Hub جميع الحقوق محفوظة</p>
-  </footer>
-
-  <!-- Script -->
-  <script type="module" src="script.js"></script>
-</body>
-</html>
