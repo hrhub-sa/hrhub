@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HR Hub - إدارة الموارد البشرية</title>
+  <link rel="icon" type="image/png" href="new-logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="hr-hub-styles.css" />
+</head>
+<body>
+  <!-- Background -->
+  <div class="background-container">
+    <div class="bg-lines"></div>
+    <div class="bg-dots"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="container">
+      <a href="home.html" class="back-btn">
+        <i class="fas fa-arrow-right"></i>
+        العودة للرئيسية
+      </a>
+      <div class="header-content">
+        <img src="new-logo.png" alt="HR Hub Logo" class="page-logo">
+        <h1 class="page-title">إدارة الموارد البشرية</h1>
+        <p class="page-subtitle">حلول شاملة لإدارة الموارد البشرية والشؤون الحكومية</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Banner Slider -->
+  <section class="banner-section">
+    <div class="container">
+      <div class="banner-slider" id="bannerSlider">
+        <!-- Banners will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section">
+    <div class="container">
+      <div class="about-content" id="aboutContent">
+        <!-- About content will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Packages Section -->
+  <section class="packages-section">
+    <div class="container">
+      <h2 class="section-title">باقات الخدمة</h2>
+      <div class="packages-grid" id="packagesGrid">
+        <!-- Packages will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Interest Form -->
+  <section class="interest-section">
+    <div class="container">
+      <div class="interest-form-container">
+        <h2>أبدي اهتمامك</h2>
+        <form id="interestForm" class="interest-form">
+          <div class="form-group">
+            <label>الاسم الكامل</label>
+            <input type="text" name="name" required>
+          </div>
+          <div class="form-group">
+            <label>البريد الإلكتروني</label>
+            <input type="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>رقم الهاتف</label>
+            <input type="tel" name="phone" required>
+          </div>
+          <div class="form-group">
+            <label>الباقة المهتم بها</label>
+            <select name="package" required>
+              <option value="">اختر الباقة</option>
+              <option value="economy">الباقة الاقتصادية</option>
+              <option value="comprehensive">الباقة الشاملة</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>رسالة إضافية</label>
+            <textarea name="message" rows="4"></textarea>
+          </div>
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-paper-plane"></i>
+            إرسال الاهتمام
+          </button>
+        </form>
+        <div id="formMessage" class="form-message"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section">
+    <div class="container">
+      <div class="contact-info" id="contactInfo">
+        <!-- Contact info will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Language Switch -->
+  <a href="hr-hub-en.html" class="lang-switch">EN</a>
+
+  <!-- WhatsApp Float -->
+  <a href="#" class="whatsapp-float" id="whatsappFloat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script type="module" src="hr-hub-script.js"></script>
+</body>
+</html>
