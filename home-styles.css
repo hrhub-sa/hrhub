@@ -281,6 +281,14 @@ body {
   box-shadow: 0 8px 25px var(--shadow-hover);
 }
 
+.flag-icon {
+  width: 20px;
+  height: auto;
+  margin-left: 0.5rem;
+  border-radius: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
 /* WhatsApp Float */
 .whatsapp-float {
   position: fixed;
