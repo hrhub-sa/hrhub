@@ -14,51 +14,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load services from settings
 async function loadServices() {
   try {
-    const result = await settingsAPI.getAllSettings();
-    let services = [];
-    
-    if (result.success && result.data.length > 0) {
-      const servicesData = result.data.find(setting => setting.setting_key === 'home_services_en');
-      if (servicesData && servicesData.setting_value) {
-        services = servicesData.setting_value;
-      }
-    }
-    
-    // Default services if none found
-    if (services.length === 0) {
-      services = [
-        {
-          id: 'hr-hub',
-          title: 'Business Management',
-          subtitle: 'HR Hub',
-          description: 'Comprehensive solutions for human resources and government affairs management',
-          icon: 'fas fa-users',
-          features: [
-            'Employee & Talent Management',
-            'Government Affairs',
-            'Official Platforms',
-            'Procedures & Updates'
-          ],
-          link: 'hr-hub-en.html'
-        },
-        {
-          id: 'web-hub',
-          title: 'Business Development',
-          subtitle: 'Web Hub',
-          description: 'Advanced technical solutions for developing your digital business',
-          icon: 'fas fa-code',
-          features: [
-            'Website Development',
-            'Mobile Applications',
-            'E-commerce Stores',
-            'Management Systems'
-          ],
-          link: 'web-hub-en.html'
-        }
-      ];
-    }
-    
-    renderServices(services);
+    // For English version, always use default English services
+    // Database services are in Arabic, so we use translated defaults
+    loadDefaultServices();
   } catch (error) {
     console.error('Error loading services:', error);
     loadDefaultServices();
