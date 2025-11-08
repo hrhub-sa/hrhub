@@ -72,30 +72,9 @@ function loadDefaultBanners() {
 // Load about content
 async function loadAboutContent() {
   try {
-    const result = await settingsAPI.getAllSettings();
-    let aboutData = {};
-    
-    if (result.success && result.data.length > 0) {
-      const aboutSetting = result.data.find(setting => setting.setting_key === 'hr_hub_about_en');
-      if (aboutSetting && aboutSetting.setting_value) {
-        aboutData = aboutSetting.setting_value;
-      }
-    }
-    
-    // Default about content
-    const defaultAbout = {
-      title: 'About Business Management',
-      description: 'We specialize in providing comprehensive solutions for human resources management and government affairs. We help companies and institutions develop employee management systems and deal with government entities with high efficiency.',
-      features: [
-        'Employee & Talent Management',
-        'Government Affairs & Licensing',
-        'Official & Government Platforms',
-        'Administrative Consultations'
-      ]
-    };
-    
-    const about = { ...defaultAbout, ...aboutData };
-    renderAboutContent(about);
+    // For English version, always use default English content
+    // Database content is in Arabic, so we use translated defaults
+    loadDefaultAboutContent();
   } catch (error) {
     console.error('Error loading about content:', error);
     loadDefaultAboutContent();
@@ -136,60 +115,9 @@ function loadDefaultAboutContent() {
 // Load packages
 async function loadPackages() {
   try {
-    const result = await settingsAPI.getAllSettings();
-    let packagesData = [];
-    let pricing = {};
-    
-    if (result.success && result.data.length > 0) {
-      const packagesSetting = result.data.find(setting => setting.setting_key === 'hr_hub_packages_en');
-      const pricingSetting = result.data.find(setting => setting.setting_key === 'package_pricing');
-      
-      if (packagesSetting && packagesSetting.setting_value) {
-        packagesData = packagesSetting.setting_value;
-      }
-      
-      if (pricingSetting && pricingSetting.setting_value) {
-        pricing = pricingSetting.setting_value;
-      }
-    }
-    
-    // Default packages
-    if (packagesData.length === 0) {
-      packagesData = [
-        {
-          id: 'economy',
-          name: 'Economy Package',
-          price: pricing.economyPrice || 3000,
-          duration: 'Monthly',
-          features: [
-            'Basic Employee Management',
-            'Attendance & Departure Tracking',
-            'Leave Management',
-            'Basic Reports',
-            'Technical Support'
-          ],
-          featured: false
-        },
-        {
-          id: 'comprehensive',
-          name: 'Comprehensive Package',
-          price: pricing.comprehensivePrice || 6000,
-          duration: 'Monthly',
-          features: [
-            'All Economy Package Features',
-            'Payroll & Bonus Management',
-            'Performance Evaluation System',
-            'Training & Development Management',
-            'Advanced Reports',
-            'Government Affairs',
-            'Advanced 24/7 Technical Support'
-          ],
-          featured: true
-        }
-      ];
-    }
-    
-    renderPackages(packagesData);
+    // For English version, always use default English packages
+    // Database packages are in Arabic, so we use translated defaults
+    loadDefaultPackages();
   } catch (error) {
     console.error('Error loading packages:', error);
     loadDefaultPackages();
