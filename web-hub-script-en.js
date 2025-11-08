@@ -20,47 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load services showcase
 async function loadServices() {
   try {
-    const result = await settingsAPI.getAllSettings();
-    let servicesData = [];
-    
-    if (result.success && result.data.length > 0) {
-      const servicesSetting = result.data.find(setting => setting.setting_key === 'web_hub_services_en');
-      if (servicesSetting && servicesSetting.setting_value) {
-        servicesData = servicesSetting.setting_value;
-      }
-    }
-    
-    // Default services
-    if (servicesData.length === 0) {
-      servicesData = [
-        {
-          id: 'web-development',
-          title: 'Web Development',
-          description: 'Design and develop professional, responsive websites compatible with all devices',
-          icon: 'fas fa-globe'
-        },
-        {
-          id: 'mobile-apps',
-          title: 'Mobile Applications',
-          description: 'Develop smart applications for iOS and Android systems using the latest technologies',
-          icon: 'fas fa-mobile-alt'
-        },
-        {
-          id: 'ecommerce',
-          title: 'E-commerce Stores',
-          description: 'Create integrated e-commerce stores with payment and management systems',
-          icon: 'fas fa-shopping-cart'
-        },
-        {
-          id: 'systems',
-          title: 'Management Systems',
-          description: 'Develop custom management systems to facilitate business operations',
-          icon: 'fas fa-cogs'
-        }
-      ];
-    }
-    
-    renderServices(servicesData);
+    // For English version, always use default English services
+    // Database services are in Arabic, so we use translated defaults
+    loadDefaultServices();
   } catch (error) {
     console.error('Error loading services:', error);
     loadDefaultServices();
@@ -117,14 +79,9 @@ function loadDefaultServices() {
 // Load products
 async function loadProducts() {
   try {
-    const result = await productsAPI.getAllProducts();
-    
-    if (result.success && result.data.length > 0) {
-      renderProducts(result.data);
-      populateProductSelect(result.data);
-    } else {
-      loadDefaultProducts();
-    }
+    // For English version, always use default English products
+    // Database products are in Arabic, so we use translated defaults
+    loadDefaultProducts();
   } catch (error) {
     console.error('Error loading products:', error);
     loadDefaultProducts();
