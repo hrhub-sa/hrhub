@@ -134,7 +134,7 @@ async function loadProducts() {
 // Render products
 function renderProducts(products) {
   if (!productsGrid) return;
-  
+
   productsGrid.innerHTML = products.map(product => `
     <div class="product-card">
       <div class="product-header">
@@ -142,23 +142,23 @@ function renderProducts(products) {
           <i class="${product.icon}"></i>
         </div>
         <div class="product-info">
-          <h3 class="product-name">${product.name}</h3>
+          <h3 class="product-name">${product.name_ar}</h3>
           <div class="product-price">${product.price} ريال</div>
         </div>
       </div>
-      <p class="product-description">${product.description}</p>
+      <p class="product-description">${product.description_ar}</p>
       <div class="product-meta">
         <span class="product-duration">
           <i class="fas fa-clock"></i>
-          ${product.duration}
+          ${product.duration_ar}
         </span>
       </div>
-      ${product.features && product.features.length > 0 ? `
+      ${product.features_ar && product.features_ar.length > 0 ? `
         <ul class="product-features">
-          ${product.features.map(feature => `<li>${feature}</li>`).join('')}
+          ${product.features_ar.map(feature => `<li>${feature}</li>`).join('')}
         </ul>
       ` : ''}
-      <button class="product-btn" onclick="selectProduct('${product.id}', '${product.name}')">
+      <button class="product-btn" onclick="selectProduct('${product.id}', '${product.name_ar}')">
         <i class="fas fa-shopping-cart"></i>
         اطلب الآن
       </button>
@@ -214,14 +214,14 @@ function loadDefaultProducts() {
 // Populate product select dropdown
 function populateProductSelect(products) {
   if (!productSelect) return;
-  
+
   // Clear existing options except the first one
   productSelect.innerHTML = '<option value="">اختر المنتج</option>';
-  
+
   products.forEach(product => {
     const option = document.createElement('option');
     option.value = product.id;
-    option.textContent = product.name;
+    option.textContent = product.name_ar;
     productSelect.appendChild(option);
   });
 }
