@@ -135,35 +135,41 @@ async function loadProducts() {
 function renderProducts(products) {
   if (!productsGrid) return;
 
-  productsGrid.innerHTML = products.map(product => `
+  productsGrid.innerHTML = products.map(product => {
+    const name = product.name_ar || product.name || 'منتج';
+    const description = product.description_ar || product.description || '';
+    const duration = product.duration_ar || product.duration || '';
+    const features = product.features_ar || product.features || [];
+
+    return `
     <div class="product-card">
       <div class="product-header">
         <div class="product-icon">
-          <i class="${product.icon}"></i>
+          <i class="${product.icon || 'fas fa-box'}"></i>
         </div>
         <div class="product-info">
-          <h3 class="product-name">${product.name_ar}</h3>
+          <h3 class="product-name">${name}</h3>
           <div class="product-price">${product.price} ريال</div>
         </div>
       </div>
-      <p class="product-description">${product.description_ar}</p>
+      <p class="product-description">${description}</p>
       <div class="product-meta">
         <span class="product-duration">
           <i class="fas fa-clock"></i>
-          ${product.duration_ar}
+          ${duration}
         </span>
       </div>
-      ${product.features_ar && product.features_ar.length > 0 ? `
+      ${features && features.length > 0 ? `
         <ul class="product-features">
-          ${product.features_ar.map(feature => `<li>${feature}</li>`).join('')}
+          ${features.map(feature => `<li>${feature}</li>`).join('')}
         </ul>
       ` : ''}
-      <button class="product-btn" onclick="selectProduct('${product.id}', '${product.name_ar}')">
+      <button class="product-btn" onclick="selectProduct('${product.id}', '${name}')">
         <i class="fas fa-shopping-cart"></i>
         اطلب الآن
       </button>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 // Load default products
@@ -219,9 +225,10 @@ function populateProductSelect(products) {
   productSelect.innerHTML = '<option value="">اختر المنتج</option>';
 
   products.forEach(product => {
+    const name = product.name_ar || product.name || 'منتج';
     const option = document.createElement('option');
     option.value = product.id;
-    option.textContent = product.name_ar;
+    option.textContent = name;
     productSelect.appendChild(option);
   });
 }
