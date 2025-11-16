@@ -568,30 +568,48 @@ function renderProducts(products) {
         <div class="product-icon-display">
           <i class="${product.icon}"></i>
         </div>
-        <h3 class="product-name">${product.name}</h3>
+        <h3 class="product-name">${product.name_ar} / ${product.name_en}</h3>
         <span class="visibility-status ${product.is_active ? 'visible' : 'hidden'}">
           ${product.is_active ? 'ظاهر' : 'مخفي'}
         </span>
       </div>
-      
-      <p class="product-description">${product.description}</p>
-      
+
+      <div class="bilingual-content">
+        <div class="lang-section">
+          <strong>عربي:</strong>
+          <p>${product.description_ar}</p>
+        </div>
+        <div class="lang-section">
+          <strong>English:</strong>
+          <p>${product.description_en}</p>
+        </div>
+      </div>
+
       <div class="product-details-grid">
         <div class="product-detail">
           <strong>${product.price} ريال</strong>
           <span>السعر</span>
         </div>
         <div class="product-detail">
-          <strong>${product.duration}</strong>
+          <strong>${product.duration_ar} / ${product.duration_en}</strong>
           <span>المدة</span>
         </div>
       </div>
-      
-      ${product.features && product.features.length > 0 ? `
+
+      ${product.features_ar && product.features_ar.length > 0 ? `
         <div class="product-features-list">
-          <h4>المميزات:</h4>
+          <h4>المميزات (عربي):</h4>
           <ul>
-            ${product.features.map(feature => `<li>${feature}</li>`).join('')}
+            ${product.features_ar.map(feature => `<li>${feature}</li>`).join('')}
+          </ul>
+        </div>
+      ` : ''}
+
+      ${product.features_en && product.features_en.length > 0 ? `
+        <div class="product-features-list">
+          <h4>Features (English):</h4>
+          <ul>
+            ${product.features_en.map(feature => `<li>${feature}</li>`).join('')}
           </ul>
         </div>
       ` : ''}
@@ -639,17 +657,23 @@ async function loadProductForEdit(productId) {
     if (result.success) {
       const product = result.data.find(p => p.id === productId);
       if (product) {
-        document.getElementById('productName').value = product.name;
-        document.getElementById('productDescription').value = product.description;
+        document.getElementById('productNameAr').value = product.name_ar || '';
+        document.getElementById('productNameEn').value = product.name_en || '';
+        document.getElementById('productDescriptionAr').value = product.description_ar || '';
+        document.getElementById('productDescriptionEn').value = product.description_en || '';
+        document.getElementById('productDurationAr').value = product.duration_ar || '';
+        document.getElementById('productDurationEn').value = product.duration_en || '';
         document.getElementById('productPrice').value = product.price;
-        document.getElementById('productDuration').value = product.duration;
         document.getElementById('productImageUrl').value = product.image_url || '';
         document.getElementById('productIcon').value = product.icon;
         document.getElementById('productOrder').value = product.display_order || 0;
-        
+
         // Load features
-        if (product.features && Array.isArray(product.features)) {
-          document.getElementById('productFeatures').value = product.features.join('\n');
+        if (product.features_ar && Array.isArray(product.features_ar)) {
+          document.getElementById('productFeaturesAr').value = product.features_ar.join('\n');
+        }
+        if (product.features_en && Array.isArray(product.features_en)) {
+          document.getElementById('productFeaturesEn').value = product.features_en.join('\n');
         }
       }
     }
@@ -661,23 +685,30 @@ async function loadProductForEdit(productId) {
 // Save product
 async function saveProduct(e) {
   e.preventDefault();
-  
+
   console.log('🔄 Saving product...');
-  
-  const featuresText = document.getElementById('productFeatures').value;
-  const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
-  
+
+  const featuresArText = document.getElementById('productFeaturesAr').value;
+  const featuresAr = featuresArText ? featuresArText.split('\n').filter(f => f.trim()) : [];
+
+  const featuresEnText = document.getElementById('productFeaturesEn').value;
+  const featuresEn = featuresEnText ? featuresEnText.split('\n').filter(f => f.trim()) : [];
+
   const productData = {
-    name: document.getElementById('productName').value,
-    description: document.getElementById('productDescription').value,
+    name_ar: document.getElementById('productNameAr').value,
+    name_en: document.getElementById('productNameEn').value,
+    description_ar: document.getElementById('productDescriptionAr').value,
+    description_en: document.getElementById('productDescriptionEn').value,
+    duration_ar: document.getElementById('productDurationAr').value,
+    duration_en: document.getElementById('productDurationEn').value,
     price: parseFloat(document.getElementById('productPrice').value),
-    duration: document.getElementById('productDuration').value,
     image_url: document.getElementById('productImageUrl').value,
     icon: document.getElementById('productIcon').value,
     display_order: parseInt(document.getElementById('productOrder').value),
-    features: features
+    features_ar: featuresAr,
+    features_en: featuresEn
   };
-  
+
   console.log('📝 Product data:', productData);
   
   try {
