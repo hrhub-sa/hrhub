@@ -678,3 +678,171 @@ export const authAPI = {
     return { success: false, error: 'No user logged in' };
   }
 };
+
+// Main Banner API functions
+export const mainBannerAPI = {
+  // Get main banner settings
+  async getSettings() {
+    if (isSupabaseAvailable()) {
+      try {
+        const { data, error } = await supabase
+          .from('main_banner_settings')
+          .select('*')
+          .limit(1)
+          .maybeSingle();
+
+        if (error) throw error;
+        console.log('✅ Main banner settings loaded:', data);
+        return { success: true, data: data || { is_enabled: false, auto_slide_interval: 5 } };
+      } catch (error) {
+        console.error('❌ Error loading main banner settings:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    return { success: true, data: { is_enabled: false, auto_slide_interval: 5 } };
+  },
+
+  // Update main banner settings
+  async updateSettings(settings) {
+    if (isSupabaseAvailable()) {
+      try {
+        console.log('🔄 Updating main banner settings:', settings);
+
+        // Check if settings exist
+        const { data: existing } = await supabase
+          .from('main_banner_settings')
+          .select('*')
+          .limit(1)
+          .maybeSingle();
+
+        let result;
+        if (existing) {
+          // Update existing
+          const { data, error } = await supabase
+            .from('main_banner_settings')
+            .update({ ...settings, updated_at: getCurrentTimestamp() })
+            .eq('id', existing.id)
+            .select()
+            .single();
+
+          if (error) throw error;
+          result = data;
+        } else {
+          // Create new
+          const { data, error } = await supabase
+            .from('main_banner_settings')
+            .insert([settings])
+            .select()
+            .single();
+
+          if (error) throw error;
+          result = data;
+        }
+
+        console.log('✅ Main banner settings updated:', result);
+        return { success: true, data: result };
+      } catch (error) {
+        console.error('❌ Error updating main banner settings:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    return { success: true, data: settings };
+  },
+
+  // Get main banner images
+  async getImages() {
+    if (isSupabaseAvailable()) {
+      try {
+        const { data, error } = await supabase
+          .from('banner_images')
+          .select('*')
+          .eq('banner_type', 'main')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true });
+
+        if (error) throw error;
+        console.log('✅ Main banner images loaded:', data?.length || 0);
+        return { success: true, data: data || [] };
+      } catch (error) {
+        console.error('❌ Error loading main banner images:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    return { success: true, data: [] };
+  },
+
+  // Add main banner image
+  async addImage(imageData) {
+    if (isSupabaseAvailable()) {
+      try {
+        const bannerData = {
+          ...imageData,
+          banner_type: 'main',
+          hub_type: 'hrhub'
+        };
+
+        const { data, error } = await supabase
+          .from('banner_images')
+          .insert([bannerData])
+          .select()
+          .single();
+
+        if (error) throw error;
+        console.log('✅ Main banner image added:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('❌ Error adding main banner image:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    return { success: true, data: imageData };
+  },
+
+  // Update main banner image
+  async updateImage(imageId, imageData) {
+    if (isSupabaseAvailable()) {
+      try {
+        const { data, error } = await supabase
+          .from('banner_images')
+          .update({ ...imageData, updated_at: getCurrentTimestamp() })
+          .eq('id', imageId)
+          .select()
+          .single();
+
+        if (error) throw error;
+        console.log('✅ Main banner image updated:', data);
+        return { success: true, data };
+      } catch (error) {
+        console.error('❌ Error updating main banner image:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    return { success: true, data: imageData };
+  },
+
+  // Delete main banner image
+  async deleteImage(imageId) {
+    if (isSupabaseAvailable()) {
+      try {
+        const { error } = await supabase
+          .from('banner_images')
+          .delete()
+          .eq('id', imageId);
+
+        if (error) throw error;
+        console.log('✅ Main banner image deleted:', imageId);
+        return { success: true };
+      } catch (error) {
+        console.error('❌ Error deleting main banner image:', error);
+        return { success: false, error: error.message };
+      }
+    }
+
+    return { success: true };
+  }
+};
