@@ -57,9 +57,9 @@
             <i class="fas fa-cog"></i>
             إعدادات الموقع
           </button>
-          <button class="nav-btn" data-section="banners">
-            <i class="fas fa-images"></i>
-            صور البنر
+          <button class="nav-btn" data-section="main-banner">
+            <i class="fas fa-image"></i>
+            البنر الرئيسي
           </button>
           <button class="nav-btn" data-section="products">
             <i class="fas fa-box"></i>
@@ -306,18 +306,54 @@
       </div>
     </div>
 
-    <!-- Banner Management Section -->
-    <div id="bannersSection" class="admin-section">
+    <!-- Main Banner Section -->
+    <div id="mainBannerSection" class="admin-section">
       <div class="section-header">
-        <h2>إدارة صور البنر</h2>
-        <button id="addBannerBtn" class="add-btn">
-          <i class="fas fa-plus"></i>
-          إضافة صورة جديدة
+        <h2>إدارة البنر الرئيسي</h2>
+        <button id="saveMainBannerBtn" class="add-btn">
+          <i class="fas fa-save"></i>
+          حفظ الإعدادات
         </button>
       </div>
-      
-      <div class="banners-grid" id="bannersGrid">
-        <!-- Banner cards will be populated here -->
+
+      <div class="settings-container">
+        <div class="settings-card" style="margin-bottom: 2rem;">
+          <h3><i class="fas fa-toggle-on"></i> إعدادات البنر</h3>
+          <div class="form-group">
+            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+              <input type="checkbox" id="mainBannerEnabled" style="width: auto;">
+              <span>تفعيل البنر الرئيسي</span>
+            </label>
+            <small style="color: #888; display: block; margin-top: 0.5rem;">
+              عند التفعيل، سيظهر البنر في جميع الصفحات. يمكنك إخفاؤه بإلغاء التفعيل.
+            </small>
+          </div>
+          <div class="form-group">
+            <label>وقت التبديل بين الصور (بالثواني):</label>
+            <input type="number" id="mainBannerInterval" min="3" max="15" value="5">
+            <small style="color: #888; display: block; margin-top: 0.25rem;">
+              ينطبق فقط إذا كان هناك أكثر من صورة واحدة
+            </small>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top: 2rem;">
+          <h3>صور البنر</h3>
+          <button id="addMainBannerImageBtn" class="add-btn">
+            <i class="fas fa-plus"></i>
+            إضافة صورة
+          </button>
+        </div>
+
+        <div class="banners-grid" id="mainBannerImagesGrid">
+          <!-- Main banner images will be populated here -->
+        </div>
+
+        <div id="noMainBannerImages" class="no-orders" style="display: none;">
+          <i class="fas fa-image"></i>
+          <h3>لا توجد صور في البنر</h3>
+          <p>اضغط على "إضافة صورة" لإضافة أول صورة للبنر الرئيسي</p>
+        </div>
       </div>
     </div>
 
@@ -542,13 +578,26 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label>السعر (ريال):</label>
-              <input type="number" id="productPrice" min="0" step="0.01" required>
+              <label>السعر القديم (ريال) - اختياري:</label>
+              <input type="number" id="productPriceBefore" min="0" step="0.01" placeholder="السعر قبل التخفيض">
+              <small style="color: #888; display: block; margin-top: 0.25rem;">اتركه فارغاً إذا لم يكن هناك تخفيض</small>
             </div>
 
             <div class="form-group">
+              <label>السعر الحالي (ريال):</label>
+              <input type="number" id="productPrice" min="0" step="0.01" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
               <label>رابط الصورة:</label>
               <input type="url" id="productImageUrl">
+            </div>
+
+            <div class="form-group">
+              <label>ترتيب العرض:</label>
+              <input type="number" id="productOrder" min="0" value="0">
             </div>
           </div>
 
@@ -566,17 +615,59 @@
                 <option value="fas fa-database">قاعدة بيانات</option>
               </select>
             </div>
-
-            <div class="form-group">
-              <label>ترتيب العرض:</label>
-              <input type="number" id="productOrder" min="0" value="0">
-            </div>
           </div>
           
           <div class="form-actions">
             <button type="submit" class="save-btn">
               <i class="fas fa-save"></i>
               حفظ المنتج
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Banner Image Modal -->
+  <div id="mainBannerImageModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="mainBannerImageModalTitle">إضافة صورة للبنر الرئيسي</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="mainBannerImageForm" class="admin-form">
+          <div class="form-group">
+            <label>عنوان الصورة:</label>
+            <input type="text" id="mainBannerImageTitle" required>
+          </div>
+
+          <div class="form-group">
+            <label>رابط الصورة:</label>
+            <input type="url" id="mainBannerImageUrl" required placeholder="https://example.com/image.jpg">
+          </div>
+
+          <div class="form-group">
+            <label>النص البديل:</label>
+            <input type="text" id="mainBannerImageAlt" placeholder="وصف الصورة">
+          </div>
+
+          <div class="form-group">
+            <label>ترتيب العرض:</label>
+            <input type="number" id="mainBannerImageOrder" min="0" value="0">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ
             </button>
             <button type="button" class="cancel-btn close-modal">
               <i class="fas fa-times"></i>
