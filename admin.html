@@ -478,35 +478,80 @@
       
       <div class="modal-body">
         <form id="productForm" class="admin-form">
-          <div class="form-row">
-            <div class="form-group">
-              <label>اسم المنتج:</label>
-              <input type="text" id="productName" required>
+          <div class="bilingual-section">
+            <h4 style="color: #2c5aa0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fas fa-language"></i>
+              النسخة العربية
+            </h4>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>اسم المنتج (عربي):</label>
+                <input type="text" id="productNameAr" required>
+              </div>
+
+              <div class="form-group">
+                <label>المدة التقديرية (عربي):</label>
+                <input type="text" id="productDurationAr" placeholder="مثال: 2-3 أسابيع" required>
+              </div>
             </div>
-            
+
+            <div class="form-group">
+              <label>وصف المنتج (عربي):</label>
+              <textarea id="productDescriptionAr" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>المميزات (عربي - كل مميزة في سطر منفصل):</label>
+              <textarea id="productFeaturesAr" rows="4" placeholder="مميزة 1&#10;مميزة 2&#10;مميزة 3"></textarea>
+            </div>
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 2px solid #e0e0e0;">
+
+          <div class="bilingual-section">
+            <h4 style="color: #2c5aa0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+              <i class="fas fa-language"></i>
+              English Version
+            </h4>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Product Name (English):</label>
+                <input type="text" id="productNameEn" required>
+              </div>
+
+              <div class="form-group">
+                <label>Duration (English):</label>
+                <input type="text" id="productDurationEn" placeholder="e.g., 2-3 weeks" required>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Product Description (English):</label>
+              <textarea id="productDescriptionEn" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Features (English - one per line):</label>
+              <textarea id="productFeaturesEn" rows="4" placeholder="Feature 1&#10;Feature 2&#10;Feature 3"></textarea>
+            </div>
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 2px solid #e0e0e0;">
+
+          <div class="form-row">
             <div class="form-group">
               <label>السعر (ريال):</label>
               <input type="number" id="productPrice" min="0" step="0.01" required>
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label>وصف المنتج:</label>
-            <textarea id="productDescription" rows="3" required></textarea>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label>المدة التقديرية:</label>
-              <input type="text" id="productDuration" placeholder="مثال: 2-3 أسابيع" required>
-            </div>
-            
+
             <div class="form-group">
               <label>رابط الصورة:</label>
               <input type="url" id="productImageUrl">
             </div>
           </div>
-          
+
           <div class="form-row">
             <div class="form-group">
               <label>الأيقونة:</label>
@@ -521,16 +566,11 @@
                 <option value="fas fa-database">قاعدة بيانات</option>
               </select>
             </div>
-            
+
             <div class="form-group">
               <label>ترتيب العرض:</label>
               <input type="number" id="productOrder" min="0" value="0">
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label>المميزات (كل مميزة في سطر منفصل):</label>
-            <textarea id="productFeatures" rows="4" placeholder="مميزة 1&#10;مميزة 2&#10;مميزة 3"></textarea>
           </div>
           
           <div class="form-actions">
