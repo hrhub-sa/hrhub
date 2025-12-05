@@ -11,76 +11,67 @@ document.addEventListener('DOMContentLoaded', () => {
   loadContactInfo();
 });
 
-// Load services from settings
+// Load services
 async function loadServices() {
   try {
-    // For English version, always use default English services
-    // Database services are in Arabic, so we use translated defaults
-    loadDefaultServices();
+    const result = await settingsAPI.getAllSettings();
+    let servicesData = [];
+
+    if (result.success && result.data.length > 0) {
+      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
+      if (servicesSetting && servicesSetting.setting_value) {
+        servicesData = servicesSetting.setting_value;
+      }
+    }
+
+    if (servicesData.length > 0) {
+      renderServices(servicesData);
+    } else {
+      showEmptyServices();
+    }
   } catch (error) {
     console.error('Error loading services:', error);
-    loadDefaultServices();
+    showEmptyServices();
   }
 }
 
 // Render services
 function renderServices(services) {
   if (!servicesGrid) return;
-  
-  servicesGrid.innerHTML = services.map(service => `
-    <div class="service-card" onclick="window.location.href='${service.link}'">
+
+  servicesGrid.innerHTML = services.map(service => {
+    const title = service.title_en || service.title;
+    const description = service.description_en || service.description;
+
+    return `
+    <div class="service-card" onclick="navigateToService('${service.link}')">
       <div class="service-icon">
         <i class="${service.icon}"></i>
       </div>
-      <h3>${service.title}</h3>
-      <p class="service-subtitle">${service.subtitle}</p>
-      <p>${service.description}</p>
-      <ul class="service-features">
-        ${service.features.map(feature => `<li>${feature}</li>`).join('')}
-      </ul>
-      <a href="${service.link}" class="service-btn">
-        <i class="fas fa-arrow-right"></i>
-        Explore Service
-      </a>
+      <h3 class="service-title">${title}</h3>
+      <p class="service-description">${description}</p>
     </div>
-  `).join('');
+  `}).join('');
 }
 
-// Load default services
-function loadDefaultServices() {
-  const defaultServices = [
-    {
-      id: 'hr-hub',
-      title: 'Business Management',
-      subtitle: 'HR Hub',
-      description: 'Comprehensive solutions for human resources and government affairs management',
-      icon: 'fas fa-users',
-      features: [
-        'Employee & Talent Management',
-        'Government Affairs',
-        'Official Platforms',
-        'Procedures & Updates'
-      ],
-      link: 'hr-hub-en.html'
-    },
-    {
-      id: 'web-hub',
-      title: 'Business Development',
-      subtitle: 'Web Hub',
-      description: 'Advanced technical solutions for developing your digital business',
-      icon: 'fas fa-code',
-      features: [
-        'Website Development',
-        'Mobile Applications',
-        'E-commerce Stores',
-        'Management Systems'
-      ],
-      link: 'web-hub-en.html'
-    }
-  ];
-  
-  renderServices(defaultServices);
+// Show empty services message
+function showEmptyServices() {
+  if (!servicesGrid) return;
+
+  servicesGrid.innerHTML = `
+    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+      <i class="fas fa-box-open" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
+      <p style="color: #999; font-size: 1.2rem;">No services available at this time</p>
+    </div>
+  `;
 }
+
+// Navigate to service
+window.navigateToService = function(link) {
+  if (link) {
+    window.location.href = link;
+  }
+};
 
 // Load contact info
 async function loadContactInfo() {
