@@ -65,6 +65,14 @@
             <i class="fas fa-box"></i>
             المنتجات
           </button>
+          <button class="nav-btn" data-section="home-services">
+            <i class="fas fa-home"></i>
+            خدمات الصفحة الرئيسية
+          </button>
+          <button class="nav-btn" data-section="banners">
+            <i class="fas fa-images"></i>
+            بنرات الصفحات
+          </button>
         </nav>
         <button id="logoutBtn" class="logout-btn">
           <i class="fas fa-sign-out-alt"></i>
@@ -621,6 +629,198 @@
             <button type="submit" class="save-btn">
               <i class="fas fa-save"></i>
               حفظ المنتج
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Home Services Section -->
+  <div id="homeServicesSection" class="admin-section">
+    <div class="section-content">
+      <div class="section-header">
+        <h2>إدارة خدمات الصفحة الرئيسية</h2>
+        <button class="add-btn" id="addHomeServiceBtn">
+          <i class="fas fa-plus"></i>
+          إضافة خدمة
+        </button>
+      </div>
+
+      <div class="services-grid" id="homeServicesGrid">
+        <!-- Services will be loaded dynamically -->
+      </div>
+
+      <div id="noHomeServices" class="no-data" style="display: none;">
+        <i class="fas fa-home"></i>
+        <p>لا توجد خدمات</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banners Section -->
+  <div id="bannersSection" class="admin-section">
+    <div class="section-content">
+      <h2>إدارة بنرات الصفحات</h2>
+
+      <div class="banners-tabs">
+        <button class="banner-tab-btn active" data-page="hrhub">بنرات إدارة الأعمال</button>
+        <button class="banner-tab-btn" data-page="webhub">بنرات تطوير الأعمال</button>
+      </div>
+
+      <div class="banner-tab-content active" id="hrhubBannersTab">
+        <div class="section-header">
+          <h3>بنرات صفحة إدارة الأعمال (HR Hub)</h3>
+          <button class="add-btn" id="addHrhubBannerBtn">
+            <i class="fas fa-plus"></i>
+            إضافة بنر
+          </button>
+        </div>
+
+        <div class="banners-grid" id="hrhubBannersGrid">
+          <!-- HR Hub banners will be loaded dynamically -->
+        </div>
+
+        <div id="noHrhubBanners" class="no-data" style="display: none;">
+          <i class="fas fa-image"></i>
+          <p>لا توجد بنرات</p>
+        </div>
+      </div>
+
+      <div class="banner-tab-content" id="webhubBannersTab">
+        <div class="section-header">
+          <h3>بنرات صفحة تطوير الأعمال (Web Hub)</h3>
+          <button class="add-btn" id="addWebhubBannerBtn">
+            <i class="fas fa-plus"></i>
+            إضافة بنر
+          </button>
+        </div>
+
+        <div class="banners-grid" id="webhubBannersGrid">
+          <!-- Web Hub banners will be loaded dynamically -->
+        </div>
+
+        <div id="noWebhubBanners" class="no-data" style="display: none;">
+          <i class="fas fa-image"></i>
+          <p>لا توجد بنرات</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Home Service Modal -->
+  <div id="homeServiceModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="homeServiceModalTitle">إضافة خدمة</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="homeServiceForm" class="admin-form">
+          <div class="form-group">
+            <label>العنوان (عربي):</label>
+            <input type="text" id="serviceTitleAr" required>
+          </div>
+
+          <div class="form-group">
+            <label>العنوان (إنجليزي):</label>
+            <input type="text" id="serviceTitleEn" required>
+          </div>
+
+          <div class="form-group">
+            <label>الوصف (عربي):</label>
+            <textarea id="serviceDescriptionAr" rows="3" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>الوصف (إنجليزي):</label>
+            <textarea id="serviceDescriptionEn" rows="3" required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>الأيقونة:</label>
+            <select id="serviceIcon" required>
+              <option value="fas fa-users">مستخدمين</option>
+              <option value="fas fa-code">كود</option>
+              <option value="fas fa-mobile-alt">جوال</option>
+              <option value="fas fa-shopping-cart">متجر</option>
+              <option value="fas fa-cogs">نظام</option>
+              <option value="fas fa-globe">موقع</option>
+              <option value="fas fa-chart-line">تحليلات</option>
+              <option value="fas fa-briefcase">أعمال</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>الرابط:</label>
+            <input type="text" id="serviceLink" required placeholder="hr-hub.html">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Banner Modal -->
+  <div id="bannerModal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="bannerModalTitle">إضافة بنر</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="bannerForm" class="admin-form">
+          <input type="hidden" id="bannerPage">
+
+          <div class="form-group">
+            <label>عنوان البنر:</label>
+            <input type="text" id="bannerTitle" required>
+          </div>
+
+          <div class="form-group">
+            <label>رابط الصورة:</label>
+            <input type="url" id="bannerImageUrl" required placeholder="https://example.com/image.jpg">
+          </div>
+
+          <div class="form-group">
+            <label>النص البديل:</label>
+            <input type="text" id="bannerAltText" placeholder="وصف الصورة">
+          </div>
+
+          <div class="form-group">
+            <label>رابط الوجهة (اختياري):</label>
+            <input type="url" id="bannerLinkUrl" placeholder="https://example.com">
+          </div>
+
+          <div class="form-group">
+            <label>ترتيب العرض:</label>
+            <input type="number" id="bannerOrder" min="0" value="0">
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ
             </button>
             <button type="button" class="cancel-btn close-modal">
               <i class="fas fa-times"></i>
