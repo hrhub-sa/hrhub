@@ -100,8 +100,15 @@ function switchSection(sectionName) {
     btn.classList.toggle('active', btn.dataset.section === sectionName);
   });
 
+  const sectionMap = {
+    'orders': 'ordersSection',
+    'hr-products': 'hrProductsSection',
+    'web-products': 'webProductsSection',
+    'homepage': 'homepageSection'
+  };
+
   adminSections.forEach(section => {
-    section.classList.toggle('active', section.id === sectionName + 'Section' || section.id === sectionName.replace('-', '') + 'Section');
+    section.classList.toggle('active', section.id === sectionMap[sectionName]);
   });
 
   if (sectionName === 'orders') {
