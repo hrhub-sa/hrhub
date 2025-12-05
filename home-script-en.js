@@ -15,17 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadServices() {
   try {
     const result = await settingsAPI.getAllSettings();
-    let servicesData = [];
+    let cardsData = {};
 
     if (result.success && result.data.length > 0) {
-      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
-      if (servicesSetting && servicesSetting.setting_value) {
-        servicesData = servicesSetting.setting_value;
+      const cardsSetting = result.data.find(setting => setting.setting_key === 'homepage_cards');
+      if (cardsSetting && cardsSetting.setting_value) {
+        cardsData = cardsSetting.setting_value;
       }
     }
 
-    if (servicesData.length > 0) {
-      renderServices(servicesData);
+    if (cardsData.hrHub || cardsData.webHub) {
+      renderServices(cardsData);
     } else {
       showEmptyServices();
     }
@@ -36,22 +36,32 @@ async function loadServices() {
 }
 
 // Render services
-function renderServices(services) {
+function renderServices(cards) {
   if (!servicesGrid) return;
 
-  servicesGrid.innerHTML = services.map(service => {
-    const title = service.title_en || service.title;
-    const description = service.description_en || service.description;
+  const services = [];
+  if (cards.hrHub) {
+    services.push({
+      ...cards.hrHub,
+      link: 'hr-hub-en.html'
+    });
+  }
+  if (cards.webHub) {
+    services.push({
+      ...cards.webHub,
+      link: 'web-hub-en.html'
+    });
+  }
 
-    return `
-    <div class="service-card" onclick="navigateToService('${service.link}')">
+  servicesGrid.innerHTML = services.map(service => `
+    <a href="${service.link}" class="service-card">
       <div class="service-icon">
         <i class="${service.icon}"></i>
       </div>
-      <h3 class="service-title">${title}</h3>
-      <p class="service-description">${description}</p>
-    </div>
-  `}).join('');
+      <h3 class="service-title">${service.titleEn}</h3>
+      <p class="service-description">${service.descriptionEn}</p>
+    </a>
+  `).join('');
 }
 
 // Show empty services message
@@ -65,13 +75,6 @@ function showEmptyServices() {
     </div>
   `;
 }
-
-// Navigate to service
-window.navigateToService = function(link) {
-  if (link) {
-    window.location.href = link;
-  }
-};
 
 // Load contact info
 async function loadContactInfo() {
