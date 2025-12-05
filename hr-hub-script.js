@@ -136,125 +136,96 @@ function loadDefaultAboutContent() {
 // Load packages
 async function loadPackages() {
   try {
-    const result = await settingsAPI.getAllSettings();
-    let packagesData = [];
-    let pricing = {};
-    
+    const result = await productsAPI.getAllProducts();
+
     if (result.success && result.data.length > 0) {
-      const packagesSetting = result.data.find(setting => setting.setting_key === 'hr_hub_packages');
-      const pricingSetting = result.data.find(setting => setting.setting_key === 'package_pricing');
-      
-      if (packagesSetting && packagesSetting.setting_value) {
-        packagesData = packagesSetting.setting_value;
-      }
-      
-      if (pricingSetting && pricingSetting.setting_value) {
-        pricing = pricingSetting.setting_value;
-      }
+      renderProducts(result.data);
+      populateProductSelect(result.data);
+    } else {
+      showEmptyProducts();
     }
-    
-    // Default packages
-    if (packagesData.length === 0) {
-      packagesData = [
-        {
-          id: 'economy',
-          name: 'الباقة الاقتصادية',
-          price: pricing.economyPrice || 3000,
-          duration: 'شهرياً',
-          features: [
-            'إدارة الموظفين الأساسية',
-            'متابعة الحضور والانصراف',
-            'إدارة الإجازات',
-            'التقارير الأساسية',
-            'الدعم الفني'
-          ],
-          featured: false
-        },
-        {
-          id: 'comprehensive',
-          name: 'الباقة الشاملة',
-          price: pricing.comprehensivePrice || 6000,
-          duration: 'شهرياً',
-          features: [
-            'جميع مميزات الباقة الاقتصادية',
-            'إدارة الرواتب والمكافآت',
-            'نظام تقييم الأداء',
-            'إدارة التدريب والتطوير',
-            'التقارير المتقدمة',
-            'الشؤون الحكومية',
-            'دعم فني متقدم 24/7'
-          ],
-          featured: true
-        }
-      ];
-    }
-    
-    renderPackages(packagesData);
   } catch (error) {
     console.error('Error loading packages:', error);
-    loadDefaultPackages();
+    showEmptyProducts();
   }
 }
 
-// Render packages
-function renderPackages(packages) {
-  if (!packagesGrid) return;
-  
-  packagesGrid.innerHTML = packages.map(pkg => `
-    <div class="package-card ${pkg.featured ? 'featured' : ''}">
-      <div class="package-header">
-        <h3 class="package-name">${pkg.name}</h3>
-        <div class="package-price">
-          ${pkg.price} <span class="currency">ريال</span>
+// Render products
+function renderProducts(products) {
+  if (!productsGrid) return;
+
+  productsGrid.innerHTML = products.map(product => {
+    const name = product.name_ar || product.name || 'منتج';
+    const description = product.description_ar || product.description || '';
+    const duration = product.duration_ar || product.duration || '';
+    const features = product.features_ar || product.features || [];
+    const priceHTML = product.price_before ?
+      `<div class="product-price">
+        <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-left: 0.5rem;">${product.price_before} ريال</span>
+        <span style="color: #ff6b35; font-weight: 700; font-size: 1.2em;">${product.price} ريال</span>
+      </div>` :
+      `<div class="product-price">${product.price} ريال</div>`;
+
+    return `
+    <div class="product-card">
+      <div class="product-header">
+        <div class="product-icon">
+          <i class="${product.icon || 'fas fa-box'}"></i>
         </div>
-        <p class="package-duration">${pkg.duration}</p>
+        <div class="product-info">
+          <h3 class="product-name">${name}</h3>
+          ${priceHTML}
+        </div>
       </div>
-      <ul class="package-features">
-        ${pkg.features.map(feature => `<li>${feature}</li>`).join('')}
-      </ul>
-      <button class="package-btn" onclick="selectPackage('${pkg.id}', '${pkg.name}')">
-        اختيار الباقة
+      <p class="product-description">${description}</p>
+      <div class="product-meta">
+        <span class="product-duration">
+          <i class="fas fa-clock"></i>
+          ${duration}
+        </span>
+      </div>
+      ${features && features.length > 0 ? `
+        <ul class="product-features">
+          ${features.map(feature => `<li>${feature}</li>`).join('')}
+        </ul>
+      ` : ''}
+      <button class="product-btn" onclick="selectPackage('${product.id}', '${name}')">
+        <i class="fas fa-shopping-cart"></i>
+        اطلب الآن
       </button>
     </div>
-  `).join('');
+  `}).join('');
 }
 
-// Load default packages
-function loadDefaultPackages() {
-  const defaultPackages = [
-    {
-      id: 'economy',
-      name: 'الباقة الاقتصادية',
-      price: 3000,
-      duration: 'شهرياً',
-      features: [
-        'إدارة الموظفين الأساسية',
-        'متابعة الحضور والانصراف',
-        'إدارة الإجازات',
-        'التقارير الأساسية',
-        'الدعم الفني'
-      ],
-      featured: false
-    },
-    {
-      id: 'comprehensive',
-      name: 'الباقة الشاملة',
-      price: 6000,
-      duration: 'شهرياً',
-      features: [
-        'جميع مميزات الباقة الاقتصادية',
-        'إدارة الرواتب والمكافآت',
-        'نظام تقييم الأداء',
-        'إدارة التدريب والتطوير',
-        'التقارير المتقدمة',
-        'الشؤون الحكومية',
-        'دعم فني متقدم 24/7'
-      ],
-      featured: true
-    }
-  ];
-  
-  renderPackages(defaultPackages);
+// Show empty products message
+function showEmptyProducts() {
+  if (!productsGrid) return;
+
+  productsGrid.innerHTML = `
+    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+      <i class="fas fa-box-open" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
+      <p style="color: #999; font-size: 1.2rem;">لا توجد منتجات متاحة حالياً</p>
+    </div>
+  `;
+
+  if (productSelect) {
+    productSelect.innerHTML = '<option value="">اختر المنتج</option>';
+  }
+}
+
+// Populate product select dropdown
+function populateProductSelect(products) {
+  if (!productSelect) return;
+
+  productSelect.innerHTML = '<option value="">اختر المنتج</option>';
+
+  products.forEach(product => {
+    const name = product.name_ar || product.name || 'منتج';
+    const option = document.createElement('option');
+    option.value = product.id;
+    option.textContent = name;
+    productSelect.appendChild(option);
+  });
 }
 
 // Select package function
