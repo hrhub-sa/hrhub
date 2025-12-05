@@ -115,74 +115,96 @@ function loadDefaultAboutContent() {
 // Load packages
 async function loadPackages() {
   try {
-    // For English version, always use default English packages
-    // Database packages are in Arabic, so we use translated defaults
-    loadDefaultPackages();
+    const result = await productsAPI.getAllProducts();
+
+    if (result.success && result.data.length > 0) {
+      renderProducts(result.data);
+      populateProductSelect(result.data);
+    } else {
+      showEmptyProducts();
+    }
   } catch (error) {
     console.error('Error loading packages:', error);
-    loadDefaultPackages();
+    showEmptyProducts();
   }
 }
 
-// Render packages
-function renderPackages(packages) {
-  if (!packagesGrid) return;
-  
-  packagesGrid.innerHTML = packages.map(pkg => `
-    <div class="package-card ${pkg.featured ? 'featured' : ''}">
-      <div class="package-header">
-        <h3 class="package-name">${pkg.name}</h3>
-        <div class="package-price">
-          ${pkg.price} <span class="currency">SAR</span>
+// Render products
+function renderProducts(products) {
+  if (!productsGrid) return;
+
+  productsGrid.innerHTML = products.map(product => {
+    const name = product.name_en || product.name || 'Product';
+    const description = product.description_en || product.description || '';
+    const duration = product.duration_en || product.duration || '';
+    const features = product.features_en || product.features || [];
+    const priceHTML = product.price_before ?
+      `<div class="product-price">
+        <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 0.5rem;">${product.price_before} SAR</span>
+        <span style="color: #ff6b35; font-weight: 700; font-size: 1.2em;">${product.price} SAR</span>
+      </div>` :
+      `<div class="product-price">${product.price} SAR</div>`;
+
+    return `
+    <div class="product-card">
+      <div class="product-header">
+        <div class="product-icon">
+          <i class="${product.icon || 'fas fa-box'}"></i>
         </div>
-        <p class="package-duration">${pkg.duration}</p>
+        <div class="product-info">
+          <h3 class="product-name">${name}</h3>
+          ${priceHTML}
+        </div>
       </div>
-      <ul class="package-features">
-        ${pkg.features.map(feature => `<li>${feature}</li>`).join('')}
-      </ul>
-      <button class="package-btn" onclick="selectPackage('${pkg.id}', '${pkg.name}')">
-        Select Package
+      <p class="product-description">${description}</p>
+      <div class="product-meta">
+        <span class="product-duration">
+          <i class="fas fa-clock"></i>
+          ${duration}
+        </span>
+      </div>
+      ${features && features.length > 0 ? `
+        <ul class="product-features">
+          ${features.map(feature => `<li>${feature}</li>`).join('')}
+        </ul>
+      ` : ''}
+      <button class="product-btn" onclick="selectPackage('${product.id}', '${name}')">
+        <i class="fas fa-shopping-cart"></i>
+        Order Now
       </button>
     </div>
-  `).join('');
+  `}).join('');
 }
 
-// Load default packages
-function loadDefaultPackages() {
-  const defaultPackages = [
-    {
-      id: 'economy',
-      name: 'Economy Package',
-      price: 3000,
-      duration: 'Monthly',
-      features: [
-        'Basic Employee Management',
-        'Attendance & Departure Tracking',
-        'Leave Management',
-        'Basic Reports',
-        'Technical Support'
-      ],
-      featured: false
-    },
-    {
-      id: 'comprehensive',
-      name: 'Comprehensive Package',
-      price: 6000,
-      duration: 'Monthly',
-      features: [
-        'All Economy Package Features',
-        'Payroll & Bonus Management',
-        'Performance Evaluation System',
-        'Training & Development Management',
-        'Advanced Reports',
-        'Government Affairs',
-        'Advanced 24/7 Technical Support'
-      ],
-      featured: true
-    }
-  ];
-  
-  renderPackages(defaultPackages);
+// Show empty products message
+function showEmptyProducts() {
+  if (!productsGrid) return;
+
+  productsGrid.innerHTML = `
+    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+      <i class="fas fa-box-open" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
+      <p style="color: #999; font-size: 1.2rem;">No products available at this time</p>
+    </div>
+  `;
+
+  if (productSelect) {
+    productSelect.innerHTML = '<option value="">Select Product</option>';
+  }
+}
+
+// Populate product select dropdown
+function populateProductSelect(products) {
+  if (!productSelect) return;
+
+  productSelect.innerHTML = '<option value="">Select Product</option>';
+
+  products.forEach(product => {
+    const name = product.name_en || product.name || 'Product';
+    const option = document.createElement('option');
+    option.value = product.id;
+    option.textContent = name;
+    productSelect.appendChild(option);
+  });
 }
 
 // Select package function
