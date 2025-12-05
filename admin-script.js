@@ -1,4 +1,4 @@
-import { supabase } from './supabase-client.js';
+import { supabase, supabaseUrl, supabaseAnonKey } from './supabase-client.js';
 
 let currentUser = null;
 let allOrders = [];
@@ -45,11 +45,11 @@ loginForm.addEventListener('submit', async (e) => {
   loginError.style.display = 'none';
 
   try {
-    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-auth`, {
+    const response = await fetch(`${supabaseUrl}/functions/v1/admin-auth`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_SUPABASE_ANON_KEY}`
+        'Authorization': `Bearer ${supabaseAnonKey}`
       },
       body: JSON.stringify({ email, password })
     });
