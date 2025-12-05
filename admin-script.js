@@ -1,5 +1,5 @@
 import { ordersAPI, authAPI } from './supabase-client.js';
-import { bannerAPI, productsAPI, settingsAPI } from './supabase-client.js';
+import { bannerAPI, productsAPI, settingsAPI, mainBannerAPI } from './supabase-client.js';
 
 // فحص إضافي للأمان
 const validateAdminAccess = () => {
@@ -63,12 +63,23 @@ const orderModal = document.getElementById('orderModal');
 const closeModalBtns = document.querySelectorAll('.close-modal');
 const deleteOrderBtn = document.getElementById('deleteOrderBtn');
 
+// Main Banner elements
+const saveMainBannerBtn = document.getElementById('saveMainBannerBtn');
+const mainBannerEnabled = document.getElementById('mainBannerEnabled');
+const mainBannerInterval = document.getElementById('mainBannerInterval');
+const addMainBannerImageBtn = document.getElementById('addMainBannerImageBtn');
+const mainBannerImagesGrid = document.getElementById('mainBannerImagesGrid');
+const mainBannerImageModal = document.getElementById('mainBannerImageModal');
+const mainBannerImageForm = document.getElementById('mainBannerImageForm');
+const noMainBannerImages = document.getElementById('noMainBannerImages');
+
 // Global variables
 let currentOrders = [];
 let filteredOrders = [];
 let currentOrderId = null;
 let currentBannerId = null;
 let currentProductId = null;
+let currentMainBannerImageId = null;
 
 // Initialize app
 document.addEventListener('DOMContentLoaded', () => {
@@ -108,6 +119,8 @@ function showDashboard() {
   updateStats();
   loadBanners();
   loadProducts();
+  loadMainBannerSettings();
+  loadMainBannerImages();
 }
 
 // Setup event listeners
@@ -185,6 +198,17 @@ function setupEventListeners() {
   if (productForm) {
     productForm.addEventListener('submit', saveProduct);
   }
+
+  // Main Banner management
+  if (saveMainBannerBtn) {
+    saveMainBannerBtn.addEventListener('click', saveMainBannerSettings);
+  }
+  if (addMainBannerImageBtn) {
+    addMainBannerImageBtn.addEventListener('click', () => openMainBannerImageModal());
+  }
+  if (mainBannerImageForm) {
+    mainBannerImageForm.addEventListener('submit', saveMainBannerImage);
+  }
 }
 
 // Switch between admin sections
@@ -202,6 +226,9 @@ function switchSection(sectionName) {
   // Load data for the active section
   if (sectionName === 'banners') {
     loadBanners();
+  } else if (sectionName === 'main-banner') {
+    loadMainBannerSettings();
+    loadMainBannerImages();
   } else if (sectionName === 'products') {
     loadProducts();
   } else if (sectionName === 'settings') {
@@ -663,6 +690,7 @@ async function loadProductForEdit(productId) {
         document.getElementById('productDescriptionEn').value = product.description_en || '';
         document.getElementById('productDurationAr').value = product.duration_ar || '';
         document.getElementById('productDurationEn').value = product.duration_en || '';
+        document.getElementById('productPriceBefore').value = product.price_before || '';
         document.getElementById('productPrice').value = product.price;
         document.getElementById('productImageUrl').value = product.image_url || '';
         document.getElementById('productIcon').value = product.icon;
@@ -694,6 +722,8 @@ async function saveProduct(e) {
   const featuresEnText = document.getElementById('productFeaturesEn').value;
   const featuresEn = featuresEnText ? featuresEnText.split('\n').filter(f => f.trim()) : [];
 
+  const priceBefore = document.getElementById('productPriceBefore').value;
+
   const productData = {
     name_ar: document.getElementById('productNameAr').value,
     name_en: document.getElementById('productNameEn').value,
@@ -702,6 +732,7 @@ async function saveProduct(e) {
     duration_ar: document.getElementById('productDurationAr').value,
     duration_en: document.getElementById('productDurationEn').value,
     price: parseFloat(document.getElementById('productPrice').value),
+    price_before: priceBefore ? parseFloat(priceBefore) : null,
     image_url: document.getElementById('productImageUrl').value,
     icon: document.getElementById('productIcon').value,
     display_order: parseInt(document.getElementById('productOrder').value),
@@ -1226,3 +1257,188 @@ async function toggleProductVisibility(productId, currentStatus) {
     showNotification('خطأ في تحديث حالة المنتج', 'error');
   }
 }
+
+// ===== Main Banner Management =====
+
+// Load main banner settings
+async function loadMainBannerSettings() {
+  try {
+    const result = await mainBannerAPI.getSettings();
+
+    if (result.success && result.data) {
+      if (mainBannerEnabled) mainBannerEnabled.checked = result.data.is_enabled || false;
+      if (mainBannerInterval) mainBannerInterval.value = result.data.auto_slide_interval || 5;
+    }
+  } catch (error) {
+    console.error('Error loading main banner settings:', error);
+  }
+}
+
+// Save main banner settings
+async function saveMainBannerSettings() {
+  try {
+    const settings = {
+      is_enabled: mainBannerEnabled.checked,
+      auto_slide_interval: parseInt(mainBannerInterval.value)
+    };
+
+    const result = await mainBannerAPI.updateSettings(settings);
+
+    if (result.success) {
+      showNotification('تم حفظ إعدادات البنر بنجاح', 'success');
+    } else {
+      showNotification('خطأ في حفظ إعدادات البنر: ' + result.error, 'error');
+    }
+  } catch (error) {
+    console.error('Error saving main banner settings:', error);
+    showNotification('خطأ في حفظ إعدادات البنر', 'error');
+  }
+}
+
+// Load main banner images
+async function loadMainBannerImages() {
+  try {
+    const result = await mainBannerAPI.getImages();
+
+    if (result.success) {
+      renderMainBannerImages(result.data);
+    } else {
+      renderMainBannerImages([]);
+    }
+  } catch (error) {
+    console.error('Error loading main banner images:', error);
+    renderMainBannerImages([]);
+  }
+}
+
+// Render main banner images
+function renderMainBannerImages(images) {
+  if (!mainBannerImagesGrid) return;
+
+  if (images.length === 0) {
+    mainBannerImagesGrid.innerHTML = '';
+    if (noMainBannerImages) noMainBannerImages.style.display = 'block';
+    return;
+  }
+
+  if (noMainBannerImages) noMainBannerImages.style.display = 'none';
+
+  mainBannerImagesGrid.innerHTML = images.map(image => `
+    <div class="banner-card">
+      <img src="${image.image_url}" alt="${image.alt_text || image.title}" class="banner-image">
+      <div class="banner-info">
+        <h4>${image.title}</h4>
+        <span class="banner-order">الترتيب: ${image.display_order}</span>
+      </div>
+      <div class="banner-actions">
+        <button class="edit-btn" onclick="editMainBannerImage('${image.id}')">
+          <i class="fas fa-edit"></i>
+          تعديل
+        </button>
+        <button class="delete-btn" onclick="deleteMainBannerImage('${image.id}')">
+          <i class="fas fa-trash"></i>
+          حذف
+        </button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// Open main banner image modal
+function openMainBannerImageModal(imageId = null) {
+  if (!mainBannerImageModal) return;
+
+  currentMainBannerImageId = imageId;
+
+  if (imageId) {
+    document.getElementById('mainBannerImageModalTitle').textContent = 'تعديل صورة البنر';
+    loadMainBannerImageForEdit(imageId);
+  } else {
+    document.getElementById('mainBannerImageModalTitle').textContent = 'إضافة صورة للبنر الرئيسي';
+    if (mainBannerImageForm) mainBannerImageForm.reset();
+  }
+
+  mainBannerImageModal.classList.remove('hidden');
+}
+
+// Load main banner image for editing
+async function loadMainBannerImageForEdit(imageId) {
+  try {
+    const result = await mainBannerAPI.getImages();
+    if (result.success) {
+      const image = result.data.find(img => img.id === imageId);
+      if (image) {
+        document.getElementById('mainBannerImageTitle').value = image.title;
+        document.getElementById('mainBannerImageUrl').value = image.image_url;
+        document.getElementById('mainBannerImageAlt').value = image.alt_text || '';
+        document.getElementById('mainBannerImageOrder').value = image.display_order || 0;
+      }
+    }
+  } catch (error) {
+    console.error('Error loading main banner image for edit:', error);
+  }
+}
+
+// Save main banner image
+async function saveMainBannerImage(e) {
+  e.preventDefault();
+
+  const imageData = {
+    title: document.getElementById('mainBannerImageTitle').value,
+    image_url: document.getElementById('mainBannerImageUrl').value,
+    alt_text: document.getElementById('mainBannerImageAlt').value,
+    display_order: parseInt(document.getElementById('mainBannerImageOrder').value)
+  };
+
+  try {
+    let result;
+    if (currentMainBannerImageId) {
+      result = await mainBannerAPI.updateImage(currentMainBannerImageId, imageData);
+    } else {
+      result = await mainBannerAPI.addImage(imageData);
+    }
+
+    if (result.success) {
+      showNotification('تم حفظ صورة البنر بنجاح', 'success');
+      closeMainBannerImageModal();
+      loadMainBannerImages();
+    } else {
+      showNotification('خطأ في حفظ صورة البنر: ' + result.error, 'error');
+    }
+  } catch (error) {
+    console.error('Error saving main banner image:', error);
+    showNotification('خطأ في حفظ صورة البنر', 'error');
+  }
+}
+
+// Close main banner image modal
+function closeMainBannerImageModal() {
+  if (mainBannerImageModal) {
+    mainBannerImageModal.classList.add('hidden');
+  }
+  currentMainBannerImageId = null;
+}
+
+// Edit main banner image
+window.editMainBannerImage = function(imageId) {
+  openMainBannerImageModal(imageId);
+};
+
+// Delete main banner image
+window.deleteMainBannerImage = async function(imageId) {
+  if (!confirm('هل أنت متأكد من حذف هذه الصورة؟')) return;
+
+  try {
+    const result = await mainBannerAPI.deleteImage(imageId);
+
+    if (result.success) {
+      showNotification('تم حذف صورة البنر بنجاح', 'success');
+      loadMainBannerImages();
+    } else {
+      showNotification('خطأ في حذف صورة البنر: ' + result.error, 'error');
+    }
+  } catch (error) {
+    console.error('Error deleting main banner image:', error);
+    showNotification('خطأ في حذف صورة البنر', 'error');
+  }
+};
