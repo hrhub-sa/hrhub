@@ -46,11 +46,7 @@ const adminSections = document.querySelectorAll('.admin-section');
 // Settings elements
 const saveSettingsBtn = document.getElementById('saveSettingsBtn');
 
-// Banner elements
-const addBannerBtn = document.getElementById('addBannerBtn');
-const bannerModal = document.getElementById('bannerModal');
-const bannerForm = document.getElementById('bannerForm');
-const bannersGrid = document.getElementById('bannersGrid');
+// Banner elements - Old system removed, using settings-based system now
 
 // Product elements
 const addProductBtn = document.getElementById('addProductBtn');
@@ -77,7 +73,6 @@ const noMainBannerImages = document.getElementById('noMainBannerImages');
 let currentOrders = [];
 let filteredOrders = [];
 let currentOrderId = null;
-let currentBannerId = null;
 let currentProductId = null;
 let currentMainBannerImageId = null;
 
@@ -117,7 +112,6 @@ function showDashboard() {
   
   loadOrders();
   updateStats();
-  loadBanners();
   loadProducts();
   loadMainBannerSettings();
   loadMainBannerImages();
@@ -182,15 +176,7 @@ function setupEventListeners() {
   if (saveSettingsBtn) {
     saveSettingsBtn.addEventListener('click', saveSettings);
   }
-  
-  // Banner management
-  if (addBannerBtn) {
-    addBannerBtn.addEventListener('click', () => openBannerModal());
-  }
-  if (bannerForm) {
-    bannerForm.addEventListener('submit', saveBanner);
-  }
-  
+
   // Product management
   if (addProductBtn) {
     addProductBtn.addEventListener('click', () => openProductModal());
@@ -411,150 +397,6 @@ async function saveSettings() {
 }
 
 // ===== Banner Management =====
-
-// Load banners
-async function loadBanners() {
-  try {
-    // تحميل جميع صور البنر بما في ذلك المخفية للإدارة
-    const result = await bannerAPI.getAllBanners(null, true); // true = include hidden
-    
-    if (result.success) {
-      renderBanners(result.data);
-    } else {
-      console.error('Error loading banners:', result.error);
-      renderBanners([]);
-    }
-  } catch (error) {
-    console.error('Error loading banners:', error);
-    renderBanners([]);
-  }
-}
-
-// Render banners
-function renderBanners(banners) {
-  if (!bannersGrid) return;
-  
-  if (banners.length === 0) {
-    bannersGrid.innerHTML = `
-      <div class="no-data" style="text-align: center; padding: 3rem; color: #666;">
-        <i class="fas fa-images" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-        <h3>لا توجد صور بنر</h3>
-        <p>اضغط على "إضافة صورة جديدة" لإضافة أول صورة</p>
-      </div>
-    `;
-    return;
-  }
-  
-  bannersGrid.innerHTML = banners.map(banner => `
-    <div class="banner-card">
-      <img src="${banner.image_url}" alt="${banner.alt_text}" class="banner-image" 
-           onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDMwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTkiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZHk9Ii4zZW0iPtmE2Kcg2YrZhdmD2YYg2KrYrdmF2YrZhCDYp9mE2LXZiNix2KU8L3RleHQ+Cjwvc3ZnPg=='">
-      <div class="banner-info">
-        <h3 class="banner-title">${banner.title}</h3>
-        <div class="banner-meta">
-          <span class="hub-type ${banner.hub_type}">
-            ${banner.hub_type === 'hrhub' ? 'HR Hub' : 'Web Hub'}
-          </span>
-          <span>ترتيب: ${banner.display_order}</span>
-          <span class="visibility-status ${banner.is_active ? 'visible' : 'hidden'}">
-            ${banner.is_active ? 'ظاهر' : 'مخفي'}
-          </span>
-        </div>
-        <div class="banner-actions">
-          <button class="visibility-btn ${banner.is_active ? 'hide' : 'show'}" onclick="toggleBannerVisibility('${banner.id}', ${banner.is_active})">
-            <i class="fas fa-${banner.is_active ? 'eye-slash' : 'eye'}"></i>
-            ${banner.is_active ? 'إخفاء' : 'إظهار'}
-          </button>
-          <button class="edit-btn" onclick="editBanner('${banner.id}')">
-            <i class="fas fa-edit"></i>
-            تعديل
-          </button>
-          <button class="delete-btn" onclick="deleteBanner('${banner.id}')">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Open banner modal
-function openBannerModal(bannerId = null) {
-  if (!bannerModal) return;
-  
-  currentBannerId = bannerId;
-  
-  if (bannerId) {
-    document.getElementById('bannerModalTitle').textContent = 'تعديل صورة البنر';
-    // Load existing banner data
-    loadBannerForEdit(bannerId);
-  } else {
-    document.getElementById('bannerModalTitle').textContent = 'إضافة صورة بنر';
-    if (bannerForm) bannerForm.reset();
-  }
-  
-  bannerModal.classList.remove('hidden');
-}
-
-// Load banner data for editing
-async function loadBannerForEdit(bannerId) {
-  try {
-    const result = await bannerAPI.getAllBanners();
-    if (result.success) {
-      const banner = result.data.find(b => b.id === bannerId);
-      if (banner) {
-        document.getElementById('bannerTitle').value = banner.title;
-        document.getElementById('bannerImageUrl').value = banner.image_url;
-        document.getElementById('bannerAltText').value = banner.alt_text || '';
-        document.getElementById('bannerHubType').value = banner.hub_type;
-        document.getElementById('bannerOrder').value = banner.display_order || 0;
-      }
-    }
-  } catch (error) {
-    console.error('Error loading banner for edit:', error);
-  }
-}
-
-// Save banner
-async function saveBanner(e) {
-  e.preventDefault();
-  
-  const bannerData = {
-    title: document.getElementById('bannerTitle').value,
-    image_url: document.getElementById('bannerImageUrl').value,
-    alt_text: document.getElementById('bannerAltText').value,
-    hub_type: document.getElementById('bannerHubType').value,
-    display_order: parseInt(document.getElementById('bannerOrder').value)
-  };
-  
-  try {
-    let result;
-    if (currentBannerId) {
-      result = await bannerAPI.updateBanner(currentBannerId, bannerData);
-    } else {
-      result = await bannerAPI.createBanner(bannerData);
-    }
-    
-    if (result.success) {
-      showNotification('تم حفظ صورة البنر بنجاح', 'success');
-      closeBannerModal();
-      loadBanners();
-    } else {
-      showNotification('خطأ في حفظ صورة البنر: ' + result.error, 'error');
-    }
-  } catch (error) {
-    console.error('Error saving banner:', error);
-    showNotification('خطأ في حفظ صورة البنر', 'error');
-  }
-}
-
-// Close banner modal
-function closeBannerModal() {
-  if (bannerModal) {
-    bannerModal.classList.add('hidden');
-  }
-  currentBannerId = null;
-}
 
 // ===== Products Management =====
 
@@ -1165,36 +1007,9 @@ function showNotification(message, type = 'info') {
 // Make functions globally available
 window.viewOrder = viewOrder;
 window.confirmDeleteOrder = confirmDeleteOrder;
-window.editBanner = editBanner;
-window.deleteBanner = deleteBanner;
 window.editProduct = editProduct;
 window.deleteProduct = deleteProduct;
-window.toggleBannerVisibility = toggleBannerVisibility;
 window.toggleProductVisibility = toggleProductVisibility;
-
-// Edit banner function
-async function editBanner(bannerId) {
-  openBannerModal(bannerId);
-}
-
-// Delete banner function
-async function deleteBanner(bannerId) {
-  if (confirm('هل أنت متأكد من حذف هذه الصورة؟')) {
-    try {
-      const result = await bannerAPI.deleteBanner(bannerId);
-      
-      if (result.success) {
-        showNotification('تم حذف صورة البنر بنجاح', 'success');
-        loadBanners();
-      } else {
-        showNotification('خطأ في حذف صورة البنر: ' + result.error, 'error');
-      }
-    } catch (error) {
-      console.error('Error deleting banner:', error);
-      showNotification('خطأ في حذف صورة البنر', 'error');
-    }
-  }
-}
 
 // Edit product function
 async function editProduct(productId) {
@@ -1217,26 +1032,6 @@ async function deleteProduct(productId) {
       console.error('Error deleting product:', error);
       showNotification('خطأ في حذف المنتج', 'error');
     }
-  }
-}
-
-// Toggle banner visibility
-async function toggleBannerVisibility(bannerId, currentStatus) {
-  try {
-    const newStatus = !currentStatus;
-    console.log('🔄 Toggling banner visibility:', bannerId, 'from', currentStatus, 'to', newStatus);
-    
-    const result = await bannerAPI.updateBanner(bannerId, { is_active: !currentStatus });
-    
-    if (result.success) {
-      showNotification(`تم ${newStatus ? 'إظهار' : 'إخفاء'} صورة البنر بنجاح`, 'success');
-      loadBanners();
-    } else {
-      showNotification('خطأ في تحديث حالة صورة البنر: ' + result.error, 'error');
-    }
-  } catch (error) {
-    console.error('Error toggling banner visibility:', error);
-    showNotification('خطأ في تحديث حالة صورة البنر', 'error');
   }
 }
 
