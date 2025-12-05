@@ -1,6 +1,7 @@
-import { productsAPI, settingsAPI, ordersAPI } from './supabase-client.js';
+import { productsAPI, settingsAPI, ordersAPI, mainBannerAPI } from './supabase-client.js';
 
 // DOM Elements
+const mainBannerContainer = document.getElementById('mainBannerContainer');
 const servicesSlider = document.getElementById('servicesSlider');
 const productsGrid = document.getElementById('productsGrid');
 const contactInfo = document.getElementById('contactInfo');
@@ -11,11 +12,53 @@ const productSelect = document.getElementById('productSelect');
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
+  loadMainBanner();
   loadServices();
   loadProducts();
   loadContactInfo();
   setupInterestForm();
 });
+
+// Load main banner
+async function loadMainBanner() {
+  try {
+    const settingsResult = await mainBannerAPI.getSettings();
+    const imagesResult = await mainBannerAPI.getImages();
+
+    if (settingsResult.success && settingsResult.data.is_enabled && imagesResult.success && imagesResult.data.length > 0) {
+      renderMainBanner(imagesResult.data, settingsResult.data.auto_slide_interval);
+    }
+  } catch (error) {
+    console.error('Error loading main banner:', error);
+  }
+}
+
+// Render main banner
+function renderMainBanner(images, interval) {
+  if (!mainBannerContainer) return;
+
+  if (images.length === 0) {
+    mainBannerContainer.style.display = 'none';
+    return;
+  }
+
+  mainBannerContainer.style.display = 'block';
+  mainBannerContainer.innerHTML = images.map((img, idx) => `
+    <div class="main-banner-slide" style="display: ${idx === 0 ? 'block' : 'none'};">
+      <img src="${img.image_url}" alt="${img.alt_text || img.title}" class="main-banner-image">
+    </div>
+  `).join('');
+
+  if (images.length > 1) {
+    let currentIndex = 0;
+    setInterval(() => {
+      const slides = mainBannerContainer.querySelectorAll('.main-banner-slide');
+      slides.forEach(slide => slide.style.display = 'none');
+      currentIndex = (currentIndex + 1) % slides.length;
+      slides[currentIndex].style.display = 'block';
+    }, (interval || 5) * 1000);
+  }
+}
 
 // Load services showcase
 async function loadServices() {
@@ -118,16 +161,16 @@ function loadDefaultServices() {
 async function loadProducts() {
   try {
     const result = await productsAPI.getAllProducts();
-    
+
     if (result.success && result.data.length > 0) {
       renderProducts(result.data);
       populateProductSelect(result.data);
     } else {
-      loadDefaultProducts();
+      showEmptyProducts();
     }
   } catch (error) {
     console.error('Error loading products:', error);
-    loadDefaultProducts();
+    showEmptyProducts();
   }
 }
 
@@ -140,6 +183,12 @@ function renderProducts(products) {
     const description = product.description_ar || product.description || '';
     const duration = product.duration_ar || product.duration || '';
     const features = product.features_ar || product.features || [];
+    const priceHTML = product.price_before ?
+      `<div class="product-price">
+        <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-left: 0.5rem;">${product.price_before} ريال</span>
+        <span style="color: #ff6b35; font-weight: 700; font-size: 1.2em;">${product.price} ريال</span>
+      </div>` :
+      `<div class="product-price">${product.price} ريال</div>`;
 
     return `
     <div class="product-card">
@@ -149,7 +198,7 @@ function renderProducts(products) {
         </div>
         <div class="product-info">
           <h3 class="product-name">${name}</h3>
-          <div class="product-price">${product.price} ريال</div>
+          ${priceHTML}
         </div>
       </div>
       <p class="product-description">${description}</p>
@@ -172,49 +221,20 @@ function renderProducts(products) {
   `}).join('');
 }
 
-// Load default products
-function loadDefaultProducts() {
-  const defaultProducts = [
-    {
-      id: '1',
-      name: 'موقع إلكتروني احترافي',
-      description: 'تصميم وتطوير موقع إلكتروني متجاوب مع جميع الأجهزة باستخدام أحدث التقنيات',
-      price: 2500,
-      duration: '2-3 أسابيع',
-      icon: 'fas fa-globe',
-      features: ['تصميم متجاوب', 'لوحة إدارة', 'تحسين محركات البحث', 'استضافة مجانية لسنة']
-    },
-    {
-      id: '2',
-      name: 'متجر إلكتروني',
-      description: 'متجر إلكتروني كامل مع نظام دفع وإدارة المنتجات والمخزون',
-      price: 4500,
-      duration: '3-4 أسابيع',
-      icon: 'fas fa-shopping-cart',
-      features: ['نظام دفع آمن', 'إدارة المخزون', 'تقارير المبيعات', 'تطبيق جوال مجاني']
-    },
-    {
-      id: '3',
-      name: 'تطبيق جوال',
-      description: 'تطبيق جوال احترافي لنظامي iOS و Android مع واجهة مستخدم متقدمة',
-      price: 8000,
-      duration: '4-6 أسابيع',
-      icon: 'fas fa-mobile-alt',
-      features: ['متوافق مع iOS و Android', 'واجهة سهلة الاستخدام', 'إشعارات فورية', 'تحديثات مجانية']
-    },
-    {
-      id: '4',
-      name: 'نظام إدارة محتوى',
-      description: 'نظام إدارة محتوى مخصص لإدارة المواقع والمحتوى بسهولة',
-      price: 3500,
-      duration: '3-4 أسابيع',
-      icon: 'fas fa-cogs',
-      features: ['لوحة تحكم شاملة', 'إدارة المستخدمين', 'نظام صلاحيات', 'تقارير تفصيلية']
-    }
-  ];
-  
-  renderProducts(defaultProducts);
-  populateProductSelect(defaultProducts);
+// Show empty products message
+function showEmptyProducts() {
+  if (!productsGrid) return;
+
+  productsGrid.innerHTML = `
+    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+      <i class="fas fa-box-open" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
+      <p style="color: #999; font-size: 1.2rem;">لا توجد منتجات متاحة حالياً</p>
+    </div>
+  `;
+
+  if (productSelect) {
+    productSelect.innerHTML = '<option value="">اختر المنتج</option>';
+  }
 }
 
 // Populate product select dropdown
