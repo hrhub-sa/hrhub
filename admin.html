@@ -455,61 +455,6 @@
     </div>
   </div>
 
-  <!-- Banner Modal -->
-  <div id="bannerModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="bannerModalTitle">إضافة صورة بنر</h3>
-        <button class="close-modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="modal-body">
-        <form id="bannerForm" class="admin-form">
-          <div class="form-group">
-            <label>عنوان الصورة:</label>
-            <input type="text" id="bannerTitle" required>
-          </div>
-          
-          <div class="form-group">
-            <label>رابط الصورة:</label>
-            <input type="url" id="bannerImageUrl" required>
-          </div>
-          
-          <div class="form-group">
-            <label>النص البديل:</label>
-            <input type="text" id="bannerAltText">
-          </div>
-          
-          <div class="form-group">
-            <label>القسم:</label>
-            <select id="bannerHubType" required>
-              <option value="hrhub">HR Hub</option>
-              <option value="webhub">Web Hub</option>
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label>ترتيب العرض:</label>
-            <input type="number" id="bannerOrder" min="0" value="0">
-          </div>
-          
-          <div class="form-actions">
-            <button type="submit" class="save-btn">
-              <i class="fas fa-save"></i>
-              حفظ
-            </button>
-            <button type="button" class="cancel-btn close-modal">
-              <i class="fas fa-times"></i>
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
   <!-- Product Modal -->
   <div id="productModal" class="modal hidden">
     <div class="modal-content large-modal">
