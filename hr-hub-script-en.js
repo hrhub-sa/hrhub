@@ -1,7 +1,6 @@
-import { bannerAPI, settingsAPI, ordersAPI } from './supabase-client.js';
+import { settingsAPI, ordersAPI } from './supabase-client.js';
 
 // DOM Elements
-const bannerSlider = document.getElementById('bannerSlider');
 const aboutContent = document.getElementById('aboutContent');
 const packagesGrid = document.getElementById('packagesGrid');
 const contactInfo = document.getElementById('contactInfo');
@@ -11,63 +10,11 @@ const formMessage = document.getElementById('formMessage');
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
-  loadBanners();
   loadAboutContent();
   loadPackages();
   loadContactInfo();
   setupInterestForm();
 });
-
-// Load banners
-async function loadBanners() {
-  try {
-    const result = await bannerAPI.getAllBanners('hrhub');
-    
-    if (result.success && result.data.length > 0) {
-      renderBanners(result.data);
-    } else {
-      loadDefaultBanners();
-    }
-  } catch (error) {
-    console.error('Error loading banners:', error);
-    loadDefaultBanners();
-  }
-}
-
-// Render banners
-function renderBanners(banners) {
-  if (!bannerSlider) return;
-  
-  bannerSlider.innerHTML = banners.map(banner => `
-    <div class="banner-slide">
-      <img src="${banner.image_url}" alt="${banner.alt_text}" class="banner-image" 
-           onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDMwMCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMDAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjVGNUY1Ii8+Cjx0ZXh0IHg9IjE1MCIgeT0iNzUiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiM5OTkiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZHk9Ii4zZW0iPkltYWdlIG5vdCBhdmFpbGFibGU8L3RleHQ+Cjwvc3ZnPg=='">
-      <div class="banner-content">
-        <h3 class="banner-title">${banner.title}</h3>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Load default banners
-function loadDefaultBanners() {
-  const defaultBanners = [
-    {
-      id: '1',
-      title: 'QIWA Platform',
-      image_url: 'qiwa.png',
-      alt_text: 'QIWA Platform'
-    },
-    {
-      id: '2',
-      title: 'Absher Platform',
-      image_url: 'absher.png',
-      alt_text: 'Absher Platform'
-    }
-  ];
-  
-  renderBanners(defaultBanners);
-}
 
 // Load about content
 async function loadAboutContent() {
