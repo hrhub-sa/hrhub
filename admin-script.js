@@ -1,1651 +1,794 @@
-import { ordersAPI, authAPI } from './supabase-client.js';
-import { bannerAPI, productsAPI, settingsAPI, mainBannerAPI } from './supabase-client.js';
+import { supabase } from './supabase-client.js';
 
-// فحص إضافي للأمان
-const validateAdminAccess = () => {
-  const currentTime = new Date().getTime();
-  const lastAttempt = localStorage.getItem('lastLoginAttempt');
-  const attempts = parseInt(localStorage.getItem('loginAttempts') || '0');
-  
-  // منع المحاولات المتكررة
-  if (attempts >= 3 && lastAttempt && (currentTime - parseInt(lastAttempt)) < 300000) { // 5 دقائق
-    return false;
-  }
-  
-  return true;
-};
+let currentUser = null;
+let allOrders = [];
+let filteredOrders = [];
+let currentEditingProduct = null;
+let currentHub = null;
 
-// DOM Elements
+const loginForm = document.getElementById('loginForm');
 const loginScreen = document.getElementById('loginScreen');
 const adminDashboard = document.getElementById('adminDashboard');
-const loginForm = document.getElementById('loginForm');
 const loginError = document.getElementById('loginError');
 const logoutBtn = document.getElementById('logoutBtn');
-
-// Stats elements
-const totalOrdersEl = document.getElementById('totalOrders');
-const pendingOrdersEl = document.getElementById('pendingOrders');
-const subscribedOrdersEl = document.getElementById('subscribedOrders');
-const cancelledOrdersEl = document.getElementById('cancelledOrders');
-
-// Filter elements
-const statusFilter = document.getElementById('statusFilter');
-const packageFilter = document.getElementById('packageFilter');
-const searchInput = document.getElementById('searchInput');
-const clearFiltersBtn = document.getElementById('clearFilters');
-
-// Table elements
-const ordersTableBody = document.getElementById('ordersTableBody');
-const noOrdersEl = document.getElementById('noOrders');
-const exportBtn = document.getElementById('exportBtn');
-
-// Navigation elements
 const navBtns = document.querySelectorAll('.nav-btn');
 const adminSections = document.querySelectorAll('.admin-section');
 
-// Settings elements
-const saveSettingsBtn = document.getElementById('saveSettingsBtn');
+loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('username').value;
+  const password = document.getElementById('password').value;
 
-// Banner elements - Old system removed, using settings-based system now
+  try {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
 
-// Product elements
-const addProductBtn = document.getElementById('addProductBtn');
-const productModal = document.getElementById('productModal');
-const productForm = document.getElementById('productForm');
-const productsAdminGrid = document.getElementById('productsAdminGrid');
+    if (error) throw error;
 
-// Modal elements
-const orderModal = document.getElementById('orderModal');
-const closeModalBtns = document.querySelectorAll('.close-modal');
-const deleteOrderBtn = document.getElementById('deleteOrderBtn');
+    if (data.user) {
+      const { data: adminUser, error: adminError } = await supabase
+        .from('admin_users')
+        .select('*')
+        .eq('email', email)
+        .eq('is_active', true)
+        .maybeSingle();
 
-// Main Banner elements
-const saveMainBannerBtn = document.getElementById('saveMainBannerBtn');
-const mainBannerEnabled = document.getElementById('mainBannerEnabled');
-const mainBannerInterval = document.getElementById('mainBannerInterval');
-const addMainBannerImageBtn = document.getElementById('addMainBannerImageBtn');
-const mainBannerImagesGrid = document.getElementById('mainBannerImagesGrid');
-const mainBannerImageModal = document.getElementById('mainBannerImageModal');
-const mainBannerImageForm = document.getElementById('mainBannerImageForm');
-const noMainBannerImages = document.getElementById('noMainBannerImages');
+      if (adminError || !adminUser) {
+        await supabase.auth.signOut();
+        throw new Error('غير مصرح بالدخول');
+      }
 
-// Global variables
-let currentOrders = [];
-let filteredOrders = [];
-let currentOrderId = null;
-let currentProductId = null;
-let currentMainBannerImageId = null;
+      currentUser = adminUser;
+      await supabase
+        .from('admin_users')
+        .update({ last_login: new Date().toISOString() })
+        .eq('id', adminUser.id);
 
-// Initialize app
-document.addEventListener('DOMContentLoaded', () => {
-  checkAuthStatus();
-  setupEventListeners();
+      showDashboard();
+    }
+  } catch (error) {
+    loginError.textContent = error.message;
+    loginError.style.display = 'block';
+  }
 });
 
-// Check if user is already logged in (محلياً)
-function checkAuthStatus() {
-  const isLoggedIn = localStorage.getItem('adminLoggedIn') === 'true';
-  if (isLoggedIn) {
-    showDashboard();
-  } else {
-    showLogin();
-  }
-}
-
-// Show login screen
-function showLogin() {
+logoutBtn?.addEventListener('click', async () => {
+  await supabase.auth.signOut();
+  currentUser = null;
   loginScreen.classList.remove('hidden');
   adminDashboard.classList.add('hidden');
-}
+  loginForm.reset();
+  loginError.style.display = 'none';
+});
 
-// Show dashboard
-function showDashboard() {
+async function showDashboard() {
   loginScreen.classList.add('hidden');
   adminDashboard.classList.remove('hidden');
-  
-  // تحديث رسالة الترحيب
-  const adminUser = JSON.parse(localStorage.getItem('adminUser') || '{}');
-  const welcomeText = document.getElementById('welcomeText');
-  if (welcomeText && adminUser.full_name) {
-    welcomeText.textContent = `مرحباً، ${adminUser.full_name}`;
-  }
-  
+  document.getElementById('welcomeText').textContent = `مرحباً، ${currentUser.full_name}`;
   loadOrders();
   updateStats();
-  loadProducts();
-  loadMainBannerSettings();
-  loadMainBannerImages();
 }
 
-// Setup event listeners
-function setupEventListeners() {
-  // Login form
-  if (loginForm) {
-    loginForm.addEventListener('submit', handleLogin);
-  }
-  
-  // Logout button
-  if (logoutBtn) {
-    logoutBtn.addEventListener('click', handleLogout);
-  }
-  
-  // Filters
-  if (statusFilter) {
-    statusFilter.addEventListener('change', applyFilters);
-  }
-  if (packageFilter) {
-    packageFilter.addEventListener('change', applyFilters);
-  }
-  if (searchInput) {
-    searchInput.addEventListener('input', applyFilters);
-  }
-  if (clearFiltersBtn) {
-    clearFiltersBtn.addEventListener('click', clearFilters);
-  }
-  
-  // Export button
-  if (exportBtn) {
-    exportBtn.addEventListener('click', exportData);
-  }
-  
-  // Modal close buttons
-  closeModalBtns.forEach(btn => {
-    btn.addEventListener('click', closeModal);
-  });
-  
-  // Click outside modal to close
-  if (orderModal) {
-    orderModal.addEventListener('click', (e) => {
-      if (e.target === orderModal) {
-        closeModal();
-      }
-    });
-  }
-  
-  // Delete order button
-  if (deleteOrderBtn) {
-    deleteOrderBtn.addEventListener('click', deleteOrder);
-  }
-  
-  // Navigation
-  navBtns.forEach(btn => {
-    btn.addEventListener('click', () => switchSection(btn.dataset.section));
-  });
-  
-  // Settings
-  if (saveSettingsBtn) {
-    saveSettingsBtn.addEventListener('click', saveSettings);
-  }
+navBtns.forEach(btn => {
+  btn.addEventListener('click', () => switchSection(btn.dataset.section));
+});
 
-  // Product management
-  if (addProductBtn) {
-    addProductBtn.addEventListener('click', () => openProductModal());
-  }
-  if (productForm) {
-    productForm.addEventListener('submit', saveProduct);
-  }
-
-  // Main Banner management
-  if (saveMainBannerBtn) {
-    saveMainBannerBtn.addEventListener('click', saveMainBannerSettings);
-  }
-  if (addMainBannerImageBtn) {
-    addMainBannerImageBtn.addEventListener('click', () => openMainBannerImageModal());
-  }
-  if (mainBannerImageForm) {
-    mainBannerImageForm.addEventListener('submit', saveMainBannerImage);
-  }
-}
-
-// Switch between admin sections
 function switchSection(sectionName) {
-  // Update navigation
   navBtns.forEach(btn => {
     btn.classList.toggle('active', btn.dataset.section === sectionName);
   });
-  
-  // Update sections
+
   adminSections.forEach(section => {
-    section.classList.toggle('active', section.id === sectionName + 'Section');
+    section.classList.toggle('active', section.id === sectionName + 'Section' || section.id === sectionName.replace('-', '') + 'Section');
   });
-  
-  // Load data for the active section
-  if (sectionName === 'banners') {
-    loadPageBanners('hrhub');
-  } else if (sectionName === 'main-banner') {
-    loadMainBannerSettings();
-    loadMainBannerImages();
-  } else if (sectionName === 'products') {
-    loadProducts();
-  } else if (sectionName === 'settings') {
-    loadSettings();
-  } else if (sectionName === 'orders') {
+
+  if (sectionName === 'orders') {
     loadOrders();
     updateStats();
-  } else if (sectionName === 'home-services') {
-    loadHomeServices();
+  } else if (sectionName === 'hr-products') {
+    loadProducts('hrhub');
+  } else if (sectionName === 'web-products') {
+    loadProducts('webhub');
+  } else if (sectionName === 'homepage') {
+    loadHomepageSettings();
   }
 }
 
-// ===== Settings Management =====
-
-// Load settings
-async function loadSettings() {
+async function loadOrders() {
   try {
-    console.log('🔄 Loading settings from database...');
-    const result = await settingsAPI.getAllSettings();
-    
-    if (result.success && result.data.length > 0) {
-      // تحويل البيانات إلى كائن واحد
-      const settings = {};
-      result.data.forEach(setting => {
-        settings[setting.setting_key] = setting.setting_value;
-      });
-      
-      console.log('✅ Settings loaded from database:', settings);
-      
-      // Contact Information
-      const contactInfo = settings.contact_info || {};
-      document.getElementById('whatsappNumber').value = contactInfo.whatsappNumber || '+966530017278';
-      document.getElementById('phoneNumber').value = contactInfo.phoneNumber || '+966542345930';
-      document.getElementById('emailAddress').value = contactInfo.emailAddress || 'hrhub.sa@gmail.com';
-      document.getElementById('address').value = contactInfo.address || 'المدينة المنورة، السعودية';
-      
-      // Social Media
-      const socialMedia = settings.social_media || {};
-      document.getElementById('instagramUrl').value = socialMedia.instagramUrl || '';
-      document.getElementById('twitterUrl').value = socialMedia.twitterUrl || '';
-      document.getElementById('linkedinUrl').value = socialMedia.linkedinUrl || '';
-      document.getElementById('facebookUrl').value = socialMedia.facebookUrl || '';
-      
-      // Site Content
-      const siteContent = settings.site_content || {};
-      document.getElementById('siteTitleAr').value = siteContent.siteTitleAr || 'HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية';
-      document.getElementById('siteTitleEn').value = siteContent.siteTitleEn || 'HR Hub ‒ HR & Government Affairs Solutions';
-      document.getElementById('siteDescription').value = siteContent.siteDescription || 'شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية';
-      
-      // Package Pricing
-      const packagePricing = settings.package_pricing || {};
-      document.getElementById('economyPrice').value = packagePricing.economyPrice || 3000;
-      document.getElementById('comprehensivePrice').value = packagePricing.comprehensivePrice || 6000;
-      
-      // Web Hub Settings
-      const webHubSettings = settings.webhub_settings || {};
-      document.getElementById('webHubStatus').value = webHubSettings.webHubStatus || 'coming-soon';
-      document.getElementById('webHubMessage').value = webHubSettings.webHubMessage || 'نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية';
-    } else {
-      console.warn('⚠️ No settings found in database, using defaults');
-      loadDefaultSettings();
-    }
+    const { data, error } = await supabase
+      .from('orders')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    allOrders = data || [];
+    filteredOrders = [...allOrders];
+    renderOrders();
   } catch (error) {
-    console.error('❌ Error loading settings:', error);
-    loadDefaultSettings();
+    console.error('Error loading orders:', error);
+    showNotification('خطأ في تحميل الطلبات', 'error');
   }
 }
 
-// Load default settings fallback
-function loadDefaultSettings() {
-  // Contact Information
-  document.getElementById('whatsappNumber').value = '+966530017278';
-  document.getElementById('phoneNumber').value = '+966542345930';
-  document.getElementById('emailAddress').value = 'hrhub.sa@gmail.com';
-  document.getElementById('address').value = 'المدينة المنورة، السعودية';
-  
-  // Social Media
-  document.getElementById('instagramUrl').value = '';
-  document.getElementById('twitterUrl').value = '';
-  document.getElementById('linkedinUrl').value = '';
-  document.getElementById('facebookUrl').value = '';
-  
-  // Site Content
-  document.getElementById('siteTitleAr').value = 'HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية';
-  document.getElementById('siteTitleEn').value = 'HR Hub ‒ HR & Government Affairs Solutions';
-  document.getElementById('siteDescription').value = 'شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية';
-  
-  // Package Pricing
-  document.getElementById('economyPrice').value = 3000;
-  document.getElementById('comprehensivePrice').value = 6000;
-  
-  // Web Hub Settings
-  document.getElementById('webHubStatus').value = 'coming-soon';
-  document.getElementById('webHubMessage').value = 'نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية';
-}
-
-// Save settings
-async function saveSettings() {
-  console.log('🔄 Saving settings to database...');
-  
-  // Handle password change
-  const newPassword = document.getElementById('newAdminPassword').value;
-  const confirmPassword = document.getElementById('confirmAdminPassword').value;
-  
-  if (newPassword && confirmPassword) {
-    if (newPassword === confirmPassword) {
-      if (newPassword.length >= 6) {
-        try {
-          // هنا يمكن إضافة تحديث كلمة المرور في قاعدة البيانات
-          showNotification('تم تغيير كلمة المرور بنجاح', 'success');
-          document.getElementById('newAdminPassword').value = '';
-          document.getElementById('confirmAdminPassword').value = '';
-        } catch (error) {
-          showNotification('خطأ في تغيير كلمة المرور', 'error');
-          return;
-        }
-      } else {
-        showNotification('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
-        return;
-      }
-    } else {
-      showNotification('كلمة المرور وتأكيدها غير متطابقين', 'error');
-      return;
-    }
-  }
-  
+async function updateStats() {
   try {
-    // تجميع الإعدادات في مجموعات
-    const settingsGroups = {
-      contact_info: {
-        whatsappNumber: document.getElementById('whatsappNumber').value,
-        phoneNumber: document.getElementById('phoneNumber').value,
-        emailAddress: document.getElementById('emailAddress').value,
-        address: document.getElementById('address').value
-      },
-      social_media: {
-        instagramUrl: document.getElementById('instagramUrl').value,
-        twitterUrl: document.getElementById('twitterUrl').value,
-        linkedinUrl: document.getElementById('linkedinUrl').value,
-        facebookUrl: document.getElementById('facebookUrl').value
-      },
-      site_content: {
-        siteTitleAr: document.getElementById('siteTitleAr').value,
-        siteTitleEn: document.getElementById('siteTitleEn').value,
-        siteDescription: document.getElementById('siteDescription').value
-      },
-      package_pricing: {
-        economyPrice: parseInt(document.getElementById('economyPrice').value),
-        comprehensivePrice: parseInt(document.getElementById('comprehensivePrice').value)
-      },
-      webhub_settings: {
-        webHubStatus: document.getElementById('webHubStatus').value,
-        webHubMessage: document.getElementById('webHubMessage').value
-      }
+    const total = allOrders.length;
+    const pending = allOrders.filter(o => o.status === 'pending').length;
+    const subscribed = allOrders.filter(o => o.status === 'subscribed').length;
+    const cancelled = allOrders.filter(o => o.status === 'cancelled').length;
+
+    document.getElementById('totalOrders').textContent = total;
+    document.getElementById('pendingOrders').textContent = pending;
+    document.getElementById('subscribedOrders').textContent = subscribed;
+    document.getElementById('cancelledOrders').textContent = cancelled;
+  } catch (error) {
+    console.error('Error updating stats:', error);
+  }
+}
+
+function renderOrders() {
+  const tbody = document.getElementById('ordersTableBody');
+  const noOrders = document.getElementById('noOrders');
+
+  if (filteredOrders.length === 0) {
+    tbody.innerHTML = '';
+    noOrders.style.display = 'block';
+    return;
+  }
+
+  noOrders.style.display = 'none';
+  tbody.innerHTML = filteredOrders.map(order => {
+    const date = new Date(order.created_at).toLocaleDateString('ar-SA');
+    const statusClass = order.status;
+    const statusText = {
+      'pending': 'بانتظار الاشتراك',
+      'subscribed': 'مشترك',
+      'cancelled': 'تم الإلغاء',
+      'not-subscribed': 'غير مشترك'
+    }[order.status];
+    const hubText = order.hub === 'hrhub' ? 'HR Hub' : 'Web Hub';
+
+    return `
+      <tr>
+        <td>${date}</td>
+        <td>${order.name}</td>
+        <td>${order.email}</td>
+        <td>${order.phone}</td>
+        <td>${order.message || '-'}</td>
+        <td><span class="hub-badge ${order.hub}">${hubText}</span></td>
+        <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+        <td>
+          <button class="action-btn view-btn" onclick="viewOrder('${order.id}')">
+            <i class="fas fa-eye"></i>
+          </button>
+          <button class="action-btn delete-btn" onclick="deleteOrder('${order.id}')">
+            <i class="fas fa-trash"></i>
+          </button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+window.viewOrder = async function(orderId) {
+  try {
+    const order = allOrders.find(o => o.id === orderId);
+    if (!order) return;
+
+    const statusOptions = ['pending', 'subscribed', 'cancelled', 'not-subscribed'];
+    const statusText = {
+      'pending': 'بانتظار الاشتراك',
+      'subscribed': 'مشترك',
+      'cancelled': 'تم الإلغاء',
+      'not-subscribed': 'غير مشترك'
     };
-    
-    // حفظ كل مجموعة إعدادات
-    const savePromises = Object.entries(settingsGroups).map(([key, value]) => {
-      console.log(`🔄 Preparing to save ${key}:`, value);
-      return settingsAPI.upsertSetting(key, value);
-    });
-    
-    const results = await Promise.all(savePromises);
-    
-    // فحص النتائج
-    const allSuccessful = results.every(result => result.success);
-    
-    if (allSuccessful) {
-      console.log('✅ All settings saved successfully');
-      showNotification('تم حفظ الإعدادات بنجاح', 'success');
-    } else {
-      console.warn('⚠️ Some settings failed to save');
-      showNotification('تم حفظ بعض الإعدادات، يرجى المحاولة مرة أخرى', 'warning');
-    }
+
+    const detailsHtml = `
+      <div class="order-details-content">
+        <div class="detail-row">
+          <strong>الاسم:</strong>
+          <span>${order.name}</span>
+        </div>
+        <div class="detail-row">
+          <strong>الإيميل:</strong>
+          <span>${order.email}</span>
+        </div>
+        <div class="detail-row">
+          <strong>الهاتف:</strong>
+          <span>${order.phone}</span>
+        </div>
+        <div class="detail-row">
+          <strong>الباقة:</strong>
+          <span>${order.hub === 'hrhub' ? 'HR Hub' : 'Web Hub'}</span>
+        </div>
+        <div class="detail-row">
+          <strong>الرسالة:</strong>
+          <span>${order.message || '-'}</span>
+        </div>
+        <div class="detail-row">
+          <strong>التاريخ:</strong>
+          <span>${new Date(order.created_at).toLocaleString('ar-SA')}</span>
+        </div>
+        <div class="detail-row">
+          <strong>تغيير الحالة:</strong>
+          <select id="orderStatus" class="status-select">
+            ${statusOptions.map(status => `
+              <option value="${status}" ${order.status === status ? 'selected' : ''}>
+                ${statusText[status]}
+              </option>
+            `).join('')}
+          </select>
+        </div>
+        <button onclick="updateOrderStatus('${order.id}')" class="save-btn">
+          <i class="fas fa-save"></i>
+          حفظ التغييرات
+        </button>
+      </div>
+    `;
+
+    document.getElementById('orderDetails').innerHTML = detailsHtml;
+    showModal('orderModal');
   } catch (error) {
-    console.error('❌ Error saving settings:', error);
-    showNotification('خطأ في حفظ الإعدادات', 'error');
+    console.error('Error viewing order:', error);
+    showNotification('خطأ في عرض الطلب', 'error');
   }
-  
+};
+
+window.updateOrderStatus = async function(orderId) {
+  try {
+    const newStatus = document.getElementById('orderStatus').value;
+
+    const { error } = await supabase
+      .from('orders')
+      .update({
+        status: newStatus,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', orderId);
+
+    if (error) throw error;
+
+    showNotification('تم تحديث حالة الطلب بنجاح', 'success');
+    hideModal('orderModal');
+    loadOrders();
+    updateStats();
+  } catch (error) {
+    console.error('Error updating order status:', error);
+    showNotification('خطأ في تحديث الطلب', 'error');
+  }
+};
+
+window.deleteOrder = async function(orderId) {
+  if (!confirm('هل أنت متأكد من حذف هذا الطلب؟')) return;
+
+  try {
+    const { error } = await supabase
+      .from('orders')
+      .delete()
+      .eq('id', orderId);
+
+    if (error) throw error;
+
+    showNotification('تم حذف الطلب بنجاح', 'success');
+    loadOrders();
+    updateStats();
+  } catch (error) {
+    console.error('Error deleting order:', error);
+    showNotification('خطأ في حذف الطلب', 'error');
+  }
+};
+
+document.getElementById('statusFilter')?.addEventListener('change', applyFilters);
+document.getElementById('packageFilter')?.addEventListener('change', applyFilters);
+document.getElementById('searchInput')?.addEventListener('input', applyFilters);
+document.getElementById('clearFilters')?.addEventListener('click', () => {
+  document.getElementById('statusFilter').value = 'all';
+  document.getElementById('packageFilter').value = 'all';
+  document.getElementById('searchInput').value = '';
+  applyFilters();
+});
+
+function applyFilters() {
+  const statusFilter = document.getElementById('statusFilter').value;
+  const packageFilter = document.getElementById('packageFilter').value;
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+  filteredOrders = allOrders.filter(order => {
+    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    const matchesPackage = packageFilter === 'all' || order.hub === packageFilter;
+    const matchesSearch = !searchTerm ||
+      order.name.toLowerCase().includes(searchTerm) ||
+      order.email.toLowerCase().includes(searchTerm) ||
+      order.phone.includes(searchTerm);
+
+    return matchesStatus && matchesPackage && matchesSearch;
+  });
+
+  renderOrders();
 }
 
-// ===== Banner Management =====
+document.getElementById('exportBtn')?.addEventListener('click', () => {
+  if (filteredOrders.length === 0) {
+    showNotification('لا توجد بيانات للتصدير', 'error');
+    return;
+  }
 
-// ===== Products Management =====
+  const csv = [
+    ['التاريخ', 'الاسم', 'الإيميل', 'الهاتف', 'الرسالة', 'الباقة', 'الحالة'],
+    ...filteredOrders.map(order => [
+      new Date(order.created_at).toLocaleDateString('ar-SA'),
+      order.name,
+      order.email,
+      order.phone,
+      order.message || '-',
+      order.hub === 'hrhub' ? 'HR Hub' : 'Web Hub',
+      order.status
+    ])
+  ].map(row => row.join(',')).join('\n');
 
-// Load products
-async function loadProducts() {
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+});
+
+async function loadProducts(hub) {
   try {
-    // تحميل جميع المنتجات بما في ذلك المخفية للإدارة
-    const result = await productsAPI.getAllProducts(true); // true = include hidden
-    
-    if (result.success) {
-      renderProducts(result.data);
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('hub_type', hub)
+      .order('display_order', { ascending: true });
+
+    if (error) throw error;
+
+    const products = data || [];
+    const gridId = hub === 'hrhub' ? 'hrProductsGrid' : 'webProductsGrid';
+    const noDataId = hub === 'hrhub' ? 'noHrProducts' : 'noWebProducts';
+    const grid = document.getElementById(gridId);
+    const noData = document.getElementById(noDataId);
+
+    if (products.length === 0) {
+      grid.style.display = 'none';
+      noData.style.display = 'block';
     } else {
-      console.error('Error loading products:', result.error);
-      renderProducts([]);
+      grid.style.display = 'grid';
+      noData.style.display = 'none';
+      renderProducts(products, hub);
     }
   } catch (error) {
     console.error('Error loading products:', error);
-    renderProducts([]);
+    showNotification('خطأ في تحميل المنتجات', 'error');
   }
 }
 
-// Render products
-function renderProducts(products) {
-  if (!productsAdminGrid) return;
-  
-  if (products.length === 0) {
-    productsAdminGrid.innerHTML = `
-      <div class="no-data" style="text-align: center; padding: 3rem; color: #666;">
-        <i class="fas fa-box" style="font-size: 3rem; margin-bottom: 1rem;"></i>
-        <h3>لا توجد منتجات</h3>
-        <p>اضغط على "إضافة منتج جديد" لإضافة أول منتج</p>
+function renderProducts(products, hub) {
+  const gridId = hub === 'hrhub' ? 'hrProductsGrid' : 'webProductsGrid';
+  const grid = document.getElementById(gridId);
+
+  grid.innerHTML = products.map(product => {
+    const hasDiscount = product.price_before && product.price_before > product.price;
+
+    return `
+      <div class="product-card ${!product.is_active ? 'inactive' : ''}">
+        <div class="product-header">
+          <div class="product-icon">
+            <i class="${product.icon}"></i>
+          </div>
+          <h3>${product.name_ar}</h3>
+          ${!product.is_active ? '<span class="inactive-badge">غير نشط</span>' : ''}
+        </div>
+
+        <p class="product-description">${product.description_ar}</p>
+
+        <div class="product-features">
+          ${(product.features_ar || []).map(feature => `
+            <div class="feature-item">
+              <i class="fas fa-check"></i>
+              <span>${feature}</span>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="product-price">
+          ${hasDiscount ? `<span class="price-before">${product.price_before} ريال</span>` : ''}
+          <span class="price-current">${product.price} ريال</span>
+        </div>
+
+        <div class="product-duration">
+          <i class="fas fa-clock"></i>
+          ${product.duration_ar}
+        </div>
+
+        <div class="product-actions">
+          <button class="edit-btn" onclick="editProduct('${product.id}', '${hub}')">
+            <i class="fas fa-edit"></i>
+            تعديل
+          </button>
+          <button class="delete-btn" onclick="deleteProduct('${product.id}', '${hub}')">
+            <i class="fas fa-trash"></i>
+            حذف
+          </button>
+        </div>
       </div>
     `;
-    return;
+  }).join('');
+}
+
+document.getElementById('addHrProductBtn')?.addEventListener('click', () => {
+  openProductModal(null, 'hrhub');
+});
+
+document.getElementById('addWebProductBtn')?.addEventListener('click', () => {
+  openProductModal(null, 'webhub');
+});
+
+function openProductModal(productId, hub) {
+  currentEditingProduct = productId;
+  currentHub = hub;
+
+  const title = hub === 'hrhub' ? 'منتجات إدارة الأعمال' : 'منتجات تطوير الأعمال';
+  document.getElementById('productModalTitle').textContent =
+    productId ? `تعديل منتج - ${title}` : `إضافة منتج - ${title}`;
+
+  document.getElementById('productHub').value = hub;
+
+  if (productId) {
+    loadProductForEdit(productId);
+  } else {
+    document.getElementById('productForm').reset();
+    document.getElementById('productHub').value = hub;
+    document.getElementById('productIsActive').checked = true;
+    resetFeatureInputs();
   }
-  
-  productsAdminGrid.innerHTML = products.map(product => `
-    <div class="product-admin-card">
-      <div class="product-header">
-        <div class="product-icon-display">
-          <i class="${product.icon}"></i>
-        </div>
-        <h3 class="product-name">${product.name_ar} / ${product.name_en}</h3>
-        <span class="visibility-status ${product.is_active ? 'visible' : 'hidden'}">
-          ${product.is_active ? 'ظاهر' : 'مخفي'}
-        </span>
-      </div>
 
-      <div class="bilingual-content">
-        <div class="lang-section">
-          <strong>عربي:</strong>
-          <p>${product.description_ar}</p>
-        </div>
-        <div class="lang-section">
-          <strong>English:</strong>
-          <p>${product.description_en}</p>
-        </div>
-      </div>
+  showModal('productModal');
+}
 
-      <div class="product-details-grid">
-        <div class="product-detail">
-          <strong>${product.price} ريال</strong>
-          <span>السعر</span>
-        </div>
-        <div class="product-detail">
-          <strong>${product.duration_ar} / ${product.duration_en}</strong>
-          <span>المدة</span>
-        </div>
-      </div>
+async function loadProductForEdit(productId) {
+  try {
+    const { data, error } = await supabase
+      .from('products')
+      .select('*')
+      .eq('id', productId)
+      .maybeSingle();
 
-      ${product.features_ar && product.features_ar.length > 0 ? `
-        <div class="product-features-list">
-          <h4>المميزات (عربي):</h4>
-          <ul>
-            ${product.features_ar.map(feature => `<li>${feature}</li>`).join('')}
-          </ul>
-        </div>
-      ` : ''}
+    if (error) throw error;
+    if (!data) return;
 
-      ${product.features_en && product.features_en.length > 0 ? `
-        <div class="product-features-list">
-          <h4>Features (English):</h4>
-          <ul>
-            ${product.features_en.map(feature => `<li>${feature}</li>`).join('')}
-          </ul>
-        </div>
-      ` : ''}
-      
-      <div class="product-actions">
-        <button class="visibility-btn ${product.is_active ? 'hide' : 'show'}" onclick="toggleProductVisibility('${product.id}', ${product.is_active})">
-          <i class="fas fa-${product.is_active ? 'eye-slash' : 'eye'}"></i>
-          ${product.is_active ? 'إخفاء' : 'إظهار'}
-        </button>
-        <button class="edit-btn" onclick="editProduct('${product.id}')">
-          <i class="fas fa-edit"></i>
-          تعديل
-        </button>
-        <button class="delete-btn" onclick="deleteProduct('${product.id}')">
-          <i class="fas fa-trash"></i>
-          حذف
-        </button>
-      </div>
+    document.getElementById('productNameAr').value = data.name_ar;
+    document.getElementById('productNameEn').value = data.name_en;
+    document.getElementById('productDescriptionAr').value = data.description_ar;
+    document.getElementById('productDescriptionEn').value = data.description_en;
+    document.getElementById('productDurationAr').value = data.duration_ar;
+    document.getElementById('productDurationEn').value = data.duration_en;
+    document.getElementById('productPriceBefore').value = data.price_before || '';
+    document.getElementById('productPrice').value = data.price;
+    document.getElementById('productImageUrl').value = data.image_url || '';
+    document.getElementById('productIcon').value = data.icon;
+    document.getElementById('productOrder').value = data.display_order;
+    document.getElementById('productIsActive').checked = data.is_active;
+
+    populateFeatures(data.features_ar || [], data.features_en || []);
+  } catch (error) {
+    console.error('Error loading product:', error);
+    showNotification('خطأ في تحميل المنتج', 'error');
+  }
+}
+
+function resetFeatureInputs() {
+  const arContainer = document.getElementById('featuresArContainer');
+  const enContainer = document.getElementById('featuresEnContainer');
+
+  arContainer.innerHTML = `
+    <div class="feature-input-group">
+      <input type="text" class="feature-ar-input" placeholder="أدخل ميزة">
+      <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+
+  enContainer.innerHTML = `
+    <div class="feature-input-group">
+      <input type="text" class="feature-en-input" placeholder="Enter feature">
+      <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+}
+
+function populateFeatures(featuresAr, featuresEn) {
+  const arContainer = document.getElementById('featuresArContainer');
+  const enContainer = document.getElementById('featuresEnContainer');
+
+  arContainer.innerHTML = featuresAr.map(feature => `
+    <div class="feature-input-group">
+      <input type="text" class="feature-ar-input" placeholder="أدخل ميزة" value="${feature}">
+      <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `).join('');
+
+  enContainer.innerHTML = featuresEn.map(feature => `
+    <div class="feature-input-group">
+      <input type="text" class="feature-en-input" placeholder="Enter feature" value="${feature}">
+      <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+        <i class="fas fa-times"></i>
+      </button>
     </div>
   `).join('');
 }
 
-// Open product modal
-function openProductModal(productId = null) {
-  if (!productModal) return;
-  
-  currentProductId = productId;
-  
-  if (productId) {
-    document.getElementById('productModalTitle').textContent = 'تعديل المنتج';
-    // Load existing product data
-    loadProductForEdit(productId);
-  } else {
-    document.getElementById('productModalTitle').textContent = 'إضافة منتج جديد';
-    if (productForm) productForm.reset();
-  }
-  
-  productModal.classList.remove('hidden');
-}
+document.getElementById('addFeatureArBtn')?.addEventListener('click', () => {
+  const container = document.getElementById('featuresArContainer');
+  const div = document.createElement('div');
+  div.className = 'feature-input-group';
+  div.innerHTML = `
+    <input type="text" class="feature-ar-input" placeholder="أدخل ميزة">
+    <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  container.appendChild(div);
+});
 
-// Load product data for editing
-async function loadProductForEdit(productId) {
-  try {
-    const result = await productsAPI.getAllProducts();
-    if (result.success) {
-      const product = result.data.find(p => p.id === productId);
-      if (product) {
-        document.getElementById('productNameAr').value = product.name_ar || '';
-        document.getElementById('productNameEn').value = product.name_en || '';
-        document.getElementById('productDescriptionAr').value = product.description_ar || '';
-        document.getElementById('productDescriptionEn').value = product.description_en || '';
-        document.getElementById('productDurationAr').value = product.duration_ar || '';
-        document.getElementById('productDurationEn').value = product.duration_en || '';
-        document.getElementById('productPriceBefore').value = product.price_before || '';
-        document.getElementById('productPrice').value = product.price;
-        document.getElementById('productImageUrl').value = product.image_url || '';
-        document.getElementById('productIcon').value = product.icon;
-        document.getElementById('productOrder').value = product.display_order || 0;
+document.getElementById('addFeatureEnBtn')?.addEventListener('click', () => {
+  const container = document.getElementById('featuresEnContainer');
+  const div = document.createElement('div');
+  div.className = 'feature-input-group';
+  div.innerHTML = `
+    <input type="text" class="feature-en-input" placeholder="Enter feature">
+    <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+      <i class="fas fa-times"></i>
+    </button>
+  `;
+  container.appendChild(div);
+});
 
-        // Load features
-        if (product.features_ar && Array.isArray(product.features_ar)) {
-          document.getElementById('productFeaturesAr').value = product.features_ar.join('\n');
-        }
-        if (product.features_en && Array.isArray(product.features_en)) {
-          document.getElementById('productFeaturesEn').value = product.features_en.join('\n');
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error loading product for edit:', error);
-  }
-}
-
-// Save product
-async function saveProduct(e) {
+document.getElementById('productForm')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  console.log('🔄 Saving product...');
+  const featuresAr = Array.from(document.querySelectorAll('.feature-ar-input'))
+    .map(input => input.value.trim())
+    .filter(val => val);
 
-  const featuresArText = document.getElementById('productFeaturesAr').value;
-  const featuresAr = featuresArText ? featuresArText.split('\n').filter(f => f.trim()) : [];
-
-  const featuresEnText = document.getElementById('productFeaturesEn').value;
-  const featuresEn = featuresEnText ? featuresEnText.split('\n').filter(f => f.trim()) : [];
-
-  const priceBefore = document.getElementById('productPriceBefore').value;
+  const featuresEn = Array.from(document.querySelectorAll('.feature-en-input'))
+    .map(input => input.value.trim())
+    .filter(val => val);
 
   const productData = {
+    hub_type: document.getElementById('productHub').value,
     name_ar: document.getElementById('productNameAr').value,
     name_en: document.getElementById('productNameEn').value,
     description_ar: document.getElementById('productDescriptionAr').value,
     description_en: document.getElementById('productDescriptionEn').value,
     duration_ar: document.getElementById('productDurationAr').value,
     duration_en: document.getElementById('productDurationEn').value,
+    price_before: parseFloat(document.getElementById('productPriceBefore').value) || null,
     price: parseFloat(document.getElementById('productPrice').value),
-    price_before: priceBefore ? parseFloat(priceBefore) : null,
-    image_url: document.getElementById('productImageUrl').value,
+    image_url: document.getElementById('productImageUrl').value || '',
     icon: document.getElementById('productIcon').value,
     display_order: parseInt(document.getElementById('productOrder').value),
+    is_active: document.getElementById('productIsActive').checked,
     features_ar: featuresAr,
-    features_en: featuresEn
+    features_en: featuresEn,
+    updated_at: new Date().toISOString()
   };
 
-  console.log('📝 Product data:', productData);
-  
   try {
     let result;
-    if (currentProductId) {
-      console.log('🔄 Updating existing product:', currentProductId);
-      result = await productsAPI.updateProduct(currentProductId, productData);
+    if (currentEditingProduct) {
+      result = await supabase
+        .from('products')
+        .update(productData)
+        .eq('id', currentEditingProduct);
     } else {
-      console.log('🔄 Creating new product');
-      result = await productsAPI.createProduct(productData);
+      result = await supabase
+        .from('products')
+        .insert([productData]);
     }
-    
-    if (result.success) {
-      showNotification('تم حفظ المنتج بنجاح', 'success');
-      closeProductModal();
-      loadProducts();
-    } else {
-      console.error('❌ Save failed:', result.error);
-      showNotification('خطأ في حفظ المنتج: ' + result.error, 'error');
-    }
+
+    if (result.error) throw result.error;
+
+    showNotification('تم حفظ المنتج بنجاح', 'success');
+    hideModal('productModal');
+    loadProducts(currentHub);
   } catch (error) {
     console.error('Error saving product:', error);
     showNotification('خطأ في حفظ المنتج', 'error');
   }
-}
+});
 
-// Close product modal
-function closeProductModal() {
-  if (productModal) {
-    productModal.classList.add('hidden');
-  }
-  currentProductId = null;
-}
-
-// Handle login
-async function handleLogin(e) {
-  e.preventDefault();
-  
-  // فحص الأمان
-  if (!validateAdminAccess()) {
-    loginError.textContent = 'تم حظر تسجيل الدخول مؤقتاً بسبب المحاولات المتكررة. حاول بعد 5 دقائق.';
-    loginError.classList.add('show');
-    return;
-  }
-  
-  const email = document.getElementById('username').value;
-  const password = document.getElementById('password').value;
-  
-  console.log('🔐 Attempting admin login...');
-  
-  // المصادقة عبر قاعدة البيانات
-  try {
-    const result = await authAPI.signInAdmin(email, password);
-    if (result.success) {
-      console.log('✅ Admin login successful');
-      localStorage.setItem('adminLoggedIn', 'true');
-      localStorage.setItem('adminUser', JSON.stringify(result.data));
-      localStorage.removeItem('loginAttempts');
-      localStorage.removeItem('lastLoginAttempt');
-      showDashboard();
-      loginError.classList.remove('show');
-      return;
-    } else {
-      throw new Error(result.error || 'Invalid credentials');
-    }
-  } catch (error) {
-    console.error('❌ Admin login failed:', error);
-    
-    // تسجيل المحاولة الفاشلة
-    const attempts = parseInt(localStorage.getItem('loginAttempts') || '0') + 1;
-    localStorage.setItem('loginAttempts', attempts.toString());
-    localStorage.setItem('lastLoginAttempt', new Date().getTime().toString());
-    
-    if (attempts >= 3) {
-      loginError.textContent = 'تم تجاوز عدد المحاولات المسموحة. سيتم حظر تسجيل الدخول لمدة 5 دقائق.';
-    } else {
-      loginError.textContent = `بيانات تسجيل الدخول غير صحيحة. المحاولات المتبقية: ${3 - attempts}`;
-    }
-    loginError.classList.add('show');
-  }
-}
-
-// Handle logout
-function handleLogout() {
-  localStorage.removeItem('adminLoggedIn');
-  localStorage.removeItem('adminUser');
-  showLogin();
-  loginForm.reset();
-  loginError.classList.remove('show');
-}
-
-// Load orders
-async function loadOrders() {
-  try {
-    const result = await ordersAPI.getAllOrders();
-    
-    if (result.success) {
-      currentOrders = result.data.map(order => ({
-        ...order,
-        date: order.created_at
-      }));
-      console.log('✅ Orders loaded successfully:', currentOrders.length);
-    } else {
-      console.error('❌ Failed to load orders:', result.error);
-      currentOrders = [];
-    }
-  } catch (error) {
-    console.error('❌ Error loading orders:', error);
-    currentOrders = [];
-  }
-  
-  filteredOrders = [...currentOrders];
-  renderOrders();
-}
-
-// Update statistics
-function updateStats() {
-  const total = currentOrders.length;
-  const pending = currentOrders.filter(order => order.status === 'pending').length;
-  const subscribed = currentOrders.filter(order => order.status === 'subscribed').length;
-  const cancelled = currentOrders.filter(order => order.status === 'cancelled').length;
-  
-  if (totalOrdersEl) totalOrdersEl.textContent = total;
-  if (pendingOrdersEl) pendingOrdersEl.textContent = pending;
-  if (subscribedOrdersEl) subscribedOrdersEl.textContent = subscribed;
-  if (cancelledOrdersEl) cancelledOrdersEl.textContent = cancelled;
-}
-
-// Apply filters
-function applyFilters() {
-  const statusValue = statusFilter ? statusFilter.value : 'all';
-  const packageValue = packageFilter ? packageFilter.value : 'all';
-  const searchValue = searchInput ? searchInput.value.toLowerCase() : '';
-  
-  filteredOrders = currentOrders.filter(order => {
-    const matchesStatus = statusValue === 'all' || order.status === statusValue;
-    const matchesPackage = packageValue === 'all' || order.hub === packageValue;
-    const matchesSearch = searchValue === '' || 
-      order.name.toLowerCase().includes(searchValue) ||
-      order.email.toLowerCase().includes(searchValue) ||
-      order.phone.includes(searchValue);
-    
-    return matchesStatus && matchesPackage && matchesSearch;
-  });
-  
-  renderOrders();
-}
-
-// Clear all filters
-function clearFilters() {
-  if (statusFilter) statusFilter.value = 'all';
-  if (packageFilter) packageFilter.value = 'all';
-  if (searchInput) searchInput.value = '';
-  filteredOrders = [...currentOrders];
-  renderOrders();
-}
-
-// Render orders table
-function renderOrders() {
-  if (!ordersTableBody) return;
-  
-  if (filteredOrders.length === 0) {
-    ordersTableBody.innerHTML = '';
-    if (noOrdersEl) noOrdersEl.classList.remove('hidden');
-    return;
-  }
-  
-  if (noOrdersEl) noOrdersEl.classList.add('hidden');
-  
-  ordersTableBody.innerHTML = filteredOrders.map(order => `
-    <tr>
-      <td>${formatDate(order.date)}</td>
-      <td>${order.name}</td>
-      <td>${order.email}</td>
-      <td>${order.phone}</td>
-      <td>
-        <div class="message-preview" title="${order.message}">
-          ${order.message}
-        </div>
-      </td>
-      <td>
-        <span class="hub-badge ${order.hub}">
-          ${order.hub === 'hrhub' ? 'HR Hub' : 'Web Hub'}
-        </span>
-      </td>
-      <td>
-        <span class="status-badge ${order.status}">
-          ${getStatusText(order.status)}
-        </span>
-      </td>
-      <td>
-        <div class="action-buttons">
-          <button class="action-btn view-btn" onclick="viewOrder('${order.id}')" title="عرض التفاصيل">
-            <i class="fas fa-eye"></i>
-          </button>
-          <button class="action-btn delete-btn" onclick="confirmDeleteOrder('${order.id}')" title="حذف">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      </td>
-    </tr>
-  `).join('');
-}
-
-// Format date
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('ar-SA', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-}
-
-// Get status text in Arabic
-function getStatusText(status) {
-  const statusTexts = {
-    'pending': 'بانتظار الاشتراك',
-    'subscribed': 'مشترك',
-    'cancelled': 'تم الإلغاء',
-    'not-subscribed': 'غير مشترك'
-  };
-  return statusTexts[status] || status;
-}
-
-// View order details
-function viewOrder(orderId) {
-  const order = currentOrders.find(o => o.id === orderId);
-  if (!order) return;
-  
-  currentOrderId = orderId;
-  
-  // Populate modal with order details
-  document.getElementById('modalDate').textContent = formatDate(order.date);
-  document.getElementById('modalName').textContent = order.name;
-  document.getElementById('modalEmail').textContent = order.email;
-  document.getElementById('modalPhone').textContent = order.phone;
-  document.getElementById('modalHub').textContent = order.hub === 'hrhub' ? 'HR Hub' : 'Web Hub';
-  document.getElementById('modalMessage').textContent = order.message;
-  
-  const statusBadge = document.getElementById('modalStatus');
-  statusBadge.textContent = getStatusText(order.status);
-  statusBadge.className = `status-badge ${order.status}`;
-  
-  // Setup status change buttons
-  const statusButtons = document.querySelectorAll('.status-btn');
-  statusButtons.forEach(btn => {
-    btn.onclick = () => changeOrderStatus(btn.dataset.status);
-  });
-  
-  // Show modal
-  if (orderModal) orderModal.classList.remove('hidden');
-}
-
-// Change order status
-async function changeOrderStatus(newStatus) {
-  if (!currentOrderId) return;
-  
-  try {
-    const result = await ordersAPI.updateOrderStatus(currentOrderId, newStatus);
-    
-    if (result.success) {
-      const orderIndex = currentOrders.findIndex(o => o.id === currentOrderId);
-      if (orderIndex !== -1) {
-        currentOrders[orderIndex].status = newStatus;
-      }
-    } else {
-      throw new Error('Failed to update via Supabase');
-    }
-  } catch (error) {
-    // Fallback to localStorage
-    const orderIndex = currentOrders.findIndex(o => o.id === currentOrderId);
-    if (orderIndex === -1) return;
-    
-    currentOrders[orderIndex].status = newStatus;
-    localStorage.setItem('customerOrders', JSON.stringify(currentOrders));
-  }
-  
-  // Update UI
-  const statusBadge = document.getElementById('modalStatus');
-  statusBadge.textContent = getStatusText(newStatus);
-  statusBadge.className = `status-badge ${newStatus}`;
-  
-  // Refresh table and stats
-  applyFilters();
-  updateStats();
-  
-  showNotification('تم تحديث حالة الطلب بنجاح', 'success');
-}
-
-// Confirm delete order
-function confirmDeleteOrder(orderId) {
-  if (confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
-    deleteOrderById(orderId);
-  }
-}
-
-// Delete order
-function deleteOrder() {
-  if (!currentOrderId) return;
-  
-  if (confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
-    deleteOrderById(currentOrderId);
-    closeModal();
-  }
-}
-
-// Delete order by ID
-async function deleteOrderById(orderId) {
-  try {
-    const result = await ordersAPI.deleteOrder(orderId);
-    
-    if (result.success) {
-      const orderIndex = currentOrders.findIndex(o => o.id === orderId);
-      if (orderIndex !== -1) {
-        currentOrders.splice(orderIndex, 1);
-      }
-      console.log('✅ Order deleted successfully');
-    } else {
-      console.error('❌ Failed to delete order:', result.error);
-    }
-  } catch (error) {
-    console.error('❌ Error deleting order:', error);
-  }
-  
-  // Refresh UI
-  applyFilters();
-  updateStats();
-  
-  showNotification('تم حذف الطلب بنجاح', 'success');
-}
-
-// Close modal
-function closeModal() {
-  if (orderModal) orderModal.classList.add('hidden');
-  if (bannerModal) bannerModal.classList.add('hidden');
-  if (productModal) productModal.classList.add('hidden');
-  currentOrderId = null;
-}
-
-// Export data to CSV
-function exportData() {
-  if (filteredOrders.length === 0) {
-    showNotification('لا توجد بيانات للتصدير', 'warning');
-    return;
-  }
-  
-  const headers = ['التاريخ', 'الاسم', 'الإيميل', 'الهاتف', 'الرسالة', 'الباقة', 'الحالة'];
-  const csvContent = [
-    headers.join(','),
-    ...filteredOrders.map(order => [
-      formatDate(order.date),
-      order.name,
-      order.email,
-      order.phone,
-      `"${order.message.replace(/"/g, '""')}"`,
-      order.hub === 'hrhub' ? 'HR Hub' : 'Web Hub',
-      getStatusText(order.status)
-    ].join(','))
-  ].join('\n');
-  
-  const blob = new Blob(['\ufeff' + csvContent], { type: 'text/csv;charset=utf-8;' });
-  const link = document.createElement('a');
-  const url = URL.createObjectURL(blob);
-  link.setAttribute('href', url);
-  link.setAttribute('download', `hr-hub-orders-${new Date().toISOString().split('T')[0]}.csv`);
-  link.style.visibility = 'hidden';
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  showNotification('تم تصدير البيانات بنجاح', 'success');
-}
-
-// Show notification
-function showNotification(message, type = 'info') {
-  const notification = document.createElement('div');
-  notification.className = `notification ${type}`;
-  notification.innerHTML = `
-    <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
-    <span>${message}</span>
-  `;
-  
-  notification.style.cssText = `
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: ${type === 'success' ? '#4caf50' : type === 'warning' ? '#ff9800' : '#2196f3'};
-    color: white;
-    padding: 1rem 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    z-index: 10000;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: 'Cairo', sans-serif;
-    font-weight: 600;
-    transform: translateX(100%);
-    transition: transform 0.3s ease;
-  `;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.transform = 'translateX(0)';
-  }, 100);
-  
-  setTimeout(() => {
-    notification.style.transform = 'translateX(100%)';
-    setTimeout(() => {
-      if (document.body.contains(notification)) {
-        document.body.removeChild(notification);
-      }
-    }, 300);
-  }, 3000);
-}
-
-// Make functions globally available
-window.viewOrder = viewOrder;
-window.confirmDeleteOrder = confirmDeleteOrder;
-window.editProduct = editProduct;
-window.deleteProduct = deleteProduct;
-window.toggleProductVisibility = toggleProductVisibility;
-
-// Edit product function
-async function editProduct(productId) {
-  openProductModal(productId);
-}
-
-// Delete product function
-async function deleteProduct(productId) {
-  if (confirm('هل أنت متأكد من حذف هذا المنتج؟')) {
-    try {
-      const result = await productsAPI.deleteProduct(productId);
-      
-      if (result.success) {
-        showNotification('تم حذف المنتج بنجاح', 'success');
-        loadProducts();
-      } else {
-        showNotification('خطأ في حذف المنتج: ' + result.error, 'error');
-      }
-    } catch (error) {
-      console.error('Error deleting product:', error);
-      showNotification('خطأ في حذف المنتج', 'error');
-    }
-  }
-}
-
-// Toggle product visibility
-async function toggleProductVisibility(productId, currentStatus) {
-  try {
-    const newStatus = !currentStatus;
-    console.log('🔄 Toggling product visibility:', productId, 'from', currentStatus, 'to', newStatus);
-    
-    const result = await productsAPI.updateProduct(productId, { is_active: !currentStatus });
-    
-    if (result.success) {
-      showNotification(`تم ${newStatus ? 'إظهار' : 'إخفاء'} المنتج بنجاح`, 'success');
-      loadProducts();
-    } else {
-      showNotification('خطأ في تحديث حالة المنتج: ' + result.error, 'error');
-    }
-  } catch (error) {
-    console.error('Error toggling product visibility:', error);
-    showNotification('خطأ في تحديث حالة المنتج', 'error');
-  }
-}
-
-// ===== Main Banner Management =====
-
-// Load main banner settings
-async function loadMainBannerSettings() {
-  try {
-    const result = await mainBannerAPI.getSettings();
-
-    if (result.success && result.data) {
-      if (mainBannerEnabled) mainBannerEnabled.checked = result.data.is_enabled || false;
-      if (mainBannerInterval) mainBannerInterval.value = result.data.auto_slide_interval || 5;
-    }
-  } catch (error) {
-    console.error('Error loading main banner settings:', error);
-  }
-}
-
-// Save main banner settings
-async function saveMainBannerSettings() {
-  try {
-    const settings = {
-      is_enabled: mainBannerEnabled.checked,
-      auto_slide_interval: parseInt(mainBannerInterval.value)
-    };
-
-    const result = await mainBannerAPI.updateSettings(settings);
-
-    if (result.success) {
-      showNotification('تم حفظ إعدادات البنر بنجاح', 'success');
-    } else {
-      showNotification('خطأ في حفظ إعدادات البنر: ' + result.error, 'error');
-    }
-  } catch (error) {
-    console.error('Error saving main banner settings:', error);
-    showNotification('خطأ في حفظ إعدادات البنر', 'error');
-  }
-}
-
-// Load main banner images
-async function loadMainBannerImages() {
-  try {
-    const result = await mainBannerAPI.getImages();
-
-    if (result.success) {
-      renderMainBannerImages(result.data);
-    } else {
-      renderMainBannerImages([]);
-    }
-  } catch (error) {
-    console.error('Error loading main banner images:', error);
-    renderMainBannerImages([]);
-  }
-}
-
-// Render main banner images
-function renderMainBannerImages(images) {
-  if (!mainBannerImagesGrid) return;
-
-  if (images.length === 0) {
-    mainBannerImagesGrid.innerHTML = '';
-    if (noMainBannerImages) noMainBannerImages.style.display = 'block';
-    return;
-  }
-
-  if (noMainBannerImages) noMainBannerImages.style.display = 'none';
-
-  mainBannerImagesGrid.innerHTML = images.map(image => `
-    <div class="banner-card">
-      <img src="${image.image_url}" alt="${image.alt_text || image.title}" class="banner-image">
-      <div class="banner-info">
-        <h4>${image.title}</h4>
-        <span class="banner-order">الترتيب: ${image.display_order}</span>
-      </div>
-      <div class="banner-actions">
-        <button class="edit-btn" onclick="editMainBannerImage('${image.id}')">
-          <i class="fas fa-edit"></i>
-          تعديل
-        </button>
-        <button class="delete-btn" onclick="deleteMainBannerImage('${image.id}')">
-          <i class="fas fa-trash"></i>
-          حذف
-        </button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// Open main banner image modal
-function openMainBannerImageModal(imageId = null) {
-  if (!mainBannerImageModal) return;
-
-  currentMainBannerImageId = imageId;
-
-  if (imageId) {
-    document.getElementById('mainBannerImageModalTitle').textContent = 'تعديل صورة البنر';
-    loadMainBannerImageForEdit(imageId);
-  } else {
-    document.getElementById('mainBannerImageModalTitle').textContent = 'إضافة صورة للبنر الرئيسي';
-    if (mainBannerImageForm) mainBannerImageForm.reset();
-  }
-
-  mainBannerImageModal.classList.remove('hidden');
-}
-
-// Load main banner image for editing
-async function loadMainBannerImageForEdit(imageId) {
-  try {
-    const result = await mainBannerAPI.getImages();
-    if (result.success) {
-      const image = result.data.find(img => img.id === imageId);
-      if (image) {
-        document.getElementById('mainBannerImageTitle').value = image.title;
-        document.getElementById('mainBannerImageUrl').value = image.image_url;
-        document.getElementById('mainBannerImageAlt').value = image.alt_text || '';
-        document.getElementById('mainBannerImageOrder').value = image.display_order || 0;
-      }
-    }
-  } catch (error) {
-    console.error('Error loading main banner image for edit:', error);
-  }
-}
-
-// Save main banner image
-async function saveMainBannerImage(e) {
-  e.preventDefault();
-
-  const imageData = {
-    title: document.getElementById('mainBannerImageTitle').value,
-    image_url: document.getElementById('mainBannerImageUrl').value,
-    alt_text: document.getElementById('mainBannerImageAlt').value,
-    display_order: parseInt(document.getElementById('mainBannerImageOrder').value)
-  };
-
-  try {
-    let result;
-    if (currentMainBannerImageId) {
-      result = await mainBannerAPI.updateImage(currentMainBannerImageId, imageData);
-    } else {
-      result = await mainBannerAPI.addImage(imageData);
-    }
-
-    if (result.success) {
-      showNotification('تم حفظ صورة البنر بنجاح', 'success');
-      closeMainBannerImageModal();
-      loadMainBannerImages();
-    } else {
-      showNotification('خطأ في حفظ صورة البنر: ' + result.error, 'error');
-    }
-  } catch (error) {
-    console.error('Error saving main banner image:', error);
-    showNotification('خطأ في حفظ صورة البنر', 'error');
-  }
-}
-
-// Close main banner image modal
-function closeMainBannerImageModal() {
-  if (mainBannerImageModal) {
-    mainBannerImageModal.classList.add('hidden');
-  }
-  currentMainBannerImageId = null;
-}
-
-// Edit main banner image
-window.editMainBannerImage = function(imageId) {
-  openMainBannerImageModal(imageId);
+window.editProduct = function(productId, hub) {
+  openProductModal(productId, hub);
 };
 
-// Delete main banner image
-window.deleteMainBannerImage = async function(imageId) {
-  if (!confirm('هل أنت متأكد من حذف هذه الصورة؟')) return;
+window.deleteProduct = async function(productId, hub) {
+  if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
 
   try {
-    const result = await mainBannerAPI.deleteImage(imageId);
+    const { error } = await supabase
+      .from('products')
+      .delete()
+      .eq('id', productId);
 
-    if (result.success) {
-      showNotification('تم حذف صورة البنر بنجاح', 'success');
-      loadMainBannerImages();
-    } else {
-      showNotification('خطأ في حذف صورة البنر: ' + result.error, 'error');
-    }
+    if (error) throw error;
+
+    showNotification('تم حذف المنتج بنجاح', 'success');
+    loadProducts(hub);
   } catch (error) {
-    console.error('Error deleting main banner image:', error);
-    showNotification('خطأ في حذف صورة البنر', 'error');
+    console.error('Error deleting product:', error);
+    showNotification('خطأ في حذف المنتج', 'error');
   }
 };
 
-// ==================== HOME SERVICES MANAGEMENT ====================
-
-let currentEditingService = null;
-
-// Load home services
-async function loadHomeServices() {
+async function loadHomepageSettings() {
   try {
-    const result = await settingsAPI.getAllSettings();
-    let servicesData = [];
+    const { data, error } = await supabase
+      .from('site_settings')
+      .select('*');
 
-    if (result.success && result.data.length > 0) {
-      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
-      if (servicesSetting && servicesSetting.setting_value) {
-        servicesData = servicesSetting.setting_value;
-      }
-    }
+    if (error) throw error;
 
-    const homeServicesGrid = document.getElementById('homeServicesGrid');
-    const noHomeServices = document.getElementById('noHomeServices');
-
-    if (servicesData.length === 0) {
-      homeServicesGrid.style.display = 'none';
-      noHomeServices.style.display = 'block';
-    } else {
-      homeServicesGrid.style.display = 'grid';
-      noHomeServices.style.display = 'none';
-      renderHomeServices(servicesData);
-    }
-  } catch (error) {
-    console.error('Error loading home services:', error);
-    showNotification('خطأ في تحميل الخدمات', 'error');
-  }
-}
-
-// Render home services
-function renderHomeServices(services) {
-  const homeServicesGrid = document.getElementById('homeServicesGrid');
-  if (!homeServicesGrid) return;
-
-  homeServicesGrid.innerHTML = services.map((service, index) => {
-    const titleAr = service.title_ar || service.title || '';
-    const descAr = service.description_ar || service.description || '';
-
-    return `
-    <div class="service-item">
-      <div class="service-item-header">
-        <div class="service-item-icon">
-          <i class="${service.icon}"></i>
-        </div>
-        <h3 class="service-item-title">${titleAr}</h3>
-      </div>
-      <p class="service-item-description">${descAr}</p>
-      <div class="service-item-link">
-        <i class="fas fa-link"></i>
-        <span>${service.link}</span>
-      </div>
-      <div class="service-item-actions">
-        <button class="edit-btn" onclick="editHomeService(${index})">
-          <i class="fas fa-edit"></i>
-          تعديل
-        </button>
-        <button class="delete-btn" onclick="deleteHomeService(${index})">
-          <i class="fas fa-trash"></i>
-          حذف
-        </button>
-      </div>
-    </div>
-  `}).join('');
-}
-
-// Add home service button
-const addHomeServiceBtn = document.getElementById('addHomeServiceBtn');
-if (addHomeServiceBtn) {
-  addHomeServiceBtn.addEventListener('click', () => {
-    currentEditingService = null;
-    document.getElementById('homeServiceModalTitle').textContent = 'إضافة خدمة';
-    document.getElementById('homeServiceForm').reset();
-    showModal('homeServiceModal');
-  });
-}
-
-// Edit home service
-window.editHomeService = async function(index) {
-  try {
-    const result = await settingsAPI.getAllSettings();
-    if (result.success && result.data.length > 0) {
-      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
-      if (servicesSetting && servicesSetting.setting_value) {
-        const service = servicesSetting.setting_value[index];
-        currentEditingService = index;
-
-        document.getElementById('serviceTitleAr').value = service.title_ar || service.title || '';
-        document.getElementById('serviceTitleEn').value = service.title_en || '';
-        document.getElementById('serviceDescriptionAr').value = service.description_ar || service.description || '';
-        document.getElementById('serviceDescriptionEn').value = service.description_en || '';
-        document.getElementById('serviceIcon').value = service.icon || 'fas fa-users';
-        document.getElementById('serviceLink').value = service.link || '';
-
-        document.getElementById('homeServiceModalTitle').textContent = 'تعديل خدمة';
-        showModal('homeServiceModal');
-      }
-    }
-  } catch (error) {
-    console.error('Error loading service for edit:', error);
-    showNotification('خطأ في تحميل بيانات الخدمة', 'error');
-  }
-};
-
-// Save home service
-const homeServiceForm = document.getElementById('homeServiceForm');
-if (homeServiceForm) {
-  homeServiceForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const serviceData = {
-      title_ar: document.getElementById('serviceTitleAr').value,
-      title_en: document.getElementById('serviceTitleEn').value,
-      description_ar: document.getElementById('serviceDescriptionAr').value,
-      description_en: document.getElementById('serviceDescriptionEn').value,
-      icon: document.getElementById('serviceIcon').value,
-      link: document.getElementById('serviceLink').value
-    };
-
-    try {
-      const result = await settingsAPI.getAllSettings();
-      let servicesData = [];
-
-      if (result.success && result.data.length > 0) {
-        const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
-        if (servicesSetting && servicesSetting.setting_value) {
-          servicesData = servicesSetting.setting_value;
-        }
-      }
-
-      if (currentEditingService !== null) {
-        servicesData[currentEditingService] = serviceData;
-      } else {
-        servicesData.push(serviceData);
-      }
-
-      const saveResult = await settingsAPI.saveSetting('home_services', servicesData);
-
-      if (saveResult.success) {
-        showNotification('تم حفظ الخدمة بنجاح', 'success');
-        hideModal('homeServiceModal');
-        loadHomeServices();
-      } else {
-        showNotification('خطأ في حفظ الخدمة: ' + saveResult.error, 'error');
-      }
-    } catch (error) {
-      console.error('Error saving service:', error);
-      showNotification('خطأ في حفظ الخدمة', 'error');
-    }
-  });
-}
-
-// Delete home service
-window.deleteHomeService = async function(index) {
-  if (!confirm('هل أنت متأكد من حذف هذه الخدمة؟')) {
-    return;
-  }
-
-  try {
-    const result = await settingsAPI.getAllSettings();
-    if (result.success && result.data.length > 0) {
-      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
-      if (servicesSetting && servicesSetting.setting_value) {
-        const servicesData = servicesSetting.setting_value;
-        servicesData.splice(index, 1);
-
-        const saveResult = await settingsAPI.saveSetting('home_services', servicesData);
-
-        if (saveResult.success) {
-          showNotification('تم حذف الخدمة بنجاح', 'success');
-          loadHomeServices();
-        } else {
-          showNotification('خطأ في حذف الخدمة: ' + saveResult.error, 'error');
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error deleting service:', error);
-    showNotification('خطأ في حذف الخدمة', 'error');
-  }
-};
-
-// ==================== PAGE BANNERS MANAGEMENT ====================
-
-let currentEditingBanner = null;
-let currentBannerPage = 'hrhub';
-
-// Load page banners
-async function loadPageBanners(page) {
-  try {
-    const result = await settingsAPI.getAllSettings();
-    let bannersData = [];
-
-    if (result.success && result.data.length > 0) {
-      const settingKey = page + '_banners';
-      const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
-      if (bannersSetting && bannersSetting.setting_value) {
-        bannersData = bannersSetting.setting_value;
-      }
-    }
-
-    const bannersGrid = document.getElementById(page + 'BannersGrid');
-    const capitalizedPage = page.charAt(0).toUpperCase() + page.slice(1);
-    const noBanners = document.getElementById('no' + capitalizedPage + 'Banners');
-
-    if (bannersData.length === 0) {
-      bannersGrid.style.display = 'none';
-      noBanners.style.display = 'block';
-    } else {
-      bannersGrid.style.display = 'grid';
-      noBanners.style.display = 'none';
-      renderPageBanners(bannersData, page);
-    }
-  } catch (error) {
-    console.error('Error loading banners:', error);
-    showNotification('خطأ في تحميل البنرات', 'error');
-  }
-}
-
-// Render page banners
-function renderPageBanners(banners, page) {
-  const bannersGrid = document.getElementById(page + 'BannersGrid');
-  if (!bannersGrid) return;
-
-  bannersGrid.innerHTML = banners.map((banner, index) => {
-    const title = banner.title || '';
-    const altText = banner.alt_text || banner.title || '';
-    const order = banner.display_order || 0;
-
-    return `
-    <div class="banner-item">
-      <img src="${banner.image_url}" alt="${altText}" class="banner-item-image">
-      <h4 class="banner-item-title">${title}</h4>
-      <p class="banner-item-order">ترتيب العرض: ${order}</p>
-      <div class="banner-item-actions">
-        <button class="edit-btn" onclick="editPageBanner('${page}', ${index})">
-          <i class="fas fa-edit"></i>
-          تعديل
-        </button>
-        <button class="delete-btn" onclick="deletePageBanner('${page}', ${index})">
-          <i class="fas fa-trash"></i>
-          حذف
-        </button>
-      </div>
-    </div>
-  `}).join('');
-}
-
-// Banner tabs switching
-const bannerTabBtns = document.querySelectorAll('.banner-tab-btn');
-bannerTabBtns.forEach(btn => {
-  btn.addEventListener('click', () => {
-    const page = btn.dataset.page;
-
-    // Update active tab button
-    bannerTabBtns.forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-
-    // Update active tab content
-    document.querySelectorAll('.banner-tab-content').forEach(content => {
-      content.classList.remove('active');
+    const settings = {};
+    (data || []).forEach(setting => {
+      settings[setting.setting_key] = setting.setting_value;
     });
-    document.getElementById(page + 'BannersTab').classList.add('active');
 
-    // Load banners for selected page
-    currentBannerPage = page;
-    loadPageBanners(page);
+    const contactInfo = settings.contact_info || {};
+    document.getElementById('whatsappNumber').value = contactInfo.whatsappNumber || '';
+    document.getElementById('phoneNumber').value = contactInfo.phoneNumber || '';
+    document.getElementById('emailAddress').value = contactInfo.emailAddress || '';
+    document.getElementById('address').value = contactInfo.address || '';
+
+    const socialMedia = settings.social_media || {};
+    document.getElementById('instagramUrl').value = socialMedia.instagramUrl || '';
+    document.getElementById('twitterUrl').value = socialMedia.twitterUrl || '';
+    document.getElementById('linkedinUrl').value = socialMedia.linkedinUrl || '';
+    document.getElementById('facebookUrl').value = socialMedia.facebookUrl || '';
+
+    const siteContent = settings.site_content || {};
+    document.getElementById('siteTitleAr').value = siteContent.siteTitleAr || '';
+    document.getElementById('siteTitleEn').value = siteContent.siteTitleEn || '';
+    document.getElementById('siteDescription').value = siteContent.siteDescription || '';
+
+    const homepageCards = settings.homepage_cards || {};
+    const hrCard = homepageCards.hrHub || {};
+    document.getElementById('hrCardTitleAr').value = hrCard.titleAr || '';
+    document.getElementById('hrCardTitleEn').value = hrCard.titleEn || '';
+    document.getElementById('hrCardDescriptionAr').value = hrCard.descriptionAr || '';
+    document.getElementById('hrCardDescriptionEn').value = hrCard.descriptionEn || '';
+    document.getElementById('hrCardIcon').value = hrCard.icon || 'fas fa-users';
+
+    const webCard = homepageCards.webHub || {};
+    document.getElementById('webCardTitleAr').value = webCard.titleAr || '';
+    document.getElementById('webCardTitleEn').value = webCard.titleEn || '';
+    document.getElementById('webCardDescriptionAr').value = webCard.descriptionAr || '';
+    document.getElementById('webCardDescriptionEn').value = webCard.descriptionEn || '';
+    document.getElementById('webCardIcon').value = webCard.icon || 'fas fa-code';
+  } catch (error) {
+    console.error('Error loading homepage settings:', error);
+    showNotification('خطأ في تحميل الإعدادات', 'error');
+  }
+}
+
+document.getElementById('homepageSettingsForm')?.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const contactInfo = {
+    whatsappNumber: document.getElementById('whatsappNumber').value,
+    phoneNumber: document.getElementById('phoneNumber').value,
+    emailAddress: document.getElementById('emailAddress').value,
+    address: document.getElementById('address').value
+  };
+
+  const socialMedia = {
+    instagramUrl: document.getElementById('instagramUrl').value,
+    twitterUrl: document.getElementById('twitterUrl').value,
+    linkedinUrl: document.getElementById('linkedinUrl').value,
+    facebookUrl: document.getElementById('facebookUrl').value
+  };
+
+  const siteContent = {
+    siteTitleAr: document.getElementById('siteTitleAr').value,
+    siteTitleEn: document.getElementById('siteTitleEn').value,
+    siteDescription: document.getElementById('siteDescription').value
+  };
+
+  const homepageCards = {
+    hrHub: {
+      titleAr: document.getElementById('hrCardTitleAr').value,
+      titleEn: document.getElementById('hrCardTitleEn').value,
+      descriptionAr: document.getElementById('hrCardDescriptionAr').value,
+      descriptionEn: document.getElementById('hrCardDescriptionEn').value,
+      icon: document.getElementById('hrCardIcon').value
+    },
+    webHub: {
+      titleAr: document.getElementById('webCardTitleAr').value,
+      titleEn: document.getElementById('webCardTitleEn').value,
+      descriptionAr: document.getElementById('webCardDescriptionAr').value,
+      descriptionEn: document.getElementById('webCardDescriptionEn').value,
+      icon: document.getElementById('webCardIcon').value
+    }
+  };
+
+  try {
+    const updates = [
+      { key: 'contact_info', value: contactInfo },
+      { key: 'social_media', value: socialMedia },
+      { key: 'site_content', value: siteContent },
+      { key: 'homepage_cards', value: homepageCards }
+    ];
+
+    for (const update of updates) {
+      const { error } = await supabase
+        .from('site_settings')
+        .upsert({
+          setting_key: update.key,
+          setting_value: update.value,
+          updated_at: new Date().toISOString()
+        }, {
+          onConflict: 'setting_key'
+        });
+
+      if (error) throw error;
+    }
+
+    showNotification('تم حفظ الإعدادات بنجاح', 'success');
+  } catch (error) {
+    console.error('Error saving homepage settings:', error);
+    showNotification('خطأ في حفظ الإعدادات', 'error');
+  }
+});
+
+function showModal(modalId) {
+  document.getElementById(modalId)?.classList.remove('hidden');
+}
+
+function hideModal(modalId) {
+  document.getElementById(modalId)?.classList.add('hidden');
+}
+
+document.querySelectorAll('.close-modal').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const modal = e.target.closest('.modal');
+    if (modal) modal.classList.add('hidden');
   });
 });
 
-// Add banner buttons
-const addHrhubBannerBtn = document.getElementById('addHrhubBannerBtn');
-if (addHrhubBannerBtn) {
-  addHrhubBannerBtn.addEventListener('click', () => {
-    currentEditingBanner = null;
-    currentBannerPage = 'hrhub';
-    document.getElementById('bannerModalTitle').textContent = 'إضافة بنر - إدارة الأعمال';
-    document.getElementById('bannerForm').reset();
-    document.getElementById('bannerPage').value = 'hrhub';
-    showModal('bannerModal');
-  });
-}
-
-const addWebhubBannerBtn = document.getElementById('addWebhubBannerBtn');
-if (addWebhubBannerBtn) {
-  addWebhubBannerBtn.addEventListener('click', () => {
-    currentEditingBanner = null;
-    currentBannerPage = 'webhub';
-    document.getElementById('bannerModalTitle').textContent = 'إضافة بنر - تطوير الأعمال';
-    document.getElementById('bannerForm').reset();
-    document.getElementById('bannerPage').value = 'webhub';
-    showModal('bannerModal');
-  });
-}
-
-// Edit page banner
-window.editPageBanner = async function(page, index) {
-  try {
-    const result = await settingsAPI.getAllSettings();
-    if (result.success && result.data.length > 0) {
-      const settingKey = page + '_banners';
-      const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
-      if (bannersSetting && bannersSetting.setting_value) {
-        const banner = bannersSetting.setting_value[index];
-        currentEditingBanner = index;
-        currentBannerPage = page;
-
-        document.getElementById('bannerTitle').value = banner.title || '';
-        document.getElementById('bannerImageUrl').value = banner.image_url || '';
-        document.getElementById('bannerAltText').value = banner.alt_text || '';
-        document.getElementById('bannerLinkUrl').value = banner.link_url || '';
-        document.getElementById('bannerOrder').value = banner.display_order || 0;
-        document.getElementById('bannerPage').value = page;
-
-        const pageTitle = page === 'hrhub' ? 'إدارة الأعمال' : 'تطوير الأعمال';
-        document.getElementById('bannerModalTitle').textContent = 'تعديل بنر - ' + pageTitle;
-        showModal('bannerModal');
-      }
-    }
-  } catch (error) {
-    console.error('Error loading banner for edit:', error);
-    showNotification('خطأ في تحميل بيانات البنر', 'error');
-  }
-};
-
-// Save page banner
-const bannerForm = document.getElementById('bannerForm');
-if (bannerForm) {
-  bannerForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    const page = document.getElementById('bannerPage').value;
-    const bannerData = {
-      title: document.getElementById('bannerTitle').value,
-      image_url: document.getElementById('bannerImageUrl').value,
-      alt_text: document.getElementById('bannerAltText').value,
-      link_url: document.getElementById('bannerLinkUrl').value,
-      display_order: parseInt(document.getElementById('bannerOrder').value) || 0
-    };
-
-    try {
-      const result = await settingsAPI.getAllSettings();
-      let bannersData = [];
-
-      if (result.success && result.data.length > 0) {
-        const settingKey = page + '_banners';
-        const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
-        if (bannersSetting && bannersSetting.setting_value) {
-          bannersData = bannersSetting.setting_value;
-        }
-      }
-
-      if (currentEditingBanner !== null) {
-        bannersData[currentEditingBanner] = bannerData;
-      } else {
-        bannersData.push(bannerData);
-      }
-
-      const settingKey = page + '_banners';
-      const saveResult = await settingsAPI.saveSetting(settingKey, bannersData);
-
-      if (saveResult.success) {
-        showNotification('تم حفظ البنر بنجاح', 'success');
-        hideModal('bannerModal');
-        loadPageBanners(page);
-      } else {
-        showNotification('خطأ في حفظ البنر: ' + saveResult.error, 'error');
-      }
-    } catch (error) {
-      console.error('Error saving banner:', error);
-      showNotification('خطأ في حفظ البنر', 'error');
+document.querySelectorAll('.modal').forEach(modal => {
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) {
+      modal.classList.add('hidden');
     }
   });
+});
+
+function showNotification(message, type = 'success') {
+  const notification = document.getElementById('notification');
+  const messageElement = document.getElementById('notificationMessage');
+
+  messageElement.textContent = message;
+  notification.className = `notification ${type}`;
+  notification.classList.remove('hidden');
+
+  setTimeout(() => {
+    notification.classList.add('hidden');
+  }, 3000);
 }
 
-// Delete page banner
-window.deletePageBanner = async function(page, index) {
-  if (!confirm('هل أنت متأكد من حذف هذا البنر؟')) {
-    return;
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_OUT') {
+    currentUser = null;
+    loginScreen.classList.remove('hidden');
+    adminDashboard.classList.add('hidden');
   }
-
-  try {
-    const result = await settingsAPI.getAllSettings();
-    if (result.success && result.data.length > 0) {
-      const settingKey = page + '_banners';
-      const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
-      if (bannersSetting && bannersSetting.setting_value) {
-        const bannersData = bannersSetting.setting_value;
-        bannersData.splice(index, 1);
-
-        const saveResult = await settingsAPI.saveSetting(settingKey, bannersData);
-
-        if (saveResult.success) {
-          showNotification('تم حذف البنر بنجاح', 'success');
-          loadPageBanners(page);
-        } else {
-          showNotification('خطأ في حذف البنر: ' + saveResult.error, 'error');
-        }
-      }
-    }
-  } catch (error) {
-    console.error('Error deleting banner:', error);
-    showNotification('خطأ في حذف البنر', 'error');
-  }
-};
+});
