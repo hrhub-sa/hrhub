@@ -11,132 +11,77 @@ document.addEventListener('DOMContentLoaded', () => {
   loadContactInfo();
 });
 
-// Load services from settings
+// Load services
 async function loadServices() {
   try {
     const result = await settingsAPI.getAllSettings();
-    let services = [];
-    
+    let servicesData = [];
+
     if (result.success && result.data.length > 0) {
-      const servicesData = result.data.find(setting => setting.setting_key === 'home_services');
-      if (servicesData && servicesData.setting_value) {
-        services = servicesData.setting_value;
+      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
+      if (servicesSetting && servicesSetting.setting_value) {
+        servicesData = servicesSetting.setting_value;
       }
     }
-    
-    // Default services if none found
-    if (services.length === 0) {
-      services = [
-        {
-          id: 'hr-hub',
-          title: 'إدارة الأعمال',
-          subtitle: 'HR Hub',
-          description: 'حلول شاملة لإدارة الموارد البشرية والشؤون الحكومية',
-          icon: 'fas fa-users',
-          features: [
-            'إدارة الموظفين والمواهب',
-            'الشؤون الحكومية',
-            'المنصات الرسمية',
-            'الإجراءات والتحديثات'
-          ],
-          link: 'hr-hub.html'
-        },
-        {
-          id: 'web-hub',
-          title: 'تطوير الأعمال',
-          subtitle: 'Web Hub',
-          description: 'حلول تقنية متقدمة لتطوير أعمالك الرقمية',
-          icon: 'fas fa-code',
-          features: [
-            'تطوير المواقع الإلكترونية',
-            'التطبيقات الذكية',
-            'المتاجر الإلكترونية',
-            'الأنظمة الإدارية'
-          ],
-          link: 'web-hub.html'
-        }
-      ];
+
+    if (servicesData.length > 0) {
+      renderServices(servicesData);
+    } else {
+      showEmptyServices();
     }
-    
-    renderServices(services);
   } catch (error) {
     console.error('Error loading services:', error);
-    loadDefaultServices();
+    showEmptyServices();
   }
 }
 
 // Render services
 function renderServices(services) {
   if (!servicesGrid) return;
-  
+
   servicesGrid.innerHTML = services.map(service => `
-    <div class="service-card" onclick="window.location.href='${service.link}'">
+    <div class="service-card" onclick="navigateToService('${service.link}')">
       <div class="service-icon">
         <i class="${service.icon}"></i>
       </div>
-      <h3>${service.title}</h3>
-      <p class="service-subtitle">${service.subtitle}</p>
-      <p>${service.description}</p>
-      <ul class="service-features">
-        ${service.features.map(feature => `<li>${feature}</li>`).join('')}
-      </ul>
-      <a href="${service.link}" class="service-btn">
-        <i class="fas fa-arrow-left"></i>
-        استكشف الخدمة
-      </a>
+      <h3 class="service-title">${service.title_ar || service.title}</h3>
+      <p class="service-description">${service.description_ar || service.description}</p>
     </div>
   `).join('');
 }
 
-// Load default services
-function loadDefaultServices() {
-  const defaultServices = [
-    {
-      id: 'hr-hub',
-      title: 'إدارة الأعمال',
-      subtitle: 'HR Hub',
-      description: 'حلول شاملة لإدارة الموارد البشرية والشؤون الحكومية',
-      icon: 'fas fa-users',
-      features: [
-        'إدارة الموظفين والمواهب',
-        'الشؤون الحكومية',
-        'المنصات الرسمية',
-        'الإجراءات والتحديثات'
-      ],
-      link: 'hr-hub.html'
-    },
-    {
-      id: 'web-hub',
-      title: 'تطوير الأعمال',
-      subtitle: 'Web Hub',
-      description: 'حلول تقنية متقدمة لتطوير أعمالك الرقمية',
-      icon: 'fas fa-code',
-      features: [
-        'تطوير المواقع الإلكترونية',
-        'التطبيقات الذكية',
-        'المتاجر الإلكترونية',
-        'الأنظمة الإدارية'
-      ],
-      link: 'web-hub.html'
-    }
-  ];
-  
-  renderServices(defaultServices);
+// Show empty services message
+function showEmptyServices() {
+  if (!servicesGrid) return;
+
+  servicesGrid.innerHTML = `
+    <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
+      <i class="fas fa-box-open" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
+      <p style="color: #999; font-size: 1.2rem;">لا توجد خدمات متاحة حالياً</p>
+    </div>
+  `;
 }
+
+// Navigate to service
+window.navigateToService = function(link) {
+  if (link) {
+    window.location.href = link;
+  }
+};
 
 // Load contact info
 async function loadContactInfo() {
   try {
     const result = await settingsAPI.getAllSettings();
     let contactData = {};
-    
+
     if (result.success && result.data.length > 0) {
       const contactSetting = result.data.find(setting => setting.setting_key === 'contact_info');
       if (contactSetting && contactSetting.setting_value) {
         contactData = contactSetting.setting_value;
       }
     }
-    
+
     // Default contact info
     const defaultContact = {
       whatsappNumber: '+966530017278',
@@ -144,9 +89,9 @@ async function loadContactInfo() {
       emailAddress: 'hrhub.sa@gmail.com',
       address: 'المدينة المنورة، السعودية'
     };
-    
+
     const contact = { ...defaultContact, ...contactData };
-    
+
     renderContactInfo(contact);
     updateWhatsAppLink(contact.whatsappNumber);
   } catch (error) {
@@ -158,7 +103,7 @@ async function loadContactInfo() {
 // Render contact info
 function renderContactInfo(contact) {
   if (!contactInfo) return;
-  
+
   contactInfo.innerHTML = `
     <div class="contact-item">
       <div class="contact-icon">
@@ -199,15 +144,15 @@ function loadDefaultContactInfo() {
     emailAddress: 'hrhub.sa@gmail.com',
     address: 'المدينة المنورة، السعودية'
   };
-  
+
   renderContactInfo(defaultContact);
   updateWhatsAppLink(defaultContact.whatsappNumber);
 }
 
 // Update WhatsApp link
-function updateWhatsAppLink(whatsappNumber) {
+function updateWhatsAppLink(phoneNumber) {
   if (whatsappFloat) {
-    const cleanNumber = whatsappNumber.replace(/[^0-9]/g, '');
+    const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
     whatsappFloat.href = `https://wa.me/${cleanNumber}`;
   }
 }
