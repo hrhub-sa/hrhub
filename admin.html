@@ -18,7 +18,7 @@
         <h1>لوحة الإدارة</h1>
         <p>تسجيل دخول المدير</p>
       </div>
-      
+
       <form id="loginForm" class="login-form">
         <div class="input-group">
           <i class="fas fa-user"></i>
@@ -33,7 +33,7 @@
           تسجيل الدخول
         </button>
       </form>
-      
+
       <div id="loginError" class="error-message"></div>
     </div>
   </div>
@@ -53,25 +53,17 @@
             <i class="fas fa-clipboard-list"></i>
             الطلبات
           </button>
-          <button class="nav-btn" data-section="settings">
-            <i class="fas fa-cog"></i>
-            إعدادات الموقع
+          <button class="nav-btn" data-section="hr-products">
+            <i class="fas fa-users"></i>
+            منتجات إدارة الأعمال
           </button>
-          <button class="nav-btn" data-section="main-banner">
-            <i class="fas fa-image"></i>
-            البنر الرئيسي
+          <button class="nav-btn" data-section="web-products">
+            <i class="fas fa-code"></i>
+            منتجات تطوير الأعمال
           </button>
-          <button class="nav-btn" data-section="products">
-            <i class="fas fa-box"></i>
-            المنتجات
-          </button>
-          <button class="nav-btn" data-section="home-services">
+          <button class="nav-btn" data-section="homepage">
             <i class="fas fa-home"></i>
-            خدمات الصفحة الرئيسية
-          </button>
-          <button class="nav-btn" data-section="banners">
-            <i class="fas fa-images"></i>
-            بنرات الصفحات
+            إعدادات الصفحة الرئيسية
           </button>
         </nav>
         <button id="logoutBtn" class="logout-btn">
@@ -92,7 +84,7 @@
           <p>إجمالي الطلبات</p>
         </div>
       </div>
-      
+
       <div class="stat-card pending">
         <div class="stat-icon">
           <i class="fas fa-clock"></i>
@@ -102,7 +94,7 @@
           <p>بانتظار الاشتراك</p>
         </div>
       </div>
-      
+
       <div class="stat-card subscribed">
         <div class="stat-icon">
           <i class="fas fa-check-circle"></i>
@@ -112,7 +104,7 @@
           <p>مشترك</p>
         </div>
       </div>
-      
+
       <div class="stat-card cancelled">
         <div class="stat-icon">
           <i class="fas fa-times-circle"></i>
@@ -138,7 +130,7 @@
             <option value="not-subscribed">غير مشترك</option>
           </select>
         </div>
-        
+
         <div class="filter-group">
           <label>فلترة حسب الباقة:</label>
           <select id="packageFilter">
@@ -147,12 +139,12 @@
             <option value="webhub">Web Hub</option>
           </select>
         </div>
-        
+
         <div class="filter-group">
           <label>البحث:</label>
           <input type="text" id="searchInput" placeholder="ابحث بالاسم أو الإيميل أو الهاتف">
         </div>
-        
+
         <button id="clearFilters" class="clear-btn">
           <i class="fas fa-times"></i>
           مسح الفلاتر
@@ -168,7 +160,7 @@
             تصدير البيانات
           </button>
         </div>
-        
+
         <div class="table-container">
           <table id="ordersTable" class="orders-table">
             <thead>
@@ -188,195 +180,360 @@
             </tbody>
           </table>
         </div>
-        
-        <div id="noOrders" class="no-orders hidden">
+
+        <div id="noOrders" class="no-data" style="display: none;">
           <i class="fas fa-inbox"></i>
-          <h3>لا توجد طلبات</h3>
-          <p>لم يتم استلام أي طلبات بعد</p>
+          <p>لا توجد طلبات</p>
         </div>
       </div>
     </div>
 
-    <!-- Site Settings Section -->
-    <div id="settingsSection" class="admin-section">
-      <div class="section-header">
-        <h2>إعدادات الموقع</h2>
-        <button id="saveSettingsBtn" class="add-btn">
-          <i class="fas fa-save"></i>
-          حفظ الإعدادات
-        </button>
+    <!-- HR Products Section -->
+    <div id="hrProductsSection" class="admin-section">
+      <div class="section-content">
+        <div class="section-header">
+          <h2>منتجات إدارة الأعمال (HR Hub)</h2>
+          <button class="add-btn" id="addHrProductBtn">
+            <i class="fas fa-plus"></i>
+            إضافة منتج
+          </button>
+        </div>
+
+        <div class="products-grid" id="hrProductsGrid">
+          <!-- HR Products will be loaded dynamically -->
+        </div>
+
+        <div id="noHrProducts" class="no-data" style="display: none;">
+          <i class="fas fa-box"></i>
+          <p>لا توجد منتجات</p>
+        </div>
       </div>
-      
-      <div class="settings-container">
-        <div class="settings-grid">
+    </div>
+
+    <!-- Web Products Section -->
+    <div id="webProductsSection" class="admin-section">
+      <div class="section-content">
+        <div class="section-header">
+          <h2>منتجات تطوير الأعمال (Web Hub)</h2>
+          <button class="add-btn" id="addWebProductBtn">
+            <i class="fas fa-plus"></i>
+            إضافة منتج
+          </button>
+        </div>
+
+        <div class="products-grid" id="webProductsGrid">
+          <!-- Web Products will be loaded dynamically -->
+        </div>
+
+        <div id="noWebProducts" class="no-data" style="display: none;">
+          <i class="fas fa-box"></i>
+          <p>لا توجد منتجات</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Homepage Settings Section -->
+    <div id="homepageSection" class="admin-section">
+      <div class="section-content">
+        <h2>إعدادات الصفحة الرئيسية</h2>
+
+        <form id="homepageSettingsForm" class="settings-form">
           <!-- Contact Information -->
-          <div class="settings-card">
-            <h3><i class="fas fa-phone"></i> معلومات التواصل</h3>
-            <div class="form-group">
-              <label>رقم الواتساب:</label>
-              <input type="tel" id="whatsappNumber" value="+966530017278">
-            </div>
-            <div class="form-group">
-              <label>رقم الهاتف:</label>
-              <input type="tel" id="phoneNumber" value="+966542345930">
-            </div>
-            <div class="form-group">
-              <label>البريد الإلكتروني:</label>
-              <input type="email" id="emailAddress" value="hrhub.sa@gmail.com">
-            </div>
-            <div class="form-group">
-              <label>العنوان:</label>
-              <input type="text" id="address" value="المدينة المنورة، السعودية">
+          <div class="form-section">
+            <h3><i class="fas fa-phone"></i> معلومات الاتصال</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>رقم الواتساب:</label>
+                <input type="tel" id="whatsappNumber" required placeholder="+966530017278">
+              </div>
+
+              <div class="form-group">
+                <label>رقم الهاتف:</label>
+                <input type="tel" id="phoneNumber" required placeholder="+966542345930">
+              </div>
+
+              <div class="form-group">
+                <label>البريد الإلكتروني:</label>
+                <input type="email" id="emailAddress" required placeholder="hrhub.sa@gmail.com">
+              </div>
+
+              <div class="form-group">
+                <label>العنوان:</label>
+                <input type="text" id="address" required placeholder="المدينة المنورة، السعودية">
+              </div>
             </div>
           </div>
 
           <!-- Social Media -->
-          <div class="settings-card">
-            <h3><i class="fab fa-instagram"></i> حسابات التواصل الاجتماعي</h3>
-            <div class="form-group">
-              <label>رابط الإنستغرام:</label>
-              <input type="url" id="instagramUrl" placeholder="https://instagram.com/hrhub">
-            </div>
-            <div class="form-group">
-              <label>رابط تويتر/X:</label>
-              <input type="url" id="twitterUrl" placeholder="https://x.com/hrhub">
-            </div>
-            <div class="form-group">
-              <label>رابط لينكد إن:</label>
-              <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/company/hrhub">
-            </div>
-            <div class="form-group">
-              <label>رابط فيسبوك:</label>
-              <input type="url" id="facebookUrl" placeholder="https://facebook.com/hrhub">
+          <div class="form-section">
+            <h3><i class="fas fa-share-alt"></i> وسائل التواصل الاجتماعي</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>رابط Instagram:</label>
+                <input type="url" id="instagramUrl" placeholder="https://instagram.com/hrhub.sa">
+              </div>
+
+              <div class="form-group">
+                <label>رابط Twitter (X):</label>
+                <input type="url" id="twitterUrl" placeholder="https://x.com/hrhub_sa">
+              </div>
+
+              <div class="form-group">
+                <label>رابط LinkedIn:</label>
+                <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/company/hrhub-sa">
+              </div>
+
+              <div class="form-group">
+                <label>رابط Facebook:</label>
+                <input type="url" id="facebookUrl" placeholder="https://facebook.com/hrhub.sa">
+              </div>
             </div>
           </div>
 
           <!-- Site Content -->
-          <div class="settings-card">
-            <h3><i class="fas fa-edit"></i> محتوى الموقع</h3>
-            <div class="form-group">
-              <label>عنوان الموقع (عربي):</label>
-              <input type="text" id="siteTitleAr" value="HR Hub ‒ إدارة الموارد البشرية والشؤون الحكومية">
-            </div>
-            <div class="form-group">
-              <label>عنوان الموقع (إنجليزي):</label>
-              <input type="text" id="siteTitleEn" value="HR Hub ‒ HR & Government Affairs Solutions">
-            </div>
-            <div class="form-group">
-              <label>وصف الموقع:</label>
-              <textarea id="siteDescription" rows="3">شريككم المثالي في إدارة الموارد البشرية والشؤون الحكومية</textarea>
+          <div class="form-section">
+            <h3><i class="fas fa-file-alt"></i> محتوى الموقع</h3>
+
+            <div class="form-grid">
+              <div class="form-group">
+                <label>عنوان الموقع (عربي):</label>
+                <input type="text" id="siteTitleAr" required>
+              </div>
+
+              <div class="form-group">
+                <label>عنوان الموقع (إنجليزي):</label>
+                <input type="text" id="siteTitleEn" required>
+              </div>
+
+              <div class="form-group full-width">
+                <label>وصف الموقع:</label>
+                <textarea id="siteDescription" rows="3" required></textarea>
+              </div>
             </div>
           </div>
 
-          <!-- Package Pricing -->
-          <div class="settings-card">
-            <h3><i class="fas fa-dollar-sign"></i> أسعار الباقات</h3>
-            <div class="form-group">
-              <label>سعر الباقة الاقتصادية (ريال):</label>
-              <input type="number" id="economyPrice" value="3000">
+          <!-- Homepage Cards -->
+          <div class="form-section">
+            <h3><i class="fas fa-th-large"></i> بطاقات الصفحة الرئيسية</h3>
+
+            <!-- HR Hub Card -->
+            <div class="card-settings">
+              <h4>بطاقة إدارة الأعمال (HR Hub)</h4>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>العنوان (عربي):</label>
+                  <input type="text" id="hrCardTitleAr" required>
+                </div>
+
+                <div class="form-group">
+                  <label>العنوان (إنجليزي):</label>
+                  <input type="text" id="hrCardTitleEn" required>
+                </div>
+
+                <div class="form-group">
+                  <label>الوصف (عربي):</label>
+                  <textarea id="hrCardDescriptionAr" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>الوصف (إنجليزي):</label>
+                  <textarea id="hrCardDescriptionEn" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>الأيقونة:</label>
+                  <select id="hrCardIcon" required>
+                    <option value="fas fa-users">مستخدمين</option>
+                    <option value="fas fa-briefcase">حقيبة أعمال</option>
+                    <option value="fas fa-user-tie">موظف</option>
+                    <option value="fas fa-building">مبنى</option>
+                    <option value="fas fa-chart-line">رسم بياني</option>
+                  </select>
+                </div>
+              </div>
             </div>
-            <div class="form-group">
-              <label>سعر الباقة الشاملة (ريال):</label>
-              <input type="number" id="comprehensivePrice" value="6000">
+
+            <!-- Web Hub Card -->
+            <div class="card-settings">
+              <h4>بطاقة تطوير الأعمال (Web Hub)</h4>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>العنوان (عربي):</label>
+                  <input type="text" id="webCardTitleAr" required>
+                </div>
+
+                <div class="form-group">
+                  <label>العنوان (إنجليزي):</label>
+                  <input type="text" id="webCardTitleEn" required>
+                </div>
+
+                <div class="form-group">
+                  <label>الوصف (عربي):</label>
+                  <textarea id="webCardDescriptionAr" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>الوصف (إنجليزي):</label>
+                  <textarea id="webCardDescriptionEn" rows="2" required></textarea>
+                </div>
+
+                <div class="form-group">
+                  <label>الأيقونة:</label>
+                  <select id="webCardIcon" required>
+                    <option value="fas fa-code">كود</option>
+                    <option value="fas fa-laptop">لابتوب</option>
+                    <option value="fas fa-mobile-alt">جوال</option>
+                    <option value="fas fa-globe">موقع</option>
+                    <option value="fas fa-desktop">شاشة</option>
+                  </select>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Web Hub Settings -->
-          <div class="settings-card">
-            <h3><i class="fas fa-globe"></i> إعدادات Web Hub</h3>
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ الإعدادات
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal hidden">
+    <div class="modal-content large">
+      <div class="modal-header">
+        <h3 id="productModalTitle">إضافة منتج</h3>
+        <button class="close-modal">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="productForm" class="admin-form">
+          <input type="hidden" id="productHub">
+
+          <div class="form-grid">
             <div class="form-group">
-              <label>حالة Web Hub:</label>
-              <select id="webHubStatus">
-                <option value="coming-soon">قريباً</option>
-                <option value="active">نشط</option>
-                <option value="maintenance">تحت الصيانة</option>
+              <label>اسم المنتج (عربي):</label>
+              <input type="text" id="productNameAr" required>
+            </div>
+
+            <div class="form-group">
+              <label>اسم المنتج (إنجليزي):</label>
+              <input type="text" id="productNameEn" required>
+            </div>
+
+            <div class="form-group">
+              <label>الوصف (عربي):</label>
+              <textarea id="productDescriptionAr" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>الوصف (إنجليزي):</label>
+              <textarea id="productDescriptionEn" rows="3" required></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>المدة (عربي):</label>
+              <input type="text" id="productDurationAr" required placeholder="مثال: شهر واحد">
+            </div>
+
+            <div class="form-group">
+              <label>المدة (إنجليزي):</label>
+              <input type="text" id="productDurationEn" required placeholder="Example: One Month">
+            </div>
+
+            <div class="form-group">
+              <label>السعر قبل الخصم (اختياري):</label>
+              <input type="number" id="productPriceBefore" min="0" step="0.01" placeholder="0">
+            </div>
+
+            <div class="form-group">
+              <label>السعر الحالي:</label>
+              <input type="number" id="productPrice" min="0" step="0.01" required>
+            </div>
+
+            <div class="form-group">
+              <label>رابط الصورة:</label>
+              <input type="url" id="productImageUrl" placeholder="https://example.com/image.jpg">
+            </div>
+
+            <div class="form-group">
+              <label>الأيقونة:</label>
+              <select id="productIcon" required>
+                <option value="fas fa-code">كود</option>
+                <option value="fas fa-users">مستخدمين</option>
+                <option value="fas fa-mobile-alt">جوال</option>
+                <option value="fas fa-shopping-cart">متجر</option>
+                <option value="fas fa-cogs">نظام</option>
+                <option value="fas fa-globe">موقع</option>
+                <option value="fas fa-chart-line">تحليلات</option>
+                <option value="fas fa-briefcase">أعمال</option>
               </select>
             </div>
+
             <div class="form-group">
-              <label>رسالة Web Hub:</label>
-              <textarea id="webHubMessage" rows="2">نعمل حالياً على تطوير منصة Web Hub لتقديم أفضل الحلول التقنية والبرمجية</textarea>
+              <label>ترتيب العرض:</label>
+              <input type="number" id="productOrder" min="0" value="0">
+            </div>
+
+            <div class="form-group full-width">
+              <label>
+                <input type="checkbox" id="productIsActive" checked>
+                تفعيل المنتج
+              </label>
             </div>
           </div>
 
-          <!-- Admin Settings -->
-          <div class="settings-card">
-            <h3><i class="fas fa-user-shield"></i> إعدادات الإدارة</h3>
-            <div class="form-group">
-              <label>تغيير كلمة مرور الإدارة:</label>
-              <input type="password" id="newAdminPassword" placeholder="كلمة المرور الجديدة">
+          <div class="form-section">
+            <h4>الميزات (عربي):</h4>
+            <div id="featuresArContainer">
+              <div class="feature-input-group">
+                <input type="text" class="feature-ar-input" placeholder="أدخل ميزة">
+                <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
             </div>
-            <div class="form-group">
-              <label>تأكيد كلمة المرور:</label>
-              <input type="password" id="confirmAdminPassword" placeholder="تأكيد كلمة المرور">
+            <button type="button" id="addFeatureArBtn" class="add-feature-btn">
+              <i class="fas fa-plus"></i>
+              إضافة ميزة
+            </button>
+          </div>
+
+          <div class="form-section">
+            <h4>الميزات (إنجليزي):</h4>
+            <div id="featuresEnContainer">
+              <div class="feature-input-group">
+                <input type="text" class="feature-en-input" placeholder="Enter feature">
+                <button type="button" class="remove-feature-btn" onclick="this.parentElement.remove()">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
             </div>
+            <button type="button" id="addFeatureEnBtn" class="add-feature-btn">
+              <i class="fas fa-plus"></i>
+              Add Feature
+            </button>
           </div>
-        </div>
-      </div>
-    </div>
 
-    <!-- Main Banner Section -->
-    <div id="mainBannerSection" class="admin-section">
-      <div class="section-header">
-        <h2>إدارة البنر الرئيسي</h2>
-        <button id="saveMainBannerBtn" class="add-btn">
-          <i class="fas fa-save"></i>
-          حفظ الإعدادات
-        </button>
-      </div>
-
-      <div class="settings-container">
-        <div class="settings-card" style="margin-bottom: 2rem;">
-          <h3><i class="fas fa-toggle-on"></i> إعدادات البنر</h3>
-          <div class="form-group">
-            <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-              <input type="checkbox" id="mainBannerEnabled" style="width: auto;">
-              <span>تفعيل البنر الرئيسي</span>
-            </label>
-            <small style="color: #888; display: block; margin-top: 0.5rem;">
-              عند التفعيل، سيظهر البنر في جميع الصفحات. يمكنك إخفاؤه بإلغاء التفعيل.
-            </small>
+          <div class="form-actions">
+            <button type="submit" class="save-btn">
+              <i class="fas fa-save"></i>
+              حفظ
+            </button>
+            <button type="button" class="cancel-btn close-modal">
+              <i class="fas fa-times"></i>
+              إلغاء
+            </button>
           </div>
-          <div class="form-group">
-            <label>وقت التبديل بين الصور (بالثواني):</label>
-            <input type="number" id="mainBannerInterval" min="3" max="15" value="5">
-            <small style="color: #888; display: block; margin-top: 0.25rem;">
-              ينطبق فقط إذا كان هناك أكثر من صورة واحدة
-            </small>
-          </div>
-        </div>
-
-        <div class="section-header" style="margin-top: 2rem;">
-          <h3>صور البنر</h3>
-          <button id="addMainBannerImageBtn" class="add-btn">
-            <i class="fas fa-plus"></i>
-            إضافة صورة
-          </button>
-        </div>
-
-        <div class="banners-grid" id="mainBannerImagesGrid">
-          <!-- Main banner images will be populated here -->
-        </div>
-
-        <div id="noMainBannerImages" class="no-orders" style="display: none;">
-          <i class="fas fa-image"></i>
-          <h3>لا توجد صور في البنر</h3>
-          <p>اضغط على "إضافة صورة" لإضافة أول صورة للبنر الرئيسي</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Products Management Section -->
-    <div id="productsSection" class="admin-section">
-      <div class="section-header">
-        <h2>إدارة منتجات Web Hub</h2>
-        <button id="addProductBtn" class="add-btn">
-          <i class="fas fa-plus"></i>
-          إضافة منتج جديد
-        </button>
-      </div>
-      
-      <div class="products-admin-grid" id="productsAdminGrid">
-        <!-- Product cards will be populated here -->
+        </form>
       </div>
     </div>
   </div>
@@ -390,440 +547,19 @@
           <i class="fas fa-times"></i>
         </button>
       </div>
-      
-      <div class="modal-body">
-        <div class="order-details">
-          <div class="detail-row">
-            <strong>التاريخ:</strong>
-            <span id="modalDate"></span>
-          </div>
-          <div class="detail-row">
-            <strong>الاسم:</strong>
-            <span id="modalName"></span>
-          </div>
-          <div class="detail-row">
-            <strong>الإيميل:</strong>
-            <span id="modalEmail"></span>
-          </div>
-          <div class="detail-row">
-            <strong>الهاتف:</strong>
-            <span id="modalPhone"></span>
-          </div>
-          <div class="detail-row">
-            <strong>الباقة:</strong>
-            <span id="modalHub"></span>
-          </div>
-          <div class="detail-row">
-            <strong>الحالة:</strong>
-            <span id="modalStatus" class="status-badge"></span>
-          </div>
-          <div class="detail-row message-row">
-            <strong>الرسالة:</strong>
-            <div id="modalMessage" class="message-content"></div>
-          </div>
-        </div>
-        
-        <div class="status-actions">
-          <h4>تغيير الحالة:</h4>
-          <div class="status-buttons">
-            <button class="status-btn pending" data-status="pending">
-              <i class="fas fa-clock"></i>
-              بانتظار الاشتراك
-            </button>
-            <button class="status-btn subscribed" data-status="subscribed">
-              <i class="fas fa-check-circle"></i>
-              مشترك
-            </button>
-            <button class="status-btn cancelled" data-status="cancelled">
-              <i class="fas fa-times-circle"></i>
-              تم الإلغاء
-            </button>
-            <button class="status-btn not-subscribed" data-status="not-subscribed">
-              <i class="fas fa-user-times"></i>
-              غير مشترك
-            </button>
-          </div>
-        </div>
-      </div>
-      
-      <div class="modal-footer">
-        <button id="deleteOrderBtn" class="delete-btn">
-          <i class="fas fa-trash"></i>
-          حذف الطلب
-        </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Product Modal -->
-  <div id="productModal" class="modal hidden">
-    <div class="modal-content large-modal">
-      <div class="modal-header">
-        <h3 id="productModalTitle">إضافة منتج جديد</h3>
-        <button class="close-modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-      
-      <div class="modal-body">
-        <form id="productForm" class="admin-form">
-          <div class="bilingual-section">
-            <h4 style="color: #2c5aa0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-              <i class="fas fa-language"></i>
-              النسخة العربية
-            </h4>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>اسم المنتج (عربي):</label>
-                <input type="text" id="productNameAr" required>
-              </div>
-
-              <div class="form-group">
-                <label>المدة التقديرية (عربي):</label>
-                <input type="text" id="productDurationAr" placeholder="مثال: 2-3 أسابيع" required>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>وصف المنتج (عربي):</label>
-              <textarea id="productDescriptionAr" rows="3" required></textarea>
-            </div>
-
-            <div class="form-group">
-              <label>المميزات (عربي - كل مميزة في سطر منفصل):</label>
-              <textarea id="productFeaturesAr" rows="4" placeholder="مميزة 1&#10;مميزة 2&#10;مميزة 3"></textarea>
-            </div>
-          </div>
-
-          <hr style="margin: 2rem 0; border: none; border-top: 2px solid #e0e0e0;">
-
-          <div class="bilingual-section">
-            <h4 style="color: #2c5aa0; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-              <i class="fas fa-language"></i>
-              English Version
-            </h4>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label>Product Name (English):</label>
-                <input type="text" id="productNameEn" required>
-              </div>
-
-              <div class="form-group">
-                <label>Duration (English):</label>
-                <input type="text" id="productDurationEn" placeholder="e.g., 2-3 weeks" required>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label>Product Description (English):</label>
-              <textarea id="productDescriptionEn" rows="3" required></textarea>
-            </div>
-
-            <div class="form-group">
-              <label>Features (English - one per line):</label>
-              <textarea id="productFeaturesEn" rows="4" placeholder="Feature 1&#10;Feature 2&#10;Feature 3"></textarea>
-            </div>
-          </div>
-
-          <hr style="margin: 2rem 0; border: none; border-top: 2px solid #e0e0e0;">
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>السعر القديم (ريال) - اختياري:</label>
-              <input type="number" id="productPriceBefore" min="0" step="0.01" placeholder="السعر قبل التخفيض">
-              <small style="color: #888; display: block; margin-top: 0.25rem;">اتركه فارغاً إذا لم يكن هناك تخفيض</small>
-            </div>
-
-            <div class="form-group">
-              <label>السعر الحالي (ريال):</label>
-              <input type="number" id="productPrice" min="0" step="0.01" required>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>رابط الصورة:</label>
-              <input type="url" id="productImageUrl">
-            </div>
-
-            <div class="form-group">
-              <label>ترتيب العرض:</label>
-              <input type="number" id="productOrder" min="0" value="0">
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label>الأيقونة:</label>
-              <select id="productIcon">
-                <option value="fas fa-code">كود</option>
-                <option value="fas fa-mobile-alt">جوال</option>
-                <option value="fas fa-shopping-cart">متجر</option>
-                <option value="fas fa-cogs">نظام</option>
-                <option value="fas fa-globe">موقع</option>
-                <option value="fas fa-chart-line">تحليلات</option>
-                <option value="fas fa-cloud">سحابي</option>
-                <option value="fas fa-database">قاعدة بيانات</option>
-              </select>
-            </div>
-          </div>
-          
-          <div class="form-actions">
-            <button type="submit" class="save-btn">
-              <i class="fas fa-save"></i>
-              حفظ المنتج
-            </button>
-            <button type="button" class="cancel-btn close-modal">
-              <i class="fas fa-times"></i>
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
-  <!-- Home Services Section -->
-  <div id="homeServicesSection" class="admin-section">
-    <div class="section-content">
-      <div class="section-header">
-        <h2>إدارة خدمات الصفحة الرئيسية</h2>
-        <button class="add-btn" id="addHomeServiceBtn">
-          <i class="fas fa-plus"></i>
-          إضافة خدمة
-        </button>
-      </div>
-
-      <div class="services-grid" id="homeServicesGrid">
-        <!-- Services will be loaded dynamically -->
-      </div>
-
-      <div id="noHomeServices" class="no-data" style="display: none;">
-        <i class="fas fa-home"></i>
-        <p>لا توجد خدمات</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- Banners Section -->
-  <div id="bannersSection" class="admin-section">
-    <div class="section-content">
-      <h2>إدارة بنرات الصفحات</h2>
-
-      <div class="banners-tabs">
-        <button class="banner-tab-btn active" data-page="hrhub">بنرات إدارة الأعمال</button>
-        <button class="banner-tab-btn" data-page="webhub">بنرات تطوير الأعمال</button>
-      </div>
-
-      <div class="banner-tab-content active" id="hrhubBannersTab">
-        <div class="section-header">
-          <h3>بنرات صفحة إدارة الأعمال (HR Hub)</h3>
-          <button class="add-btn" id="addHrhubBannerBtn">
-            <i class="fas fa-plus"></i>
-            إضافة بنر
-          </button>
-        </div>
-
-        <div class="banners-grid" id="hrhubBannersGrid">
-          <!-- HR Hub banners will be loaded dynamically -->
-        </div>
-
-        <div id="noHrhubBanners" class="no-data" style="display: none;">
-          <i class="fas fa-image"></i>
-          <p>لا توجد بنرات</p>
-        </div>
-      </div>
-
-      <div class="banner-tab-content" id="webhubBannersTab">
-        <div class="section-header">
-          <h3>بنرات صفحة تطوير الأعمال (Web Hub)</h3>
-          <button class="add-btn" id="addWebhubBannerBtn">
-            <i class="fas fa-plus"></i>
-            إضافة بنر
-          </button>
-        </div>
-
-        <div class="banners-grid" id="webhubBannersGrid">
-          <!-- Web Hub banners will be loaded dynamically -->
-        </div>
-
-        <div id="noWebhubBanners" class="no-data" style="display: none;">
-          <i class="fas fa-image"></i>
-          <p>لا توجد بنرات</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Home Service Modal -->
-  <div id="homeServiceModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="homeServiceModalTitle">إضافة خدمة</h3>
-        <button class="close-modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
 
       <div class="modal-body">
-        <form id="homeServiceForm" class="admin-form">
-          <div class="form-group">
-            <label>العنوان (عربي):</label>
-            <input type="text" id="serviceTitleAr" required>
-          </div>
-
-          <div class="form-group">
-            <label>العنوان (إنجليزي):</label>
-            <input type="text" id="serviceTitleEn" required>
-          </div>
-
-          <div class="form-group">
-            <label>الوصف (عربي):</label>
-            <textarea id="serviceDescriptionAr" rows="3" required></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>الوصف (إنجليزي):</label>
-            <textarea id="serviceDescriptionEn" rows="3" required></textarea>
-          </div>
-
-          <div class="form-group">
-            <label>الأيقونة:</label>
-            <select id="serviceIcon" required>
-              <option value="fas fa-users">مستخدمين</option>
-              <option value="fas fa-code">كود</option>
-              <option value="fas fa-mobile-alt">جوال</option>
-              <option value="fas fa-shopping-cart">متجر</option>
-              <option value="fas fa-cogs">نظام</option>
-              <option value="fas fa-globe">موقع</option>
-              <option value="fas fa-chart-line">تحليلات</option>
-              <option value="fas fa-briefcase">أعمال</option>
-            </select>
-          </div>
-
-          <div class="form-group">
-            <label>الرابط:</label>
-            <input type="text" id="serviceLink" required placeholder="hr-hub.html">
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="save-btn">
-              <i class="fas fa-save"></i>
-              حفظ
-            </button>
-            <button type="button" class="cancel-btn close-modal">
-              <i class="fas fa-times"></i>
-              إلغاء
-            </button>
-          </div>
-        </form>
+        <div id="orderDetails"></div>
       </div>
     </div>
   </div>
 
-  <!-- Banner Modal -->
-  <div id="bannerModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="bannerModalTitle">إضافة بنر</h3>
-        <button class="close-modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <form id="bannerForm" class="admin-form">
-          <input type="hidden" id="bannerPage">
-
-          <div class="form-group">
-            <label>عنوان البنر:</label>
-            <input type="text" id="bannerTitle" required>
-          </div>
-
-          <div class="form-group">
-            <label>رابط الصورة:</label>
-            <input type="url" id="bannerImageUrl" required placeholder="https://example.com/image.jpg">
-          </div>
-
-          <div class="form-group">
-            <label>النص البديل:</label>
-            <input type="text" id="bannerAltText" placeholder="وصف الصورة">
-          </div>
-
-          <div class="form-group">
-            <label>رابط الوجهة (اختياري):</label>
-            <input type="url" id="bannerLinkUrl" placeholder="https://example.com">
-          </div>
-
-          <div class="form-group">
-            <label>ترتيب العرض:</label>
-            <input type="number" id="bannerOrder" min="0" value="0">
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="save-btn">
-              <i class="fas fa-save"></i>
-              حفظ
-            </button>
-            <button type="button" class="cancel-btn close-modal">
-              <i class="fas fa-times"></i>
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+  <!-- Notification -->
+  <div id="notification" class="notification hidden">
+    <span id="notificationMessage"></span>
   </div>
 
-  <!-- Main Banner Image Modal -->
-  <div id="mainBannerImageModal" class="modal hidden">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="mainBannerImageModalTitle">إضافة صورة للبنر الرئيسي</h3>
-        <button class="close-modal">
-          <i class="fas fa-times"></i>
-        </button>
-      </div>
-
-      <div class="modal-body">
-        <form id="mainBannerImageForm" class="admin-form">
-          <div class="form-group">
-            <label>عنوان الصورة:</label>
-            <input type="text" id="mainBannerImageTitle" required>
-          </div>
-
-          <div class="form-group">
-            <label>رابط الصورة:</label>
-            <input type="url" id="mainBannerImageUrl" required placeholder="https://example.com/image.jpg">
-          </div>
-
-          <div class="form-group">
-            <label>النص البديل:</label>
-            <input type="text" id="mainBannerImageAlt" placeholder="وصف الصورة">
-          </div>
-
-          <div class="form-group">
-            <label>ترتيب العرض:</label>
-            <input type="number" id="mainBannerImageOrder" min="0" value="0">
-          </div>
-
-          <div class="form-actions">
-            <button type="submit" class="save-btn">
-              <i class="fas fa-save"></i>
-              حفظ
-            </button>
-            <button type="button" class="cancel-btn close-modal">
-              <i class="fas fa-times"></i>
-              إلغاء
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-
+  <script type="module" src="supabase-client.js"></script>
   <script type="module" src="admin-script.js"></script>
 </body>
 </html>
