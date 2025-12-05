@@ -14,48 +14,64 @@ const logoutBtn = document.getElementById('logoutBtn');
 const navBtns = document.querySelectorAll('.nav-btn');
 const adminSections = document.querySelectorAll('.admin-section');
 
+function checkSession() {
+  const sessionData = localStorage.getItem('adminSession');
+  if (sessionData) {
+    try {
+      const session = JSON.parse(sessionData);
+      const expiresAt = new Date(session.expiresAt);
+
+      if (expiresAt > new Date()) {
+        currentUser = session.user;
+        showDashboard();
+        return true;
+      } else {
+        localStorage.removeItem('adminSession');
+      }
+    } catch (e) {
+      localStorage.removeItem('adminSession');
+    }
+  }
+  return false;
+}
+
+checkSession();
+
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('username').value;
   const password = document.getElementById('password').value;
 
+  loginError.style.display = 'none';
+
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password
+    const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/admin-auth`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_SUPABASE_ANON_KEY}`
+      },
+      body: JSON.stringify({ email, password })
     });
 
-    if (error) throw error;
+    const result = await response.json();
 
-    if (data.user) {
-      const { data: adminUser, error: adminError } = await supabase
-        .from('admin_users')
-        .select('*')
-        .eq('email', email)
-        .eq('is_active', true)
-        .maybeSingle();
-
-      if (adminError || !adminUser) {
-        await supabase.auth.signOut();
-        throw new Error('غير مصرح بالدخول');
-      }
-
-      currentUser = adminUser;
-      await supabase
-        .from('admin_users')
-        .update({ last_login: new Date().toISOString() })
-        .eq('id', adminUser.id);
-
-      showDashboard();
+    if (!result.success) {
+      throw new Error(result.error || 'فشل تسجيل الدخول');
     }
+
+    currentUser = result.session.user;
+    localStorage.setItem('adminSession', JSON.stringify(result.session));
+
+    showDashboard();
   } catch (error) {
     loginError.textContent = error.message;
     loginError.style.display = 'block';
   }
 });
 
-logoutBtn?.addEventListener('click', async () => {
-  await supabase.auth.signOut();
+logoutBtn?.addEventListener('click', () => {
+  localStorage.removeItem('adminSession');
   currentUser = null;
   loginScreen.classList.remove('hidden');
   adminDashboard.classList.add('hidden');
