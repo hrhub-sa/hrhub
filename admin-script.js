@@ -225,7 +225,7 @@ function switchSection(sectionName) {
   
   // Load data for the active section
   if (sectionName === 'banners') {
-    loadBanners();
+    loadPageBanners('hrhub');
   } else if (sectionName === 'main-banner') {
     loadMainBannerSettings();
     loadMainBannerImages();
@@ -236,6 +236,8 @@ function switchSection(sectionName) {
   } else if (sectionName === 'orders') {
     loadOrders();
     updateStats();
+  } else if (sectionName === 'home-services') {
+    loadHomeServices();
   }
 }
 
@@ -1440,5 +1442,415 @@ window.deleteMainBannerImage = async function(imageId) {
   } catch (error) {
     console.error('Error deleting main banner image:', error);
     showNotification('خطأ في حذف صورة البنر', 'error');
+  }
+};
+
+// ==================== HOME SERVICES MANAGEMENT ====================
+
+let currentEditingService = null;
+
+// Load home services
+async function loadHomeServices() {
+  try {
+    const result = await settingsAPI.getAllSettings();
+    let servicesData = [];
+
+    if (result.success && result.data.length > 0) {
+      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
+      if (servicesSetting && servicesSetting.setting_value) {
+        servicesData = servicesSetting.setting_value;
+      }
+    }
+
+    const homeServicesGrid = document.getElementById('homeServicesGrid');
+    const noHomeServices = document.getElementById('noHomeServices');
+
+    if (servicesData.length === 0) {
+      homeServicesGrid.style.display = 'none';
+      noHomeServices.style.display = 'block';
+    } else {
+      homeServicesGrid.style.display = 'grid';
+      noHomeServices.style.display = 'none';
+      renderHomeServices(servicesData);
+    }
+  } catch (error) {
+    console.error('Error loading home services:', error);
+    showNotification('خطأ في تحميل الخدمات', 'error');
+  }
+}
+
+// Render home services
+function renderHomeServices(services) {
+  const homeServicesGrid = document.getElementById('homeServicesGrid');
+  if (!homeServicesGrid) return;
+
+  homeServicesGrid.innerHTML = services.map((service, index) => {
+    const titleAr = service.title_ar || service.title || '';
+    const descAr = service.description_ar || service.description || '';
+
+    return `
+    <div class="service-item">
+      <div class="service-item-header">
+        <div class="service-item-icon">
+          <i class="${service.icon}"></i>
+        </div>
+        <h3 class="service-item-title">${titleAr}</h3>
+      </div>
+      <p class="service-item-description">${descAr}</p>
+      <div class="service-item-link">
+        <i class="fas fa-link"></i>
+        <span>${service.link}</span>
+      </div>
+      <div class="service-item-actions">
+        <button class="edit-btn" onclick="editHomeService(${index})">
+          <i class="fas fa-edit"></i>
+          تعديل
+        </button>
+        <button class="delete-btn" onclick="deleteHomeService(${index})">
+          <i class="fas fa-trash"></i>
+          حذف
+        </button>
+      </div>
+    </div>
+  `}).join('');
+}
+
+// Add home service button
+const addHomeServiceBtn = document.getElementById('addHomeServiceBtn');
+if (addHomeServiceBtn) {
+  addHomeServiceBtn.addEventListener('click', () => {
+    currentEditingService = null;
+    document.getElementById('homeServiceModalTitle').textContent = 'إضافة خدمة';
+    document.getElementById('homeServiceForm').reset();
+    showModal('homeServiceModal');
+  });
+}
+
+// Edit home service
+window.editHomeService = async function(index) {
+  try {
+    const result = await settingsAPI.getAllSettings();
+    if (result.success && result.data.length > 0) {
+      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
+      if (servicesSetting && servicesSetting.setting_value) {
+        const service = servicesSetting.setting_value[index];
+        currentEditingService = index;
+
+        document.getElementById('serviceTitleAr').value = service.title_ar || service.title || '';
+        document.getElementById('serviceTitleEn').value = service.title_en || '';
+        document.getElementById('serviceDescriptionAr').value = service.description_ar || service.description || '';
+        document.getElementById('serviceDescriptionEn').value = service.description_en || '';
+        document.getElementById('serviceIcon').value = service.icon || 'fas fa-users';
+        document.getElementById('serviceLink').value = service.link || '';
+
+        document.getElementById('homeServiceModalTitle').textContent = 'تعديل خدمة';
+        showModal('homeServiceModal');
+      }
+    }
+  } catch (error) {
+    console.error('Error loading service for edit:', error);
+    showNotification('خطأ في تحميل بيانات الخدمة', 'error');
+  }
+};
+
+// Save home service
+const homeServiceForm = document.getElementById('homeServiceForm');
+if (homeServiceForm) {
+  homeServiceForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const serviceData = {
+      title_ar: document.getElementById('serviceTitleAr').value,
+      title_en: document.getElementById('serviceTitleEn').value,
+      description_ar: document.getElementById('serviceDescriptionAr').value,
+      description_en: document.getElementById('serviceDescriptionEn').value,
+      icon: document.getElementById('serviceIcon').value,
+      link: document.getElementById('serviceLink').value
+    };
+
+    try {
+      const result = await settingsAPI.getAllSettings();
+      let servicesData = [];
+
+      if (result.success && result.data.length > 0) {
+        const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
+        if (servicesSetting && servicesSetting.setting_value) {
+          servicesData = servicesSetting.setting_value;
+        }
+      }
+
+      if (currentEditingService !== null) {
+        servicesData[currentEditingService] = serviceData;
+      } else {
+        servicesData.push(serviceData);
+      }
+
+      const saveResult = await settingsAPI.saveSetting('home_services', servicesData);
+
+      if (saveResult.success) {
+        showNotification('تم حفظ الخدمة بنجاح', 'success');
+        hideModal('homeServiceModal');
+        loadHomeServices();
+      } else {
+        showNotification('خطأ في حفظ الخدمة: ' + saveResult.error, 'error');
+      }
+    } catch (error) {
+      console.error('Error saving service:', error);
+      showNotification('خطأ في حفظ الخدمة', 'error');
+    }
+  });
+}
+
+// Delete home service
+window.deleteHomeService = async function(index) {
+  if (!confirm('هل أنت متأكد من حذف هذه الخدمة؟')) {
+    return;
+  }
+
+  try {
+    const result = await settingsAPI.getAllSettings();
+    if (result.success && result.data.length > 0) {
+      const servicesSetting = result.data.find(setting => setting.setting_key === 'home_services');
+      if (servicesSetting && servicesSetting.setting_value) {
+        const servicesData = servicesSetting.setting_value;
+        servicesData.splice(index, 1);
+
+        const saveResult = await settingsAPI.saveSetting('home_services', servicesData);
+
+        if (saveResult.success) {
+          showNotification('تم حذف الخدمة بنجاح', 'success');
+          loadHomeServices();
+        } else {
+          showNotification('خطأ في حذف الخدمة: ' + saveResult.error, 'error');
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error deleting service:', error);
+    showNotification('خطأ في حذف الخدمة', 'error');
+  }
+};
+
+// ==================== PAGE BANNERS MANAGEMENT ====================
+
+let currentEditingBanner = null;
+let currentBannerPage = 'hrhub';
+
+// Load page banners
+async function loadPageBanners(page) {
+  try {
+    const result = await settingsAPI.getAllSettings();
+    let bannersData = [];
+
+    if (result.success && result.data.length > 0) {
+      const settingKey = page + '_banners';
+      const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
+      if (bannersSetting && bannersSetting.setting_value) {
+        bannersData = bannersSetting.setting_value;
+      }
+    }
+
+    const bannersGrid = document.getElementById(page + 'BannersGrid');
+    const capitalizedPage = page.charAt(0).toUpperCase() + page.slice(1);
+    const noBanners = document.getElementById('no' + capitalizedPage + 'Banners');
+
+    if (bannersData.length === 0) {
+      bannersGrid.style.display = 'none';
+      noBanners.style.display = 'block';
+    } else {
+      bannersGrid.style.display = 'grid';
+      noBanners.style.display = 'none';
+      renderPageBanners(bannersData, page);
+    }
+  } catch (error) {
+    console.error('Error loading banners:', error);
+    showNotification('خطأ في تحميل البنرات', 'error');
+  }
+}
+
+// Render page banners
+function renderPageBanners(banners, page) {
+  const bannersGrid = document.getElementById(page + 'BannersGrid');
+  if (!bannersGrid) return;
+
+  bannersGrid.innerHTML = banners.map((banner, index) => {
+    const title = banner.title || '';
+    const altText = banner.alt_text || banner.title || '';
+    const order = banner.display_order || 0;
+
+    return `
+    <div class="banner-item">
+      <img src="${banner.image_url}" alt="${altText}" class="banner-item-image">
+      <h4 class="banner-item-title">${title}</h4>
+      <p class="banner-item-order">ترتيب العرض: ${order}</p>
+      <div class="banner-item-actions">
+        <button class="edit-btn" onclick="editPageBanner('${page}', ${index})">
+          <i class="fas fa-edit"></i>
+          تعديل
+        </button>
+        <button class="delete-btn" onclick="deletePageBanner('${page}', ${index})">
+          <i class="fas fa-trash"></i>
+          حذف
+        </button>
+      </div>
+    </div>
+  `}).join('');
+}
+
+// Banner tabs switching
+const bannerTabBtns = document.querySelectorAll('.banner-tab-btn');
+bannerTabBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const page = btn.dataset.page;
+
+    // Update active tab button
+    bannerTabBtns.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    // Update active tab content
+    document.querySelectorAll('.banner-tab-content').forEach(content => {
+      content.classList.remove('active');
+    });
+    document.getElementById(page + 'BannersTab').classList.add('active');
+
+    // Load banners for selected page
+    currentBannerPage = page;
+    loadPageBanners(page);
+  });
+});
+
+// Add banner buttons
+const addHrhubBannerBtn = document.getElementById('addHrhubBannerBtn');
+if (addHrhubBannerBtn) {
+  addHrhubBannerBtn.addEventListener('click', () => {
+    currentEditingBanner = null;
+    currentBannerPage = 'hrhub';
+    document.getElementById('bannerModalTitle').textContent = 'إضافة بنر - إدارة الأعمال';
+    document.getElementById('bannerForm').reset();
+    document.getElementById('bannerPage').value = 'hrhub';
+    showModal('bannerModal');
+  });
+}
+
+const addWebhubBannerBtn = document.getElementById('addWebhubBannerBtn');
+if (addWebhubBannerBtn) {
+  addWebhubBannerBtn.addEventListener('click', () => {
+    currentEditingBanner = null;
+    currentBannerPage = 'webhub';
+    document.getElementById('bannerModalTitle').textContent = 'إضافة بنر - تطوير الأعمال';
+    document.getElementById('bannerForm').reset();
+    document.getElementById('bannerPage').value = 'webhub';
+    showModal('bannerModal');
+  });
+}
+
+// Edit page banner
+window.editPageBanner = async function(page, index) {
+  try {
+    const result = await settingsAPI.getAllSettings();
+    if (result.success && result.data.length > 0) {
+      const settingKey = page + '_banners';
+      const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
+      if (bannersSetting && bannersSetting.setting_value) {
+        const banner = bannersSetting.setting_value[index];
+        currentEditingBanner = index;
+        currentBannerPage = page;
+
+        document.getElementById('bannerTitle').value = banner.title || '';
+        document.getElementById('bannerImageUrl').value = banner.image_url || '';
+        document.getElementById('bannerAltText').value = banner.alt_text || '';
+        document.getElementById('bannerLinkUrl').value = banner.link_url || '';
+        document.getElementById('bannerOrder').value = banner.display_order || 0;
+        document.getElementById('bannerPage').value = page;
+
+        const pageTitle = page === 'hrhub' ? 'إدارة الأعمال' : 'تطوير الأعمال';
+        document.getElementById('bannerModalTitle').textContent = 'تعديل بنر - ' + pageTitle;
+        showModal('bannerModal');
+      }
+    }
+  } catch (error) {
+    console.error('Error loading banner for edit:', error);
+    showNotification('خطأ في تحميل بيانات البنر', 'error');
+  }
+};
+
+// Save page banner
+const bannerForm = document.getElementById('bannerForm');
+if (bannerForm) {
+  bannerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const page = document.getElementById('bannerPage').value;
+    const bannerData = {
+      title: document.getElementById('bannerTitle').value,
+      image_url: document.getElementById('bannerImageUrl').value,
+      alt_text: document.getElementById('bannerAltText').value,
+      link_url: document.getElementById('bannerLinkUrl').value,
+      display_order: parseInt(document.getElementById('bannerOrder').value) || 0
+    };
+
+    try {
+      const result = await settingsAPI.getAllSettings();
+      let bannersData = [];
+
+      if (result.success && result.data.length > 0) {
+        const settingKey = page + '_banners';
+        const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
+        if (bannersSetting && bannersSetting.setting_value) {
+          bannersData = bannersSetting.setting_value;
+        }
+      }
+
+      if (currentEditingBanner !== null) {
+        bannersData[currentEditingBanner] = bannerData;
+      } else {
+        bannersData.push(bannerData);
+      }
+
+      const settingKey = page + '_banners';
+      const saveResult = await settingsAPI.saveSetting(settingKey, bannersData);
+
+      if (saveResult.success) {
+        showNotification('تم حفظ البنر بنجاح', 'success');
+        hideModal('bannerModal');
+        loadPageBanners(page);
+      } else {
+        showNotification('خطأ في حفظ البنر: ' + saveResult.error, 'error');
+      }
+    } catch (error) {
+      console.error('Error saving banner:', error);
+      showNotification('خطأ في حفظ البنر', 'error');
+    }
+  });
+}
+
+// Delete page banner
+window.deletePageBanner = async function(page, index) {
+  if (!confirm('هل أنت متأكد من حذف هذا البنر؟')) {
+    return;
+  }
+
+  try {
+    const result = await settingsAPI.getAllSettings();
+    if (result.success && result.data.length > 0) {
+      const settingKey = page + '_banners';
+      const bannersSetting = result.data.find(setting => setting.setting_key === settingKey);
+      if (bannersSetting && bannersSetting.setting_value) {
+        const bannersData = bannersSetting.setting_value;
+        bannersData.splice(index, 1);
+
+        const saveResult = await settingsAPI.saveSetting(settingKey, bannersData);
+
+        if (saveResult.success) {
+          showNotification('تم حذف البنر بنجاح', 'success');
+          loadPageBanners(page);
+        } else {
+          showNotification('خطأ في حذف البنر: ' + saveResult.error, 'error');
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error deleting banner:', error);
+    showNotification('خطأ في حذف البنر', 'error');
   }
 };
