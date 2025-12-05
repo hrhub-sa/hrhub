@@ -14,24 +14,20 @@ const logoutBtn = document.getElementById('logoutBtn');
 const navBtns = document.querySelectorAll('.nav-btn');
 const adminSections = document.querySelectorAll('.admin-section');
 
-function checkSession() {
-  const sessionData = localStorage.getItem('adminSession');
-  if (sessionData) {
-    try {
-      const session = JSON.parse(sessionData);
-      const expiresAt = new Date(session.expiresAt);
+async function checkSession() {
+  const { data: { session } } = await supabase.auth.getSession();
 
-      if (expiresAt > new Date()) {
-        currentUser = session.user;
-        showDashboard();
-        return true;
-      } else {
-        localStorage.removeItem('adminSession');
-      }
-    } catch (e) {
-      localStorage.removeItem('adminSession');
-    }
+  if (session?.user?.app_metadata?.role === 'admin') {
+    currentUser = {
+      id: session.user.id,
+      email: session.user.email,
+      full_name: session.user.user_metadata?.full_name || 'مدير النظام',
+      role: session.user.app_metadata.role
+    };
+    showDashboard();
+    return true;
   }
+
   return false;
 }
 
@@ -45,32 +41,40 @@ loginForm.addEventListener('submit', async (e) => {
   loginError.style.display = 'none';
 
   try {
-    const response = await fetch(`${supabaseUrl}/functions/v1/admin-auth`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${supabaseAnonKey}`
-      },
-      body: JSON.stringify({ email, password })
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
     });
 
-    const result = await response.json();
+    if (error) throw error;
 
-    if (!result.success) {
-      throw new Error(result.error || 'فشل تسجيل الدخول');
+    if (!data.user?.app_metadata?.role || data.user.app_metadata.role !== 'admin') {
+      await supabase.auth.signOut();
+      throw new Error('غير مصرح لك بالدخول');
     }
 
-    currentUser = result.session.user;
-    localStorage.setItem('adminSession', JSON.stringify(result.session));
+    currentUser = {
+      id: data.user.id,
+      email: data.user.email,
+      full_name: data.user.user_metadata?.full_name || 'مدير النظام',
+      role: data.user.app_metadata.role
+    };
 
+    const sessionData = {
+      user: currentUser,
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
+    };
+
+    localStorage.setItem('adminSession', JSON.stringify(sessionData));
     showDashboard();
   } catch (error) {
-    loginError.textContent = error.message;
+    loginError.textContent = error.message || 'فشل تسجيل الدخول';
     loginError.style.display = 'block';
   }
 });
 
-logoutBtn?.addEventListener('click', () => {
+logoutBtn?.addEventListener('click', async () => {
+  await supabase.auth.signOut();
   localStorage.removeItem('adminSession');
   currentUser = null;
   loginScreen.classList.remove('hidden');
@@ -806,5 +810,13 @@ supabase.auth.onAuthStateChange((event, session) => {
     currentUser = null;
     loginScreen.classList.remove('hidden');
     adminDashboard.classList.add('hidden');
+  } else if (event === 'SIGNED_IN' && session?.user?.app_metadata?.role === 'admin') {
+    currentUser = {
+      id: session.user.id,
+      email: session.user.email,
+      full_name: session.user.user_metadata?.full_name || 'مدير النظام',
+      role: session.user.app_metadata.role
+    };
+    showDashboard();
   }
 });
