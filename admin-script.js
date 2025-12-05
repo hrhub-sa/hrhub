@@ -592,7 +592,7 @@ document.getElementById('productForm')?.addEventListener('submit', async (e) => 
     .filter(val => val);
 
   const productData = {
-    hub_type: document.getElementById('productHub').value,
+    hub_type: currentHub,
     name_ar: document.getElementById('productNameAr').value,
     name_en: document.getElementById('productNameEn').value,
     description_ar: document.getElementById('productDescriptionAr').value,
