@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Web Hub - Business Development</title>
+  <link rel="icon" type="image/png" href="new-logo.png">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+  <link rel="stylesheet" href="web-hub-styles-en.css" />
+</head>
+<body>
+  <!-- Background -->
+  <div class="background-container">
+    <div class="bg-pattern"></div>
+    <div class="bg-grid"></div>
+  </div>
+
+  <!-- Header -->
+  <header class="page-header">
+    <div class="container">
+      <a href="index-en.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Home
+      </a>
+      <div class="header-content">
+        <img src="new-logo.png" alt="Web Hub Logo" class="page-logo">
+        <h1 class="page-title">Business Development</h1>
+        <p class="page-subtitle">Advanced technical solutions for developing your digital business</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Products Section -->
+  <section class="products-section">
+    <div class="container">
+      <h2 class="section-title">Our Products & Services</h2>
+      <div class="products-grid" id="productsGrid">
+        <!-- Products will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Interest Form -->
+  <section class="interest-section">
+    <div class="container">
+      <div class="interest-form-container">
+        <h2>Express Your Interest</h2>
+        <form id="interestForm" class="interest-form">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" name="name" required>
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" name="phone" required>
+          </div>
+          <div class="form-group">
+            <label>Product of Interest</label>
+            <select name="product" required id="productSelect">
+              <option value="">Select Product</option>
+              <!-- Options will be loaded dynamically -->
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Additional Message</label>
+            <textarea name="message" rows="4"></textarea>
+          </div>
+          <button type="submit" class="submit-btn">
+            <i class="fas fa-paper-plane"></i>
+            Send Interest
+          </button>
+        </form>
+        <div id="formMessage" class="form-message"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section class="contact-section">
+    <div class="container">
+      <div class="contact-info" id="contactInfo">
+        <!-- Contact info will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Language Switch -->
+  <a href="web-hub.html" class="lang-switch">
+    <img src="https://flagcdn.com/w20/sa.png" alt="Arabic" class="flag-icon">
+    AR
+  </a>
+
+  <!-- WhatsApp Float -->
+  <a href="#" class="whatsapp-float" id="whatsappFloat">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+
+  <script type="module" src="web-hub-script-en.js"></script>
+</body>
+</html>
