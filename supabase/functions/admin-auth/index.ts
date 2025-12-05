@@ -71,7 +71,10 @@ Deno.serve(async (req: Request) => {
     }
 
     console.log("User found, comparing passwords");
-    const passwordMatch = bcrypt.compareSync(password, adminUser.password_hash);
+    console.log("Input password:", password);
+    console.log("Stored hash:", adminUser.password_hash);
+
+    const passwordMatch = await bcrypt.compare(password, adminUser.password_hash);
     console.log("Password match result:", passwordMatch);
 
     if (!passwordMatch) {
