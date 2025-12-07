@@ -99,9 +99,9 @@ async function loadPackages() {
 
 // Render products
 function renderProducts(products) {
-  if (!productsGrid) return;
+  if (!packagesGrid) return;
 
-  productsGrid.innerHTML = products.map(product => {
+  packagesGrid.innerHTML = products.map(product => {
     const name = product.name_ar || product.name || 'منتج';
     const description = product.description_ar || product.description || '';
     const duration = product.duration_ar || product.duration || '';
@@ -146,9 +146,9 @@ function renderProducts(products) {
 
 // Show empty products message
 function showEmptyProducts() {
-  if (!productsGrid) return;
+  if (!packagesGrid) return;
 
-  productsGrid.innerHTML = `
+  packagesGrid.innerHTML = `
     <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
       <i class="fas fa-box-open" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
       <p style="color: #999; font-size: 1.2rem;">لا توجد منتجات متاحة حالياً</p>
