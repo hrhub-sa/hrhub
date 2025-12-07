@@ -7,6 +7,7 @@ const contactInfo = document.getElementById('contactInfo');
 const whatsappFloat = document.getElementById('whatsappFloat');
 const interestForm = document.getElementById('interestForm');
 const formMessage = document.getElementById('formMessage');
+const productSelect = document.getElementById('productSelect');
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
