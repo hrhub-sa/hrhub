@@ -776,7 +776,7 @@ body {
 .product-name {
   font-size: 1.4rem;
   font-weight: 700;
-  color: var(--text-light);
+  color: #1a1a1a;
   margin-bottom: 0.25rem;
 }
 
