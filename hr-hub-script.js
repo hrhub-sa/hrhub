@@ -83,7 +83,7 @@ function loadDefaultAboutContent() {
 // Load packages
 async function loadPackages() {
   try {
-    const result = await productsAPI.getAllProducts();
+    const result = await productsAPI.getAllProducts('hrhub');
 
     if (result.success && result.data.length > 0) {
       renderProducts(result.data);
