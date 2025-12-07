@@ -7,6 +7,7 @@ const contactInfo = document.getElementById('contactInfo');
 const whatsappFloat = document.getElementById('whatsappFloat');
 const interestForm = document.getElementById('interestForm');
 const formMessage = document.getElementById('formMessage');
+const productSelect = document.getElementById('productSelect');
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
@@ -19,30 +20,9 @@ document.addEventListener('DOMContentLoaded', () => {
 // Load about content
 async function loadAboutContent() {
   try {
-    const result = await settingsAPI.getAllSettings();
-    let aboutData = {};
-    
-    if (result.success && result.data.length > 0) {
-      const aboutSetting = result.data.find(setting => setting.setting_key === 'hr_hub_about');
-      if (aboutSetting && aboutSetting.setting_value) {
-        aboutData = aboutSetting.setting_value;
-      }
-    }
-    
-    // Default about content
-    const defaultAbout = {
-      title: 'عن إدارة الأعمال',
-      description: 'نحن متخصصون في تقديم حلول شاملة لإدارة الموارد البشرية والشؤون الحكومية. نساعد الشركات والمؤسسات في تطوير أنظمة إدارة الموظفين والتعامل مع الجهات الحكومية بكفاءة عالية.',
-      features: [
-        'إدارة الموظفين والمواهب',
-        'الشؤون الحكومية والتراخيص',
-        'المنصات الرسمية والحكومية',
-        'الاستشارات الإدارية'
-      ]
-    };
-    
-    const about = { ...defaultAbout, ...aboutData };
-    renderAboutContent(about);
+    // For English version, always use default English content
+    // Database content is in Arabic, so we use translated defaults
+    loadDefaultAboutContent();
   } catch (error) {
     console.error('Error loading about content:', error);
     loadDefaultAboutContent();
@@ -67,13 +47,13 @@ function renderAboutContent(about) {
 // Load default about content
 function loadDefaultAboutContent() {
   const defaultAbout = {
-    title: 'عن إدارة الأعمال',
-    description: 'نحن متخصصون في تقديم حلول شاملة لإدارة الموارد البشرية والشؤون الحكومية. نساعد الشركات والمؤسسات في تطوير أنظمة إدارة الموظفين والتعامل مع الجهات الحكومية بكفاءة عالية.',
+    title: 'About Business Management',
+    description: 'We specialize in providing comprehensive solutions for human resources management and government affairs. We help companies and institutions develop employee management systems and deal with government entities with high efficiency.',
     features: [
-      'إدارة الموظفين والمواهب',
-      'الشؤون الحكومية والتراخيص',
-      'المنصات الرسمية والحكومية',
-      'الاستشارات الإدارية'
+      'Employee & Talent Management',
+      'Government Affairs & Licensing',
+      'Official & Government Platforms',
+      'Administrative Consultations'
     ]
   };
   
@@ -102,16 +82,16 @@ function renderProducts(products) {
   if (!packagesGrid) return;
 
   packagesGrid.innerHTML = products.map(product => {
-    const name = product.name_ar || product.name || 'منتج';
-    const description = product.description_ar || product.description || '';
-    const duration = product.duration_ar || product.duration || '';
-    const features = product.features_ar || product.features || [];
+    const name = product.name_en || product.name || 'Product';
+    const description = product.description_en || product.description || '';
+    const duration = product.duration_en || product.duration || '';
+    const features = product.features_en || product.features || [];
     const priceHTML = product.price_before ?
       `<div class="product-price">
-        <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-left: 0.5rem;">${product.price_before} ريال</span>
-        <span style="color: #ff6b35; font-weight: 700; font-size: 1.2em;">${product.price} ريال</span>
+        <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 0.5rem;">${product.price_before} SAR</span>
+        <span style="color: #ff6b35; font-weight: 700; font-size: 1.2em;">${product.price} SAR</span>
       </div>` :
-      `<div class="product-price">${product.price} ريال</div>`;
+      `<div class="product-price">${product.price} SAR</div>`;
 
     return `
     <div class="product-card">
@@ -138,7 +118,7 @@ function renderProducts(products) {
       ` : ''}
       <button class="product-btn" onclick="selectPackage('${product.id}', '${name}')">
         <i class="fas fa-shopping-cart"></i>
-        اطلب الآن
+        Order Now
       </button>
     </div>
   `}).join('');
@@ -151,12 +131,12 @@ function showEmptyProducts() {
   packagesGrid.innerHTML = `
     <div style="grid-column: 1/-1; text-align: center; padding: 3rem;">
       <i class="fas fa-box-open" style="font-size: 4rem; color: #666; margin-bottom: 1rem;"></i>
-      <p style="color: #999; font-size: 1.2rem;">لا توجد منتجات متاحة حالياً</p>
+      <p style="color: #999; font-size: 1.2rem;">No products available at this time</p>
     </div>
   `;
 
   if (productSelect) {
-    productSelect.innerHTML = '<option value="">اختر المنتج</option>';
+    productSelect.innerHTML = '<option value="">Select Product</option>';
   }
 }
 
@@ -164,10 +144,10 @@ function showEmptyProducts() {
 function populateProductSelect(products) {
   if (!productSelect) return;
 
-  productSelect.innerHTML = '<option value="">اختر المنتج</option>';
+  productSelect.innerHTML = '<option value="">Select Product</option>';
 
   products.forEach(product => {
-    const name = product.name_ar || product.name || 'منتج';
+    const name = product.name_en || product.name || 'Product';
     const option = document.createElement('option');
     option.value = product.id;
     option.textContent = name;
@@ -207,7 +187,7 @@ async function loadContactInfo() {
       whatsappNumber: '+966530017278',
       phoneNumber: '+966542345930',
       emailAddress: 'hrhub.sa@gmail.com',
-      address: 'المدينة المنورة، السعودية'
+      address: 'Medina, Saudi Arabia'
     };
     
     const contact = { ...defaultContact, ...contactData };
@@ -229,28 +209,28 @@ function renderContactInfo(contact) {
       <div class="contact-icon">
         <i class="fab fa-whatsapp"></i>
       </div>
-      <h4>واتساب</h4>
+      <h4>WhatsApp</h4>
       <p><a href="https://wa.me/${contact.whatsappNumber.replace(/[^0-9]/g, '')}">${contact.whatsappNumber}</a></p>
     </div>
     <div class="contact-item">
       <div class="contact-icon">
         <i class="fas fa-phone"></i>
       </div>
-      <h4>الهاتف</h4>
+      <h4>Phone</h4>
       <p><a href="tel:${contact.phoneNumber}">${contact.phoneNumber}</a></p>
     </div>
     <div class="contact-item">
       <div class="contact-icon">
         <i class="fas fa-envelope"></i>
       </div>
-      <h4>البريد الإلكتروني</h4>
+      <h4>Email</h4>
       <p><a href="mailto:${contact.emailAddress}">${contact.emailAddress}</a></p>
     </div>
     <div class="contact-item">
       <div class="contact-icon">
         <i class="fas fa-map-marker-alt"></i>
       </div>
-      <h4>العنوان</h4>
+      <h4>Address</h4>
       <p>${contact.address}</p>
     </div>
   `;
@@ -262,7 +242,7 @@ function loadDefaultContactInfo() {
     whatsappNumber: '+966530017278',
     phoneNumber: '+966542345930',
     emailAddress: 'hrhub.sa@gmail.com',
-    address: 'المدينة المنورة، السعودية'
+    address: 'Medina, Saudi Arabia'
   };
   
   renderContactInfo(defaultContact);
@@ -293,7 +273,7 @@ async function handleInterestSubmit(e) {
     name: formData.get('name'),
     email: formData.get('email'),
     phone: formData.get('phone'),
-    message: formData.get('message') || 'طلب اهتمام بباقة HR Hub',
+    message: formData.get('message') || 'Interest in HR Hub package',
     hub: 'hrhub'
   };
   
@@ -301,30 +281,30 @@ async function handleInterestSubmit(e) {
   const selectedPackage = formData.get('package');
   if (selectedPackage) {
     const packageNames = {
-      'economy': 'الباقة الاقتصادية',
-      'comprehensive': 'الباقة الشاملة'
+      'economy': 'Economy Package',
+      'comprehensive': 'Comprehensive Package'
     };
-    orderData.message = `اهتمام بـ ${packageNames[selectedPackage] || selectedPackage}. ${orderData.message}`;
+    orderData.message = `Interest in ${packageNames[selectedPackage] || selectedPackage}. ${orderData.message}`;
   }
   
   // Disable submit button
   const submitBtn = interestForm.querySelector('.submit-btn');
   const originalText = submitBtn.innerHTML;
   submitBtn.disabled = true;
-  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الإرسال...';
+  submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
   
   try {
     const result = await ordersAPI.createOrder(orderData);
     
     if (result.success) {
-      showFormMessage('تم إرسال طلب الاهتمام بنجاح! سنتواصل معك قريباً.', 'success');
+      showFormMessage('Interest submitted successfully! We will contact you soon.', 'success');
       interestForm.reset();
     } else {
-      throw new Error('فشل في إرسال الطلب');
+      throw new Error('Failed to submit interest');
     }
   } catch (error) {
     console.error('Error submitting interest:', error);
-    showFormMessage('حدث خطأ في إرسال الطلب. يرجى المحاولة مرة أخرى.', 'error');
+    showFormMessage('An error occurred while submitting. Please try again.', 'error');
   } finally {
     // Re-enable submit button
     submitBtn.disabled = false;
