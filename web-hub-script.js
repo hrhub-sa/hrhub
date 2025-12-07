@@ -160,7 +160,7 @@ function loadDefaultServices() {
 // Load products
 async function loadProducts() {
   try {
-    const result = await productsAPI.getAllProducts();
+    const result = await productsAPI.getAllProducts('webhub');
 
     if (result.success && result.data.length > 0) {
       renderProducts(result.data);
