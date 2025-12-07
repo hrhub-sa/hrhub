@@ -440,19 +440,24 @@ export const settingsAPI = {
 // Products API functions
 export const productsAPI = {
   // جلب جميع المنتجات
-  async getAllProducts(includeHidden = false) {
+  async getAllProducts(hubType = null, includeHidden = false) {
     if (isSupabaseAvailable()) {
       try {
         let query = supabase
           .from('products')
           .select('*')
           .order('display_order', { ascending: true });
-        
+
+        // فلتر حسب نوع Hub
+        if (hubType) {
+          query = query.eq('hub_type', hubType);
+        }
+
         // إذا لم نطلب المخفية، فلتر فقط الظاهرة
         if (!includeHidden) {
           query = query.eq('is_active', true);
         }
-        
+
         const { data, error } = await query;
         
         if (error) throw error;
