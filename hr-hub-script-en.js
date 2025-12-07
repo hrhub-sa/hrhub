@@ -1,4 +1,4 @@
-import { settingsAPI, ordersAPI } from './supabase-client.js';
+import { settingsAPI, ordersAPI, productsAPI } from './supabase-client.js';
 
 // DOM Elements
 const aboutContent = document.getElementById('aboutContent');
