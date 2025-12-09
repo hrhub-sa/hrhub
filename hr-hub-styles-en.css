@@ -89,10 +89,29 @@ body {
   position: relative;
 }
 
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
 .back-btn {
-  position: absolute;
-  top: 2rem;
-  left: 2rem;
+  background: rgba(255,255,255,0.2);
+  color: var(--text-light);
+  padding: 0.75rem 1.5rem;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.lang-switch-header {
   background: rgba(255,255,255,0.2);
   color: var(--text-light);
   padding: 0.75rem 1.5rem;
@@ -108,6 +127,11 @@ body {
 }
 
 .back-btn:hover {
+  background: rgba(255,255,255,0.3);
+  transform: translateY(-2px);
+}
+
+.lang-switch-header:hover {
   background: rgba(255,255,255,0.3);
   transform: translateY(-2px);
 }
@@ -593,17 +617,23 @@ body {
   .container {
     padding: 0 1rem;
   }
-  
-  .back-btn {
-    position: static;
-    margin-bottom: 2rem;
-    align-self: flex-start;
+
+  .header-top {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
   }
-  
+
+  .back-btn,
+  .lang-switch-header {
+    justify-content: center;
+    width: 100%;
+  }
+
   .page-header {
     padding: 2rem 0;
   }
-  
+
   .header-content {
     padding: 2rem;
   }
