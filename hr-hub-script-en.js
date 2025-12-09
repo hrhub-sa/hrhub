@@ -323,3 +323,71 @@ function showFormMessage(message, type) {
     formMessage.classList.remove('show');
   }, 5000);
 }
+// Load social media
+async function loadSocialMedia() {
+  const footerSocial = document.getElementById('footerSocial');
+  if (!footerSocial) return;
+
+  try {
+    const { settingsAPI } = await import('./supabase-client.js');
+    const result = await settingsAPI.getAllSettings();
+    let socialData = {};
+
+    if (result.success && result.data.length > 0) {
+      const socialSetting = result.data.find(setting => setting.setting_key === 'social_media');
+      if (socialSetting && socialSetting.setting_value) {
+        socialData = socialSetting.setting_value;
+      }
+    }
+
+    renderSocialMedia(socialData, footerSocial);
+  } catch (error) {
+    console.error('Error loading social media:', error);
+  }
+}
+
+// Render social media
+function renderSocialMedia(social, footerSocial) {
+  if (!footerSocial) return;
+
+  const socialLinks = [];
+
+  if (social.instagramUrl) {
+    socialLinks.push(`
+      <a href="${social.instagramUrl}" target="_blank" rel="noopener noreferrer" class="social-link instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+    `);
+  }
+
+  if (social.twitterUrl) {
+    socialLinks.push(`
+      <a href="${social.twitterUrl}" target="_blank" rel="noopener noreferrer" class="social-link twitter">
+        <i class="fab fa-x-twitter"></i>
+      </a>
+    `);
+  }
+
+  if (social.linkedinUrl) {
+    socialLinks.push(`
+      <a href="${social.linkedinUrl}" target="_blank" rel="noopener noreferrer" class="social-link linkedin">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    `);
+  }
+
+  if (social.facebookUrl) {
+    socialLinks.push(`
+      <a href="${social.facebookUrl}" target="_blank" rel="noopener noreferrer" class="social-link facebook">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    `);
+  }
+
+  footerSocial.innerHTML = socialLinks.join('');
+}
+
+// Initialize social media on page load
+document.addEventListener('DOMContentLoaded', () => {
+  loadSocialMedia();
+});

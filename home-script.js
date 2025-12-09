@@ -4,11 +4,13 @@ import { settingsAPI } from './supabase-client.js';
 const servicesGrid = document.getElementById('servicesGrid');
 const contactInfo = document.getElementById('contactInfo');
 const whatsappFloat = document.getElementById('whatsappFloat');
+const footerSocial = document.getElementById('footerSocial');
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
   loadServices();
   loadContactInfo();
+  loadSocialMedia();
 });
 
 // Load services
@@ -162,4 +164,64 @@ function updateWhatsAppLink(phoneNumber) {
     const cleanNumber = phoneNumber.replace(/[^0-9]/g, '');
     whatsappFloat.href = `https://wa.me/${cleanNumber}`;
   }
+}
+
+// Load social media
+async function loadSocialMedia() {
+  try {
+    const result = await settingsAPI.getAllSettings();
+    let socialData = {};
+
+    if (result.success && result.data.length > 0) {
+      const socialSetting = result.data.find(setting => setting.setting_key === 'social_media');
+      if (socialSetting && socialSetting.setting_value) {
+        socialData = socialSetting.setting_value;
+      }
+    }
+
+    renderSocialMedia(socialData);
+  } catch (error) {
+    console.error('Error loading social media:', error);
+  }
+}
+
+// Render social media
+function renderSocialMedia(social) {
+  if (!footerSocial) return;
+
+  const socialLinks = [];
+
+  if (social.instagramUrl) {
+    socialLinks.push(`
+      <a href="${social.instagramUrl}" target="_blank" rel="noopener noreferrer" class="social-link instagram">
+        <i class="fab fa-instagram"></i>
+      </a>
+    `);
+  }
+
+  if (social.twitterUrl) {
+    socialLinks.push(`
+      <a href="${social.twitterUrl}" target="_blank" rel="noopener noreferrer" class="social-link twitter">
+        <i class="fab fa-x-twitter"></i>
+      </a>
+    `);
+  }
+
+  if (social.linkedinUrl) {
+    socialLinks.push(`
+      <a href="${social.linkedinUrl}" target="_blank" rel="noopener noreferrer" class="social-link linkedin">
+        <i class="fab fa-linkedin-in"></i>
+      </a>
+    `);
+  }
+
+  if (social.facebookUrl) {
+    socialLinks.push(`
+      <a href="${social.facebookUrl}" target="_blank" rel="noopener noreferrer" class="social-link facebook">
+        <i class="fab fa-facebook-f"></i>
+      </a>
+    `);
+  }
+
+  footerSocial.innerHTML = socialLinks.join('');
 }
