@@ -262,21 +262,21 @@ async function loadContactInfo() {
 // Render contact info
 function renderContactInfo(contact) {
   if (!contactInfo) return;
-  
+
   contactInfo.innerHTML = `
     <div class="contact-item">
       <div class="contact-icon">
         <i class="fab fa-whatsapp"></i>
       </div>
-      <h4>WhatsApp</h4>
+      <h4>HR Management Support</h4>
       <p><a href="https://wa.me/${contact.whatsappNumber.replace(/[^0-9]/g, '')}">${contact.whatsappNumber}</a></p>
     </div>
     <div class="contact-item">
       <div class="contact-icon">
-        <i class="fas fa-phone"></i>
+        <i class="fab fa-whatsapp"></i>
       </div>
-      <h4>Phone</h4>
-      <p><a href="tel:${contact.phoneNumber}">${contact.phoneNumber}</a></p>
+      <h4>Business Development Support</h4>
+      <p><a href="https://wa.me/${contact.phoneNumber.replace(/[^0-9]/g, '')}">${contact.phoneNumber}</a></p>
     </div>
     <div class="contact-item">
       <div class="contact-icon">
