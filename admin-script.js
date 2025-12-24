@@ -679,7 +679,8 @@ async function loadHomepageSettings() {
     const socialMedia = settings.social_media || {};
     document.getElementById('instagramUrl').value = socialMedia.instagramUrl || '';
     document.getElementById('twitterUrl').value = socialMedia.twitterUrl || '';
-    document.getElementById('linkedinUrl').value = socialMedia.linkedinUrl || '';
+    document.getElementById('tiktokUrl').value = socialMedia.tiktokUrl || '';
+    document.getElementById('snapchatUrl').value = socialMedia.snapchatUrl || '';
     document.getElementById('facebookUrl').value = socialMedia.facebookUrl || '';
 
     const siteContent = settings.site_content || {};
@@ -720,7 +721,8 @@ document.getElementById('homepageSettingsForm')?.addEventListener('submit', asyn
   const socialMedia = {
     instagramUrl: document.getElementById('instagramUrl').value,
     twitterUrl: document.getElementById('twitterUrl').value,
-    linkedinUrl: document.getElementById('linkedinUrl').value,
+    tiktokUrl: document.getElementById('tiktokUrl').value,
+    snapchatUrl: document.getElementById('snapchatUrl').value,
     facebookUrl: document.getElementById('facebookUrl').value
   };
 

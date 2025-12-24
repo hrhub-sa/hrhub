@@ -464,10 +464,18 @@ function renderSocialMedia(social, footerSocial) {
     `);
   }
 
-  if (social.linkedinUrl) {
+  if (social.tiktokUrl) {
     socialLinks.push(`
-      <a href="${social.linkedinUrl}" target="_blank" rel="noopener noreferrer" class="social-link linkedin">
-        <i class="fab fa-linkedin-in"></i>
+      <a href="${social.tiktokUrl}" target="_blank" rel="noopener noreferrer" class="social-link tiktok">
+        <i class="fab fa-tiktok"></i>
+      </a>
+    `);
+  }
+
+  if (social.snapchatUrl) {
+    socialLinks.push(`
+      <a href="${social.snapchatUrl}" target="_blank" rel="noopener noreferrer" class="social-link snapchat">
+        <i class="fab fa-snapchat"></i>
       </a>
     `);
   }

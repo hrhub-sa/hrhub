@@ -659,8 +659,13 @@ body {
   background: #1DA1F2;
 }
 
-.social-link.linkedin {
-  background: #0077b5;
+.social-link.tiktok {
+  background: #000000;
+}
+
+.social-link.snapchat {
+  background: #FFFC00;
+  color: #000000;
 }
 
 .social-link.facebook {
