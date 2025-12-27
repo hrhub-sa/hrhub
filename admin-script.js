@@ -495,7 +495,8 @@ async function loadProductForEdit(productId) {
     document.getElementById('productDurationAr').value = data.duration_ar;
     document.getElementById('productDurationEn').value = data.duration_en;
     document.getElementById('productPriceBefore').value = data.price_before || '';
-    document.getElementById('productPrice').value = data.price;
+    document.getElementById('productPrice').value = data.price || '';
+    document.getElementById('productPriceOnRequest').checked = data.price_on_request || false;
     document.getElementById('productImageUrl').value = data.image_url || '';
     document.getElementById('productIcon').value = data.icon;
     document.getElementById('productOrder').value = data.display_order;
@@ -591,6 +592,7 @@ document.getElementById('productForm')?.addEventListener('submit', async (e) => 
     .map(input => input.value.trim())
     .filter(val => val);
 
+  const priceOnRequest = document.getElementById('productPriceOnRequest').checked;
   const productData = {
     hub_type: currentHub,
     name_ar: document.getElementById('productNameAr').value,
@@ -600,7 +602,8 @@ document.getElementById('productForm')?.addEventListener('submit', async (e) => 
     duration_ar: document.getElementById('productDurationAr').value,
     duration_en: document.getElementById('productDurationEn').value,
     price_before: parseFloat(document.getElementById('productPriceBefore').value) || null,
-    price: parseFloat(document.getElementById('productPrice').value),
+    price: priceOnRequest ? null : parseFloat(document.getElementById('productPrice').value),
+    price_on_request: priceOnRequest,
     image_url: document.getElementById('productImageUrl').value || '',
     icon: document.getElementById('productIcon').value,
     display_order: parseInt(document.getElementById('productOrder').value),

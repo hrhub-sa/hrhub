@@ -107,12 +107,18 @@ function renderProducts(products) {
     const description = product.description_ar || product.description || '';
     const duration = product.duration_ar || product.duration || '';
     const features = product.features_ar || product.features || [];
-    const priceHTML = product.price_before ?
-      `<div class="product-price">
+
+    let priceHTML;
+    if (product.price_on_request) {
+      priceHTML = `<div class="product-price" style="color: #4CAF50; font-weight: 600;">اتصل بنا للسعر</div>`;
+    } else if (product.price_before) {
+      priceHTML = `<div class="product-price">
         <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-left: 0.5rem;">${product.price_before} ريال</span>
         <span style="color: #ff6b35; font-weight: 700; font-size: 1.2em;">${product.price} ريال</span>
-      </div>` :
-      `<div class="product-price">${product.price} ريال</div>`;
+      </div>`;
+    } else {
+      priceHTML = `<div class="product-price">${product.price} ريال</div>`;
+    }
 
     return `
     <div class="product-card">

@@ -145,12 +145,18 @@ function renderProducts(products) {
     const description = product.description_en || product.description || '';
     const duration = product.duration_en || product.duration || '';
     const features = product.features_en || product.features || [];
-    const priceHTML = product.price_before ?
-      `<div class="product-price">
+
+    let priceHTML;
+    if (product.price_on_request) {
+      priceHTML = `<div class="product-price" style="color: #4CAF50; font-weight: 600;">Contact Us for Pricing</div>`;
+    } else if (product.price_before) {
+      priceHTML = `<div class="product-price">
         <span style="text-decoration: line-through; color: #999; font-size: 0.9em; margin-right: 0.5rem;">${product.price_before} SAR</span>
         <span style="color: #ff6b35; font-weight: 700; font-size: 1.2em;">${product.price} SAR</span>
-      </div>` :
-      `<div class="product-price">${product.price} SAR</div>`;
+      </div>`;
+    } else {
+      priceHTML = `<div class="product-price">${product.price} SAR</div>`;
+    }
 
     return `
     <div class="product-card">
