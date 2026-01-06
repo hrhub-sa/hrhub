@@ -158,6 +158,38 @@ body {
   margin-bottom: 2rem;
 }
 
+.service-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, var(--secondary-color), var(--accent-color));
+  color: var(--white);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.service-button {
+  font-weight: 600;
+}
+
+.service-action i {
+  font-size: 0.9rem;
+  transition: transform 0.3s ease;
+}
+
+.service-card:hover .service-action {
+  box-shadow: 0 10px 25px rgba(52, 152, 219, 0.4);
+  transform: scale(1.05);
+}
+
+.service-card:hover .service-action i {
+  transform: translateX(4px);
+}
+
 .service-features {
   list-style: none;
   text-align: right;

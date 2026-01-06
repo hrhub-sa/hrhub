@@ -62,6 +62,10 @@ function renderServices(cards) {
       </div>
       <h3 class="service-title">${service.titleAr}</h3>
       <p class="service-description">${service.descriptionAr}</p>
+      <div class="service-action">
+        <span class="service-button">الدخول للخدمة</span>
+        <i class="fas fa-arrow-left"></i>
+      </div>
     </a>
   `).join('');
 }
